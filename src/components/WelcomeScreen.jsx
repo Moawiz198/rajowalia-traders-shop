@@ -1,16 +1,8 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { UserContext } from '../context/UserContext';
+import React, { useEffect, useState } from 'react';
 
-export default function WelcomeScreen() {
-  const { registerOrLogin, loading } = useContext(UserContext);
+export default function WelcomeScreen({ onEnter }) {
   const [particles, setParticles] = useState([]);
   const [isExiting, setIsExiting] = useState(false);
-
-  // Form States
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [location, setLocation] = useState('');
 
   useEffect(() => {
     const list = [];
@@ -27,13 +19,10 @@ export default function WelcomeScreen() {
     setParticles(list);
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!name || !phone || !email || !location) return;
-
+  const handleEnterClick = () => {
     setIsExiting(true);
-    setTimeout(async () => {
-      await registerOrLogin({ name, phone, email, location });
+    setTimeout(() => {
+      onEnter?.();
     }, 850); // Wait for the transition exit animation to finish
   };
 
@@ -80,52 +69,11 @@ export default function WelcomeScreen() {
           <div className="s1-tag" style={{ margin: '5px 0 0 0' }}>Pakistan's Premium Store</div>
         </div>
 
-        {/* Dynamic Registration Form */}
-        <form onSubmit={handleSubmit} className="welcome-form">
-          <div className="welcome-form-group">
-            <input 
-              type="text" 
-              placeholder="Full Name" 
-              value={name} 
-              onChange={e => setName(e.target.value)} 
-              required 
-              disabled={isExiting}
-            />
-          </div>
-          <div className="welcome-form-group">
-            <input 
-              type="tel" 
-              placeholder="Phone Number (e.g. 03001234567)" 
-              value={phone} 
-              onChange={e => setPhone(e.target.value)} 
-              required 
-              disabled={isExiting}
-            />
-          </div>
-          <div className="welcome-form-group">
-            <input 
-              type="email" 
-              placeholder="Email Address" 
-              value={email} 
-              onChange={e => setEmail(e.target.value)} 
-              required 
-              disabled={isExiting}
-            />
-          </div>
-          <div className="welcome-form-group">
-            <input 
-              type="text" 
-              placeholder="Shipping City (e.g. Lahore)" 
-              value={location} 
-              onChange={e => setLocation(e.target.value)} 
-              required 
-              disabled={isExiting}
-            />
-          </div>
-          <button type="submit" className="welcome-submit-btn" disabled={isExiting || loading}>
-            {loading ? 'SYNCING DATABASE...' : 'SAVE & ENTER STORE'}
-          </button>
-        </form>
+        {/* Enter prompt */}
+        <div className="enter-prompt" style={{ marginTop: '1.5rem' }}>
+          <div className="enter-ring" onClick={handleEnterClick}>→</div>
+          <div className="enter-hint">Click to Enter</div>
+        </div>
       </div>
     </div>
   );

@@ -10,7 +10,7 @@ import CursorGlow from './components/CursorGlow';
 import WelcomeScreen from './components/WelcomeScreen';
 
 function AppContent() {
-  const { currentUser } = useContext(UserContext);
+  const [hasEntered, setHasEntered] = useState(false);
   
   // Admin authentication state
   const [isAdminAuth, setIsAdminAuth] = useState(localStorage.getItem('isAdmin') === 'true');
@@ -20,8 +20,8 @@ function AppContent() {
     setIsAdminAuth(true);
   };
 
-  if (!currentUser) {
-    return <WelcomeScreen />;
+  if (!hasEntered) {
+    return <WelcomeScreen onEnter={() => setHasEntered(true)} />;
   }
 
   return (

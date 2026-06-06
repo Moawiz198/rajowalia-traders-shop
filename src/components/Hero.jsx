@@ -4,7 +4,7 @@ import { UserContext } from '../context/UserContext';
 
 export default function Hero() {
   const { products } = useContext(ProductContext);
-  const { addToCart } = useContext(UserContext);
+  const { addToCart, requireAuth } = useContext(UserContext);
   const [currentProductIndex, setCurrentProductIndex] = useState(0);
 
   // Filter for products that are in stock so we only feature available items on the hero
@@ -30,16 +30,18 @@ export default function Hero() {
 
   const handleAddToCart = () => {
     if (currentProduct.id) {
-      addToCart(currentProduct);
-      
-      // Scale animation on the cart dot
-      const dot = document.getElementById('cart-dot');
-      if (dot) {
-        dot.style.transform = 'scale(1.5)';
-        setTimeout(() => {
-          dot.style.transform = '';
-        }, 300);
-      }
+      requireAuth(() => {
+        addToCart(currentProduct);
+        
+        // Scale animation on the cart dot
+        const dot = document.getElementById('cart-dot');
+        if (dot) {
+          dot.style.transform = 'scale(1.5)';
+          setTimeout(() => {
+            dot.style.transform = '';
+          }, 300);
+        }
+      });
     }
   };
 

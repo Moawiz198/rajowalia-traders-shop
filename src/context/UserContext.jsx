@@ -10,6 +10,10 @@ export const UserProvider = ({ children }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Deferred authentication states
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
+
   // Load user session on mount
   useEffect(() => {
     const savedUser = localStorage.getItem('luxeUser');
@@ -137,11 +141,17 @@ export const UserProvider = ({ children }) => {
         localStorage.setItem('luxeUser', JSON.stringify(user));
         setCurrentUser(user);
         await syncUserData(user.id);
+        
+        // Execute pending action if any
+        if (pendingAction) {
+          pendingAction();
+          setPendingAction(null);
+        }
+        setAuthModalOpen(false);
         return user;
       }
     } catch (err) {
-      console.error('Login/registration failed:', err.message);
-      // Fallback local session if Supabase fails
+      console.error('Login/registration failed, using fallback:', err.message);
       const fallbackUser = {
         id: Date.now(),
         name: profile.name,
@@ -151,6 +161,12 @@ export const UserProvider = ({ children }) => {
       };
       localStorage.setItem('luxeUser', JSON.stringify(fallbackUser));
       setCurrentUser(fallbackUser);
+      
+      if (pendingAction) {
+        pendingAction();
+        setPendingAction(null);
+      }
+      setAuthModalOpen(false);
       return fallbackUser;
     } finally {
       setLoading(false);
@@ -163,6 +179,15 @@ export const UserProvider = ({ children }) => {
     setCart([]);
     setWishlist([]);
     setOrders([]);
+  };
+
+  const requireAuth = (action) => {
+    if (currentUser) {
+      action();
+    } else {
+      setPendingAction(() => action);
+      setAuthModalOpen(true);
+    }
   };
 
   const addToCart = async (product) => {
@@ -180,7 +205,7 @@ export const UserProvider = ({ children }) => {
           .update({ quantity: newQty })
           .match({ customer_id: currentUser.id, product_id: product.id });
       } catch (err) {
-        console.error('Failed to update cart item quantity in DB:', err);
+        console.error('Failed to update DB cart quantity:', err);
       }
     } else {
       // Add new item
@@ -305,6 +330,9 @@ export const UserProvider = ({ children }) => {
       wishlist,
       orders,
       loading,
+      authModalOpen,
+      setAuthModalOpen,
+      requireAuth,
       registerOrLogin,
       logout,
       addToCart,

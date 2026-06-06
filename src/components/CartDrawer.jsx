@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { UserContext } from '../context/UserContext';
 
 export default function CartDrawer({ isOpen, onClose }) {
-  const { cart, updateCartQuantity, removeFromCart, checkoutCart } = useContext(UserContext);
+  const { cart, updateCartQuantity, removeFromCart, checkoutCart, currentUser, setAuthModalOpen } = useContext(UserContext);
   const [paymentMethod, setPaymentMethod] = useState('COD');
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -51,9 +51,21 @@ export default function CartDrawer({ isOpen, onClose }) {
           <>
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingRight: '5px' }}>
               {cart.length === 0 ? (
-                <div style={{ textAlign: 'center', color: '#64748b', marginTop: '4rem' }}>
-                  <span style={{ fontSize: '48px', display: 'block', marginBottom: '1rem' }}>🛒</span>
-                  Your cart is empty.
+                <div style={{ textAlign: 'center', color: '#64748b', marginTop: '4rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', alignItems: 'center' }}>
+                  <span style={{ fontSize: '48px', display: 'block' }}>🛒</span>
+                  <div>
+                    <div style={{ color: '#fff', fontWeight: 600, marginBottom: '6px' }}>Your cart is empty</div>
+                    {!currentUser && <div style={{ fontSize: '13px', color: '#64748b' }}>Sign in to sync your cart and place orders</div>}
+                  </div>
+                  {!currentUser && (
+                    <button 
+                      onClick={() => { onClose(); setAuthModalOpen(true); }} 
+                      className="hq-btn" 
+                      style={{ padding: '10px 20px', fontSize: '13px', width: 'auto' }}
+                    >
+                      Sign In Now
+                    </button>
+                  )}
                 </div>
               ) : (
                 cart.map((item) => (

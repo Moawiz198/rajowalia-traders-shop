@@ -4,10 +4,10 @@ import { UserContext } from '../context/UserContext';
 
 export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
   const navigate = useNavigate();
-  const { currentUser, cart, logout } = useContext(UserContext);
+  const { currentUser, cart, logout, setAuthModalOpen } = useContext(UserContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const cartCount = cart ? cart.reduce((sum, item) => sum + item.quantity, 0) : 0;
 
   return (
     <nav>
@@ -23,6 +23,12 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
         <li><a onClick={() => navigate('/category/Deals')} style={{cursor: 'pointer'}}>Deals</a></li>
       </ul>
       <div className="nav-actions">
+        {/* Cart Trigger */}
+        <div className="cart-icon" onClick={onOpenCart} style={{ cursor: 'pointer', userSelect: 'none', marginRight: '5px' }}>
+          🛒
+          <div className="cart-dot" id="cart-dot">{cartCount}</div>
+        </div>
+
         {currentUser ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             {/* User Dropdown */}
@@ -95,15 +101,9 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
                 </div>
               )}
             </div>
-
-            {/* Cart Trigger */}
-            <div className="cart-icon" onClick={onOpenCart} style={{ cursor: 'pointer', userSelect: 'none' }}>
-              🛒
-              <div className="cart-dot" id="cart-dot">{cartCount}</div>
-            </div>
           </div>
         ) : (
-          <button className="nav-btn" onClick={() => navigate('/admin')}>Sign In</button>
+          <button className="nav-btn" onClick={() => setAuthModalOpen(true)}>Sign In</button>
         )}
       </div>
     </nav>

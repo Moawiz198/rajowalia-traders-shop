@@ -24,9 +24,9 @@ export default function Footer() {
         <div className="footer-col">
           <h4>Help</h4>
           <ul>
-            <li><a href="https://wa.me/923046999198?text=Hi%2C%20I%20order%20from%20rajowalia%20traders%20and%20i%20want%20to%20return%20this%20order" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>Returns</a></li>
-            <li><a href="https://wa.me/923046999198?text=Hi%2C%20I%20have%20a%20question%20about%20Rajowalia%20Trader%27s" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>FAQs</a></li>
-            <li><a href="https://wa.me/923046999198?text=Hi%2C%20I%20need%20some%20help" target="_blank" rel="noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>Contact Us</a></li>
+            <li><a href="https://wa.me/923046999198?text=Hi%2C%20I%20order%20from%20rajowalia%20traders%20and%20i%20want%20to%20return%20this%20order" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>Returns</a></li>
+            <li><a href="https://wa.me/923046999198?text=Hi%2C%20I%20have%20a%20question%20about%20Rajowalia%20Trader%27s" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>FAQs</a></li>
+            <li><a href="https://wa.me/923046999198?text=Hi%2C%20I%20need%20some%20help" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>Contact Us</a></li>
           </ul>
         </div>
         <div className="footer-col">

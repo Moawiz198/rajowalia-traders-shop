@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { ProductContext } from '../context/ProductContext';
+import { UserContext } from '../context/UserContext';
 
-export default function Hero({ onAddToCart }) {
+export default function Hero() {
   const { products } = useContext(ProductContext);
+  const { addToCart } = useContext(UserContext);
   const [currentProductIndex, setCurrentProductIndex] = useState(0);
 
   // Filter for products that are in stock so we only feature available items on the hero
@@ -24,6 +26,21 @@ export default function Hero({ onAddToCart }) {
 
   const scrollToProducts = () => {
     document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleAddToCart = () => {
+    if (currentProduct.id) {
+      addToCart(currentProduct);
+      
+      // Scale animation on the cart dot
+      const dot = document.getElementById('cart-dot');
+      if (dot) {
+        dot.style.transform = 'scale(1.5)';
+        setTimeout(() => {
+          dot.style.transform = '';
+        }, 300);
+      }
+    }
   };
 
   return (
@@ -66,7 +83,7 @@ export default function Hero({ onAddToCart }) {
               <div className="phone-brand">{currentProduct.brand || 'Rajowalia'}</div>
               <div className="phone-name">{currentProduct.name || 'Amazing Product'}</div>
               <div className="phone-price">{currentProduct.price ? `PKR ${currentProduct.price.toLocaleString()}` : ''}</div>
-              <button className="phone-btn" onClick={onAddToCart}>Add to Cart</button>
+              <button className="phone-btn" onClick={handleAddToCart}>Add to Cart</button>
             </div>
           </div>
         </div>

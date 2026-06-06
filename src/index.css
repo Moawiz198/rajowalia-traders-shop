@@ -854,3 +854,103 @@ footer {
 .hq-input:focus {
   border-color: #ff4d1c;
 }
+
+/* Welcome Registration Form */
+.welcome-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+  margin-top: 15px;
+  animation: entPrompt 1s ease 2.6s both;
+}
+.welcome-form-group {
+  width: 100%;
+}
+.welcome-form-group input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.03);
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.25s;
+}
+.welcome-form-group input:focus {
+  border-color: #ff4d1c;
+  background: rgba(255,255,255,0.06);
+  box-shadow: 0 0 10px rgba(255,77,28,0.2);
+}
+.welcome-submit-btn {
+  background: linear-gradient(90deg, #ff6b00, #ff4d1c);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow: 0 8px 20px rgba(255,77,28,0.25);
+  transition: all 0.3s ease;
+}
+.welcome-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(255,77,28,0.45);
+}
+
+/* Cart Drawer Styles */
+.cart-drawer-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  display: flex; justify-content: flex-end;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.cart-drawer-overlay.open {
+  opacity: 1; pointer-events: auto;
+}
+.cart-drawer {
+  width: 100%; max-width: 420px;
+  background: #0f0f12; height: 100%;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  padding: 2rem;
+}
+.cart-drawer-overlay.open .cart-drawer {
+  transform: translateX(0);
+}
+
+/* Modals General Styles */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(5px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.modal-overlay.open {
+  opacity: 1; pointer-events: auto;
+}
+.modal-content {
+  width: 95%; max-width: 600px;
+  background: #141416; border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 2rem;
+  max-height: 85vh; overflow-y: auto;
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+  position: relative;
+}
+.modal-overlay.open .modal-content {
+  transform: scale(1);
+}

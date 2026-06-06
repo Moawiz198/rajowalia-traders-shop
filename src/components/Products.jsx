@@ -1,19 +1,33 @@
 import React, { useState, useContext } from 'react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { ProductContext } from '../context/ProductContext';
+import { UserContext } from '../context/UserContext';
 
-export default function Products({ onAddToCart, selectedCategory }) {
+export default function Products({ selectedCategory }) {
   useScrollReveal();
   const { products } = useContext(ProductContext);
+  const { wishlist, toggleWishlist, addToCart } = useContext(UserContext);
 
   // State to manage button text/style temporarily when clicked
   const [addingStates, setAddingStates] = useState({});
 
-  const handleAddToCart = (id) => {
-    setAddingStates((prev) => ({ ...prev, [id]: true }));
-    onAddToCart();
+  const isWishlisted = (id) => wishlist.some(item => item.productId === id);
+
+  const handleAddToCart = (product) => {
+    setAddingStates((prev) => ({ ...prev, [product.id]: true }));
+    addToCart(product);
+    
+    // Scale animation on the cart dot
+    const dot = document.getElementById('cart-dot');
+    if (dot) {
+      dot.style.transform = 'scale(1.5)';
+      setTimeout(() => {
+        dot.style.transform = '';
+      }, 300);
+    }
+
     setTimeout(() => {
-      setAddingStates((prev) => ({ ...prev, [id]: false }));
+      setAddingStates((prev) => ({ ...prev, [product.id]: false }));
     }, 1500);
   };
 
@@ -52,14 +66,20 @@ export default function Products({ onAddToCart, selectedCategory }) {
                 <div className="prod-discount-badge">-{product.discountPercentage}%</div>
               )}
               <div className="prod-actions">
-                <button className="prod-action-btn">♡</button>
+                <button 
+                  className="prod-action-btn"
+                  onClick={() => toggleWishlist(product)}
+                  style={{ color: isWishlisted(product.id) ? '#ff4d1c' : 'inherit', fontSize: '14px', fontWeight: 'bold' }}
+                >
+                  {isWishlisted(product.id) ? '♥' : '♡'}
+                </button>
                 <button 
                   className="prod-action-btn cart" 
                   style={{
                     ...(addingStates[product.id] ? { background: '#22c55e' } : {}),
-                    ...( !product.inStock ? { background: '#555', cursor: 'not-allowed', color: '#aaa' } : {})
+                    ...(!product.inStock ? { background: '#555', cursor: 'not-allowed', color: '#aaa' } : {})
                   }}
-                  onClick={() => product.inStock && handleAddToCart(product.id)}
+                  onClick={() => product.inStock && handleAddToCart(product)}
                   disabled={!product.inStock}
                 >
                   {!product.inStock 

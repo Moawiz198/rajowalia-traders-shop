@@ -15,10 +15,10 @@ export default function Footer() {
         <div className="footer-col">
           <h4>Shop</h4>
           <ul>
-            <li><a>Electronics</a></li>
-            <li><a>Gadgets</a></li>
-            <li><a>Fashion</a></li>
-            <li><a>Karyania</a></li>
+            <li><a onClick={() => navigate('/category/Electronics')} style={{cursor: 'pointer'}}>Electronics</a></li>
+            <li><a onClick={() => navigate('/category/Gadgets')} style={{cursor: 'pointer'}}>Gadgets</a></li>
+            <li><a onClick={() => navigate('/category/Suits')} style={{cursor: 'pointer'}}>Fashion</a></li>
+            <li><a onClick={() => navigate('/category/Karyania')} style={{cursor: 'pointer'}}>Karyania</a></li>
           </ul>
         </div>
         <div className="footer-col">

@@ -24,7 +24,7 @@ export default function Navbar({ cartCount }) {
           🛒
           <div className="cart-dot" id="cart-dot">{cartCount}</div>
         </div>
-        <button className="nav-btn">Sign In</button>
+        <button className="nav-btn" onClick={() => navigate('/admin')}>Sign In</button>
       </div>
     </nav>
   );

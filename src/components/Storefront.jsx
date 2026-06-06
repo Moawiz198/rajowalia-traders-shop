@@ -13,7 +13,7 @@ export default function Storefront({ cartCount, onAddToCart }) {
   return (
     <>
       <Navbar cartCount={cartCount} />
-      <Hero />
+      <Hero onAddToCart={onAddToCart} />
       <Ticker />
       <Categories />
       <PromoBanner />

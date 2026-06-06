@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { ProductContext } from '../context/ProductContext';
 
-export default function Hero() {
+export default function Hero({ onAddToCart }) {
   const { products } = useContext(ProductContext);
   const [currentProductIndex, setCurrentProductIndex] = useState(0);
 
@@ -66,7 +66,7 @@ export default function Hero() {
               <div className="phone-brand">{currentProduct.brand || 'Rajowalia'}</div>
               <div className="phone-name">{currentProduct.name || 'Amazing Product'}</div>
               <div className="phone-price">{currentProduct.price ? `PKR ${currentProduct.price.toLocaleString()}` : ''}</div>
-              <button className="phone-btn">Add to Cart</button>
+              <button className="phone-btn" onClick={onAddToCart}>Add to Cart</button>
             </div>
           </div>
         </div>

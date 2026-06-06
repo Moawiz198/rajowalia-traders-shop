@@ -1,12 +1,65 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProductContext } from '../context/ProductContext';
+import { supabase } from '../lib/supabase';
+
+// Mock/fallback datasets for Demo Mode
+const mockOrders = [
+  { id: '#LX-9402', customer: 'Zainab Ahmed', location: 'Lahore', sector: 'Electronics', item: 'iPhone 16', price: 399999, method: 'PREPAID', status_icon: '🚚', status_text: 'In Transit via TCS' },
+  { id: '#LX-9401', customer: 'Muhammad Ali', location: 'Karachi', sector: 'Karyana', item: 'Restock Bundle', price: 8450, method: 'COD', status_icon: '📦', status_text: 'Packing Phase' },
+  { id: '#LX-9400', customer: 'Hamza Khan', location: 'Islamabad', sector: 'Gadgets', item: 'Sony XM5', price: 52000, method: 'COD', status_icon: '⚠️', status_text: 'Pending Call Verification' },
+  { id: '#LX-9399', customer: 'Ayesha Umar', location: 'Multan', sector: 'Suits', item: 'Air Jordan', price: 18500, method: 'PREPAID', status_icon: '✅', status_text: 'Dispatched' },
+];
+
+const mockCustomers = [
+  { id: 1, name: 'Zainab Ahmed', email: 'zainab@example.com', phone: '+92 300 1234567', location: 'Lahore', total_orders: 12 },
+  { id: 2, name: 'Muhammad Ali', email: 'ali@example.com', phone: '+92 321 7654321', location: 'Karachi', total_orders: 8 },
+  { id: 3, name: 'Hamza Khan', email: 'hamza@example.com', phone: '+92 333 9876543', location: 'Islamabad', total_orders: 5 },
+];
+
+const mockCategories = [
+  { id: 1, name: 'Electronics', emoji: '📱' },
+  { id: 2, name: 'Gadgets', emoji: '⌚' },
+  { id: 3, name: 'Suits', emoji: '👔' },
+  { id: 4, name: 'Karyania', emoji: '🛒' },
+];
+
+const mockDiscounts = [
+  { id: 1, code: 'LUXE50', discount_percent: 50, active: true },
+  { id: 2, code: 'WELCOME10', discount_percent: 10, active: true },
+  { id: 3, code: 'WINTER15', discount_percent: 15, active: false },
+];
+
+const mockShipping = [
+  { id: 1, name: 'TCS Express', rate: 250, duration: '1-2 Days' },
+  { id: 2, name: 'Leopard Courier', rate: 200, duration: '2-3 Days' },
+  { id: 3, name: 'M&P Logistics', rate: 180, duration: '2-4 Days' },
+];
 
 export default function Admin() {
   const { products, addProduct, removeProduct, updateProduct } = useContext(ProductContext);
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [dbStatus, setDbStatus] = useState('Checking...');
+  const [isDemoMode, setIsDemoMode] = useState(true);
+
+  // Database States
+  const [orders, setOrders] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [discounts, setDiscounts] = useState([]);
+  const [shipping, setShipping] = useState([]);
+  const [settings, setSettings] = useState({
+    storeName: 'Rajowalia Traders',
+    phone: '+92 300 1234567',
+    email: 'hq@rajowalia.com',
+    currency: 'PKR',
+    maintenance: false,
+    promoEnabled: true,
+  });
+
+  // Product Inventory Form State
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     emoji: '', image: '', brand: '', name: '', price: '', oldPrice: '', 
@@ -14,6 +67,390 @@ export default function Admin() {
     category: 'Electronics'
   });
 
+  // Generic Form States for other modules
+  const [orderForm, setOrderForm] = useState({ customer: '', location: '', sector: 'Electronics', item: '', price: '', method: 'COD', status_icon: '📦', status_text: 'Pending Call' });
+  const [customerForm, setCustomerForm] = useState({ name: '', email: '', phone: '', location: '', totalOrders: '0' });
+  const [categoryForm, setCategoryForm] = useState({ name: '', emoji: '' });
+  const [discountForm, setDiscountForm] = useState({ code: '', discountPercent: '', active: true });
+  const [shippingForm, setShippingForm] = useState({ name: '', rate: '', duration: '' });
+
+  // Verify DB Connection on mount
+  useEffect(() => {
+    const checkConnection = async () => {
+      const url = import.meta.env.VITE_SUPABASE_URL;
+      if (!url || url.includes('YOUR_PROJECT_REF') || url.includes('placeholder')) {
+        setDbStatus('Demo Mode (Unconfigured)');
+        setIsDemoMode(true);
+        return;
+      }
+      try {
+        const { error } = await supabase.from('products').select('id').limit(1);
+        if (error) throw error;
+        setDbStatus('Connected');
+        setIsDemoMode(false);
+      } catch (err) {
+        console.warn('Supabase check failed, falling back to Demo Mode:', err.message);
+        setDbStatus('Demo Mode (Connection Error)');
+        setIsDemoMode(true);
+      }
+    };
+    checkConnection();
+  }, []);
+
+  // Fetch lists depending on active tab
+  useEffect(() => {
+    if (activeTab === 'dashboard' || activeTab === 'orders') fetchOrders();
+    if (activeTab === 'customers') fetchCustomers();
+    if (activeTab === 'categories') fetchCategories();
+    if (activeTab === 'discounts') fetchDiscounts();
+    if (activeTab === 'shipping') fetchShipping();
+    if (activeTab === 'settings') fetchSettings();
+  }, [activeTab, isDemoMode]);
+
+  // DB Fetching Functions
+  const fetchOrders = async () => {
+    if (isDemoMode) {
+      setOrders(mockOrders);
+      return;
+    }
+    try {
+      const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      setOrders(data || []);
+    } catch (err) {
+      console.error('Fetch orders failed:', err.message);
+      setOrders(mockOrders);
+    }
+  };
+
+  const fetchCustomers = async () => {
+    if (isDemoMode) {
+      setCustomers(mockCustomers);
+      return;
+    }
+    try {
+      const { data, error } = await supabase.from('customers').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      setCustomers(data || []);
+    } catch (err) {
+      console.error('Fetch customers failed:', err.message);
+      setCustomers(mockCustomers);
+    }
+  };
+
+  const fetchCategories = async () => {
+    if (isDemoMode) {
+      setCategories(mockCategories);
+      return;
+    }
+    try {
+      const { data, error } = await supabase.from('categories').select('*').order('name');
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (err) {
+      console.error('Fetch categories failed:', err.message);
+      setCategories(mockCategories);
+    }
+  };
+
+  const fetchDiscounts = async () => {
+    if (isDemoMode) {
+      setDiscounts(mockDiscounts);
+      return;
+    }
+    try {
+      const { data, error } = await supabase.from('discounts').select('*').order('code');
+      if (error) throw error;
+      setDiscounts(data || []);
+    } catch (err) {
+      console.error('Fetch discounts failed:', err.message);
+      setDiscounts(mockDiscounts);
+    }
+  };
+
+  const fetchShipping = async () => {
+    if (isDemoMode) {
+      setShipping(mockShipping);
+      return;
+    }
+    try {
+      const { data, error } = await supabase.from('shipping').select('*').order('name');
+      if (error) throw error;
+      setShipping(data || []);
+    } catch (err) {
+      console.error('Fetch shipping failed:', err.message);
+      setShipping(mockShipping);
+    }
+  };
+
+  const fetchSettings = async () => {
+    if (isDemoMode) {
+      const saved = localStorage.getItem('luxeSettings');
+      if (saved) setSettings(JSON.parse(saved));
+      return;
+    }
+    try {
+      const { data, error } = await supabase.from('settings').select('*');
+      if (error) throw error;
+      if (data && data.length > 0) {
+        const mapped = {};
+        data.forEach(item => {
+          let val = item.value;
+          if (val === 'true') val = true;
+          if (val === 'false') val = false;
+          mapped[item.key] = val;
+        });
+        setSettings(prev => ({ ...prev, ...mapped }));
+      }
+    } catch (err) {
+      console.error('Fetch settings failed:', err.message);
+    }
+  };
+
+  // Mutations
+  const handleAddOrder = async (e) => {
+    if (e) e.preventDefault();
+    const newOrder = {
+      id: `#LX-${Math.floor(1000 + Math.random() * 9000)}`,
+      customer: orderForm.customer || 'Guest Customer',
+      location: orderForm.location || 'Unknown',
+      sector: orderForm.sector,
+      item: orderForm.item || 'Generic Item',
+      price: Number(orderForm.price || 0),
+      method: orderForm.method,
+      status_icon: orderForm.status_icon,
+      status_text: orderForm.status_text
+    };
+
+    if (isDemoMode) {
+      setOrders(prev => [newOrder, ...prev]);
+      setOrderForm({ customer: '', location: '', sector: 'Electronics', item: '', price: '', method: 'COD', status_icon: '📦', status_text: 'Pending Call' });
+      return;
+    }
+    try {
+      const { error } = await supabase.from('orders').insert([newOrder]);
+      if (error) throw error;
+      setOrders(prev => [newOrder, ...prev]);
+      setOrderForm({ customer: '', location: '', sector: 'Electronics', item: '', price: '', method: 'COD', status_icon: '📦', status_text: 'Pending Call' });
+    } catch (err) {
+      alert('Failed to insert order: ' + err.message);
+    }
+  };
+
+  const handleUpdateOrderStatus = async (id, statusText, statusIcon) => {
+    if (isDemoMode) {
+      setOrders(prev => prev.map(o => o.id === id ? { ...o, status_text: statusText, status_icon: statusIcon } : o));
+      return;
+    }
+    try {
+      const { error } = await supabase.from('orders').update({ status_text: statusText, status_icon: statusIcon }).eq('id', id);
+      if (error) throw error;
+      setOrders(prev => prev.map(o => o.id === id ? { ...o, status_text: statusText, status_icon: statusIcon } : o));
+    } catch (err) {
+      alert('Failed to update order: ' + err.message);
+    }
+  };
+
+  const handleDeleteOrder = async (id) => {
+    if (isDemoMode) {
+      setOrders(prev => prev.filter(o => o.id !== id));
+      return;
+    }
+    try {
+      const { error } = await supabase.from('orders').delete().eq('id', id);
+      if (error) throw error;
+      setOrders(prev => prev.filter(o => o.id !== id));
+    } catch (err) {
+      alert('Failed to delete order: ' + err.message);
+    }
+  };
+
+  const handleAddCustomer = async (e) => {
+    e.preventDefault();
+    const newCust = {
+      name: customerForm.name,
+      email: customerForm.email,
+      phone: customerForm.phone,
+      location: customerForm.location,
+      total_orders: Number(customerForm.totalOrders || 0)
+    };
+
+    if (isDemoMode) {
+      setCustomers(prev => [...prev, { ...newCust, id: Date.now() }]);
+      setCustomerForm({ name: '', email: '', phone: '', location: '', totalOrders: '0' });
+      return;
+    }
+    try {
+      const { data, error } = await supabase.from('customers').insert([newCust]).select();
+      if (error) throw error;
+      if (data && data[0]) setCustomers(prev => [...prev, data[0]]);
+      setCustomerForm({ name: '', email: '', phone: '', location: '', totalOrders: '0' });
+    } catch (err) {
+      alert('Failed to add customer: ' + err.message);
+    }
+  };
+
+  const handleDeleteCustomer = async (id) => {
+    if (isDemoMode) {
+      setCustomers(prev => prev.filter(c => c.id !== id));
+      return;
+    }
+    try {
+      const { error } = await supabase.from('customers').delete().eq('id', id);
+      if (error) throw error;
+      setCustomers(prev => prev.filter(c => c.id !== id));
+    } catch (err) {
+      alert('Failed to delete customer: ' + err.message);
+    }
+  };
+
+  const handleAddCategory = async (e) => {
+    e.preventDefault();
+    const newCat = {
+      name: categoryForm.name,
+      emoji: categoryForm.emoji || '📁'
+    };
+
+    if (isDemoMode) {
+      setCategories(prev => [...prev, { ...newCat, id: Date.now() }]);
+      setCategoryForm({ name: '', emoji: '' });
+      return;
+    }
+    try {
+      const { data, error } = await supabase.from('categories').insert([newCat]).select();
+      if (error) throw error;
+      if (data && data[0]) setCategories(prev => [...prev, data[0]]);
+      setCategoryForm({ name: '', emoji: '' });
+    } catch (err) {
+      alert('Failed to add category: ' + err.message);
+    }
+  };
+
+  const handleDeleteCategory = async (id) => {
+    if (isDemoMode) {
+      setCategories(prev => prev.filter(c => c.id !== id));
+      return;
+    }
+    try {
+      const { error } = await supabase.from('categories').delete().eq('id', id);
+      if (error) throw error;
+      setCategories(prev => prev.filter(c => c.id !== id));
+    } catch (err) {
+      alert('Failed to delete category: ' + err.message);
+    }
+  };
+
+  const handleAddDiscount = async (e) => {
+    e.preventDefault();
+    const newDisc = {
+      code: discountForm.code.toUpperCase(),
+      discount_percent: Number(discountForm.discountPercent),
+      active: discountForm.active
+    };
+
+    if (isDemoMode) {
+      setDiscounts(prev => [...prev, { ...newDisc, id: Date.now() }]);
+      setDiscountForm({ code: '', discountPercent: '', active: true });
+      return;
+    }
+    try {
+      const { data, error } = await supabase.from('discounts').insert([newDisc]).select();
+      if (error) throw error;
+      if (data && data[0]) setDiscounts(prev => [...prev, data[0]]);
+      setDiscountForm({ code: '', discountPercent: '', active: true });
+    } catch (err) {
+      alert('Failed to add discount code: ' + err.message);
+    }
+  };
+
+  const handleToggleDiscount = async (id, currentStatus) => {
+    const nextStatus = !currentStatus;
+    if (isDemoMode) {
+      setDiscounts(prev => prev.map(d => d.id === id ? { ...d, active: nextStatus } : d));
+      return;
+    }
+    try {
+      const { error } = await supabase.from('discounts').update({ active: nextStatus }).eq('id', id);
+      if (error) throw error;
+      setDiscounts(prev => prev.map(d => d.id === id ? { ...d, active: nextStatus } : d));
+    } catch (err) {
+      alert('Failed to update discount: ' + err.message);
+    }
+  };
+
+  const handleDeleteDiscount = async (id) => {
+    if (isDemoMode) {
+      setDiscounts(prev => prev.filter(d => d.id !== id));
+      return;
+    }
+    try {
+      const { error } = await supabase.from('discounts').delete().eq('id', id);
+      if (error) throw error;
+      setDiscounts(prev => prev.filter(d => d.id !== id));
+    } catch (err) {
+      alert('Failed to delete discount: ' + err.message);
+    }
+  };
+
+  const handleAddShipping = async (e) => {
+    e.preventDefault();
+    const newShip = {
+      name: shippingForm.name,
+      rate: Number(shippingForm.rate),
+      duration: shippingForm.duration
+    };
+
+    if (isDemoMode) {
+      setShipping(prev => [...prev, { ...newShip, id: Date.now() }]);
+      setShippingForm({ name: '', rate: '', duration: '' });
+      return;
+    }
+    try {
+      const { data, error } = await supabase.from('shipping').insert([newShip]).select();
+      if (error) throw error;
+      if (data && data[0]) setShipping(prev => [...prev, data[0]]);
+      setShippingForm({ name: '', rate: '', duration: '' });
+    } catch (err) {
+      alert('Failed to add courier: ' + err.message);
+    }
+  };
+
+  const handleDeleteShipping = async (id) => {
+    if (isDemoMode) {
+      setShipping(prev => prev.filter(s => s.id !== id));
+      return;
+    }
+    try {
+      const { error } = await supabase.from('shipping').delete().eq('id', id);
+      if (error) throw error;
+      setShipping(prev => prev.filter(s => s.id !== id));
+    } catch (err) {
+      alert('Failed to delete courier: ' + err.message);
+    }
+  };
+
+  const handleSaveSettings = async (e) => {
+    e.preventDefault();
+    if (isDemoMode) {
+      localStorage.setItem('luxeSettings', JSON.stringify(settings));
+      alert('Settings saved locally (Demo mode).');
+      return;
+    }
+    try {
+      for (const [key, value] of Object.entries(settings)) {
+        const { error } = await supabase
+          .from('settings')
+          .upsert({ key, value: String(value) }, { onConflict: 'key' });
+        if (error) throw error;
+      }
+      localStorage.setItem('luxeSettings', JSON.stringify(settings));
+      alert('Settings successfully saved to Supabase!');
+    } catch (err) {
+      alert('Failed to save settings: ' + err.message);
+    }
+  };
+
+  // Inventory logic (original code updated)
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -35,7 +472,7 @@ export default function Admin() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.price || !formData.emoji) return;
+    if (!formData.name || !formData.price) return;
 
     const productData = {
       ...formData,
@@ -80,12 +517,29 @@ export default function Admin() {
     });
   };
 
-  const hqOrders = [
-    { id: '#LX-9402', customer: 'Zainab Ahmed', loc: 'Lahore', sector: 'Electronics', item: 'iPhone 16', price: '399,999', method: 'PREPAID', statusIcon: '🚚', statusText: 'In Transit via TCS' },
-    { id: '#LX-9401', customer: 'Muhammad Ali', loc: 'Karachi', sector: 'Karyana', item: 'Restock Bundle', price: '8,450', method: 'COD', statusIcon: '📦', statusText: 'Packing Phase' },
-    { id: '#LX-9400', customer: 'Hamza Khan', loc: 'Islamabad', sector: 'Gadgets', item: 'Sony XM5', price: '52,000', method: 'COD', statusIcon: '⚠️', statusText: 'Pending Call Verification' },
-    { id: '#LX-9399', customer: 'Ayesha Umar', loc: 'Multan', sector: 'Suits', item: 'Air Jordan', price: '18,500', method: 'PREPAID', statusIcon: '✅', statusText: 'Dispatched' },
-  ];
+  const placeRandomTestOrder = () => {
+    const testNames = ['Aslam Khan', 'Sana Malik', 'Bilal Shah', 'Faisal Riaz', 'Khadija Bibi'];
+    const testLocs = ['Karachi', 'Faisalabad', 'Peshawar', 'Rawalpindi', 'Quetta'];
+    const testSectors = ['Electronics', 'Gadgets', 'Suits', 'Karyana'];
+    const testItems = ['Samsung S24 Ultra', 'Sony Headphones', 'Unstitched Linen Suit', 'Grocery Bulk Restock'];
+    
+    const randomOrder = {
+      customer: testNames[Math.floor(Math.random() * testNames.length)],
+      location: testLocs[Math.floor(Math.random() * testLocs.length)],
+      sector: testSectors[Math.floor(Math.random() * testSectors.length)],
+      item: testItems[Math.floor(Math.random() * testItems.length)],
+      price: Math.floor(2500 + Math.random() * 250000),
+      method: Math.random() > 0.5 ? 'PREPAID' : 'COD',
+      status_icon: '📦',
+      status_text: 'Order Placed'
+    };
+
+    setOrderForm(randomOrder);
+    setTimeout(() => {
+      const fakeEvent = { preventDefault: () => {} };
+      handleAddOrder(fakeEvent);
+    }, 100);
+  };
 
   return (
     <div className="hq-layout">
@@ -136,53 +590,105 @@ export default function Admin() {
 
       {/* MAIN CONTENT */}
       <div className="hq-main">
+        {/* HEADER CONTROLS */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem' }}>
+          <div>
+            <h1 style={{ fontFamily: 'Bebas Neue', fontSize: '36px', letterSpacing: '1px', textTransform: 'uppercase' }}>{activeTab} Console</h1>
+            <p style={{ color: '#64748b', fontSize: '13px' }}>Manage storefront system properties and inventory parameters</p>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.03)', padding: '8px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: dbStatus === 'Connected' ? '#22c55e' : '#eab308', display: 'inline-block' }}></span>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8' }}>Database: <span style={{ color: dbStatus === 'Connected' ? '#4ade80' : '#facc15' }}>{dbStatus}</span></span>
+          </div>
+        </div>
+
+        {/* 1. DASHBOARD VIEW */}
         {activeTab === 'dashboard' && (
-          <div className="hq-card">
-            <div className="hq-card-header">
-              <h2 className="hq-card-title">LIVE ORDER STREAMS</h2>
-              <button className="hq-btn">Process Batches</button>
+          <div>
+            {/* Metric Blocks */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+              <div className="hq-card" style={{ marginBottom: 0, padding: '1.5rem' }}>
+                <div style={{ color: '#64748b', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Total Products</div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '5px', color: '#ff4d1c' }}>{products.length}</div>
+              </div>
+              <div className="hq-card" style={{ marginBottom: 0, padding: '1.5rem' }}>
+                <div style={{ color: '#64748b', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Active Orders</div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '5px', color: '#ff4d1c' }}>{orders.length}</div>
+              </div>
+              <div className="hq-card" style={{ marginBottom: 0, padding: '1.5rem' }}>
+                <div style={{ color: '#64748b', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Customer Base</div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '5px', color: '#ff4d1c' }}>{customers.length}</div>
+              </div>
+              <div className="hq-card" style={{ marginBottom: 0, padding: '1.5rem' }}>
+                <div style={{ color: '#64748b', fontSize: '11px', textTransform: 'uppercase', fontWeight: 600, letterSpacing: '0.5px' }}>Est. Revenue</div>
+                <div style={{ fontSize: '28px', fontWeight: 'bold', marginTop: '5px', color: '#4ade80' }}>
+                  {orders.reduce((sum, o) => {
+                    const val = typeof o.price === 'number' ? o.price : Number(String(o.price || 0).replace(/[^0-9.-]+/g,""));
+                    return sum + (isNaN(val) ? 0 : val);
+                  }, 0).toLocaleString()} PKR
+                </div>
+              </div>
             </div>
-            
-            <table className="hq-table">
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>Customer Details</th>
-                  <th>Sector Category</th>
-                  <th>Price Bracket</th>
-                  <th>Method</th>
-                  <th>Fulfillment Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {hqOrders.map((o, i) => (
-                  <tr key={i}>
-                    <td style={{ color: '#ff4d1c', fontWeight: 'bold' }}>{o.id}</td>
-                    <td>
-                      <div style={{ fontWeight: 600, color: '#fff' }}>{o.customer}</div>
-                      <div style={{ color: '#64748b', fontSize: '12px' }}>({o.loc})</div>
-                    </td>
-                    <td>
-                      <div style={{ color: '#fff' }}>{o.sector}</div>
-                      <div style={{ color: '#94a3b8', fontSize: '12px' }}>({o.item})</div>
-                    </td>
-                    <td>PKR {o.price}</td>
-                    <td>
-                      <span className={`hq-badge ${o.method.toLowerCase()}`}>{o.method}</span>
-                    </td>
-                    <td>
-                      <div className="hq-status">
-                        <span>{o.statusIcon}</span>
-                        <span>{o.statusText}</span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+            <div className="hq-card">
+              <div className="hq-card-header">
+                <h2 className="hq-card-title">LIVE ORDER STREAM</h2>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button onClick={placeRandomTestOrder} className="hq-btn" style={{ background: '#334155' }}>Create Test Order</button>
+                  <button onClick={fetchOrders} className="hq-btn">Refresh</button>
+                </div>
+              </div>
+              
+              <div style={{ overflowX: 'auto' }}>
+                <table className="hq-table">
+                  <thead>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Customer Details</th>
+                      <th>Sector Category</th>
+                      <th>Price Bracket</th>
+                      <th>Method</th>
+                      <th>Fulfillment Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>No orders found</td>
+                      </tr>
+                    ) : (
+                      orders.map((o, i) => (
+                        <tr key={i}>
+                          <td style={{ color: '#ff4d1c', fontWeight: 'bold' }}>{o.id}</td>
+                          <td>
+                            <div style={{ fontWeight: 600, color: '#fff' }}>{o.customer}</div>
+                            <div style={{ color: '#64748b', fontSize: '12px' }}>({o.location})</div>
+                          </td>
+                          <td>
+                            <div style={{ color: '#fff' }}>{o.sector}</div>
+                            <div style={{ color: '#94a3b8', fontSize: '12px' }}>({o.item})</div>
+                          </td>
+                          <td>PKR {Number(o.price || 0).toLocaleString()}</td>
+                          <td>
+                            <span className={`hq-badge ${String(o.method).toLowerCase()}`}>{o.method}</span>
+                          </td>
+                          <td>
+                            <div className="hq-status">
+                              <span>{o.status_icon || '📦'}</span>
+                              <span>{o.status_text}</span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         )}
 
+        {/* 2. INVENTORY VIEW */}
         {activeTab === 'inventory' && (
           <div>
             <div className="hq-card">
@@ -211,7 +717,7 @@ export default function Admin() {
                     )}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: 1 }}>
                       <input type="file" accept="image/*" onChange={handleImageChange} className="hq-input" style={{ padding: '5px' }} />
-                      <input type="text" name="emoji" value={formData.emoji} onChange={handleChange} placeholder="Or enter an emoji (e.g. 📱)" className="hq-input" />
+                      <input type="text" name="emoji" value={formData.emoji} onChange={handleChange} placeholder="Or enter emoji (e.g. 📱)" className="hq-input" />
                     </div>
                   </div>
                 </div>
@@ -291,13 +797,401 @@ export default function Admin() {
           </div>
         )}
 
-        {['orders', 'customers', 'categories', 'discounts', 'shipping', 'settings'].includes(activeTab) && (
-          <div className="hq-card" style={{ textAlign: 'center', padding: '6rem 2rem' }}>
-            <h2 className="hq-card-title" style={{ color: '#64748b', marginBottom: '1rem' }}>MODULE UNDER CONSTRUCTION 🚧</h2>
-            <p style={{ color: '#94a3b8', fontSize: '16px' }}>This section is currently locked. It will become fully functional once the Supabase Database is successfully connected!</p>
+        {/* 3. ORDERS VIEW */}
+        {activeTab === 'orders' && (
+          <div>
+            <div className="hq-card">
+              <div className="hq-card-header">
+                <h2 className="hq-card-title">MANUAL ORDER INVOICING</h2>
+              </div>
+              <form onSubmit={handleAddOrder} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Customer Name</label>
+                  <input type="text" value={orderForm.customer} onChange={e => setOrderForm({...orderForm, customer: e.target.value})} placeholder="e.g. Zainab Ahmed" className="hq-input" required />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Customer Location</label>
+                  <input type="text" value={orderForm.location} onChange={e => setOrderForm({...orderForm, location: e.target.value})} placeholder="e.g. Lahore" className="hq-input" required />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Sector Category</label>
+                  <select value={orderForm.sector} onChange={e => setOrderForm({...orderForm, sector: e.target.value})} className="hq-input">
+                    <option value="Electronics">Electronics</option>
+                    <option value="Gadgets">Gadgets</option>
+                    <option value="Suits">Suits</option>
+                    <option value="Karyana">Karyana</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Item Description</label>
+                  <input type="text" value={orderForm.item} onChange={e => setOrderForm({...orderForm, item: e.target.value})} placeholder="e.g. iPhone 16" className="hq-input" required />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Amount (PKR)</label>
+                  <input type="number" value={orderForm.price} onChange={e => setOrderForm({...orderForm, price: e.target.value})} placeholder="e.g. 399999" className="hq-input" required />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Payment Method</label>
+                  <select value={orderForm.method} onChange={e => setOrderForm({...orderForm, method: e.target.value})} className="hq-input">
+                    <option value="COD">Cash on Delivery (COD)</option>
+                    <option value="PREPAID">Prepaid Card/Bank</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Fulfillment Status Description</label>
+                  <input type="text" value={orderForm.status_text} onChange={e => setOrderForm({...orderForm, status_text: e.target.value})} placeholder="e.g. In Transit via TCS" className="hq-input" required />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Status Icon (Emoji)</label>
+                  <input type="text" value={orderForm.status_icon} onChange={e => setOrderForm({...orderForm, status_icon: e.target.value})} placeholder="e.g. 🚚, 📦, ✅" className="hq-input" required />
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <button type="submit" className="hq-btn">Generate Invoice / Order</button>
+                </div>
+              </form>
+            </div>
+
+            <div className="hq-card">
+              <div className="hq-card-header">
+                <h2 className="hq-card-title">INVOICES & COMPLETED TRANSFERS</h2>
+              </div>
+              <div style={{ overflowX: 'auto' }}>
+                <table className="hq-table">
+                  <thead>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Customer Details</th>
+                      <th>Sector & Item</th>
+                      <th>Amount</th>
+                      <th>Method</th>
+                      <th>Fulfillment</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.map((o, idx) => (
+                      <tr key={idx}>
+                        <td style={{ color: '#ff4d1c', fontWeight: 'bold' }}>{o.id}</td>
+                        <td>
+                          <div style={{ color: '#fff', fontWeight: 600 }}>{o.customer}</div>
+                          <div style={{ color: '#64748b', fontSize: '12px' }}>{o.location}</div>
+                        </td>
+                        <td>
+                          <div style={{ color: '#fff' }}>{o.sector}</div>
+                          <div style={{ color: '#94a3b8', fontSize: '12px' }}>{o.item}</div>
+                        </td>
+                        <td>PKR {Number(o.price || 0).toLocaleString()}</td>
+                        <td>
+                          <span className={`hq-badge ${String(o.method).toLowerCase()}`}>{o.method}</span>
+                        </td>
+                        <td>
+                          <div className="hq-status">
+                            <span>{o.status_icon || '📦'}</span>
+                            <span>{o.status_text}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '5px' }}>
+                            <button onClick={() => handleUpdateOrderStatus(o.id, 'Dispatched via TCS', '🚚')} className="hq-btn" style={{ padding: '5px 8px', fontSize: '10px', background: '#334155' }}>Dispatch</button>
+                            <button onClick={() => handleUpdateOrderStatus(o.id, 'Completed & Signed', '✅')} className="hq-btn" style={{ padding: '5px 8px', fontSize: '10px', background: '#22c55e' }}>Complete</button>
+                            <button onClick={() => handleDeleteOrder(o.id)} className="hq-btn" style={{ padding: '5px 8px', fontSize: '10px', background: '#ef4444' }}>Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         )}
 
+        {/* 4. CUSTOMERS VIEW */}
+        {activeTab === 'customers' && (
+          <div>
+            <div className="hq-card">
+              <div className="hq-card-header">
+                <h2 className="hq-card-title">CREATE CUSTOMER ACCOUNT</h2>
+              </div>
+              <form onSubmit={handleAddCustomer} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Full Name</label>
+                  <input type="text" value={customerForm.name} onChange={e => setCustomerForm({...customerForm, name: e.target.value})} placeholder="e.g. Zainab Ahmed" className="hq-input" required />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Email Address</label>
+                  <input type="email" value={customerForm.email} onChange={e => setCustomerForm({...customerForm, email: e.target.value})} placeholder="e.g. name@example.com" className="hq-input" style={{ width: '100%', padding: '10px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', color: '#fff', outline: 'none' }} required />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Contact Phone</label>
+                  <input type="text" value={customerForm.phone} onChange={e => setCustomerForm({...customerForm, phone: e.target.value})} placeholder="e.g. +92 300 1234567" className="hq-input" required />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>City/Location</label>
+                  <input type="text" value={customerForm.location} onChange={e => setCustomerForm({...customerForm, location: e.target.value})} placeholder="e.g. Lahore" className="hq-input" required />
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <button type="submit" className="hq-btn">Add Customer Profile</button>
+                </div>
+              </form>
+            </div>
+
+            <div className="hq-card">
+              <div className="hq-card-header">
+                <h2 className="hq-card-title">CUSTOMER DIRECTORY</h2>
+              </div>
+              <div style={{ overflowX: 'auto' }}>
+                <table className="hq-table">
+                  <thead>
+                    <tr>
+                      <th>Customer Name</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Location</th>
+                      <th>Purchase Count</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customers.map((c, idx) => (
+                      <tr key={idx}>
+                        <td style={{ color: '#fff', fontWeight: 600 }}>{c.name}</td>
+                        <td style={{ color: '#94a3b8' }}>{c.email}</td>
+                        <td style={{ color: '#94a3b8' }}>{c.phone}</td>
+                        <td style={{ color: '#fff' }}>{c.location}</td>
+                        <td style={{ color: '#ff4d1c', fontWeight: 'bold' }}>{c.total_orders || 0} orders</td>
+                        <td>
+                          <button onClick={() => handleDeleteCustomer(c.id)} className="hq-btn" style={{ padding: '5px 10px', fontSize: '11px', background: '#ef4444' }}>Remove</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 5. CATEGORY MAPPINGS */}
+        {activeTab === 'categories' && (
+          <div>
+            <div className="hq-card">
+              <div className="hq-card-header">
+                <h2 className="hq-card-title">ADD NEW SECTOR CATEGORY</h2>
+              </div>
+              <form onSubmit={handleAddCategory} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Category Name</label>
+                  <input type="text" value={categoryForm.name} onChange={e => setCategoryForm({...categoryForm, name: e.target.value})} placeholder="e.g. Electronics" className="hq-input" required />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Emoji Indicator</label>
+                  <input type="text" value={categoryForm.emoji} onChange={e => setCategoryForm({...categoryForm, emoji: e.target.value})} placeholder="e.g. 📱" className="hq-input" required />
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <button type="submit" className="hq-btn">Save Category Mapping</button>
+                </div>
+              </form>
+            </div>
+
+            <div className="hq-card">
+              <div className="hq-card-header">
+                <h2 className="hq-card-title">MAPPED STORE SECTORS</h2>
+              </div>
+              <div style={{ overflowX: 'auto' }}>
+                <table className="hq-table">
+                  <thead>
+                    <tr>
+                      <th>Emoji</th>
+                      <th>Category Name</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {categories.map((cat, idx) => (
+                      <tr key={idx}>
+                        <td style={{ fontSize: '24px' }}>{cat.emoji}</td>
+                        <td style={{ color: '#fff', fontWeight: 600 }}>{cat.name}</td>
+                        <td>
+                          <button onClick={() => handleDeleteCategory(cat.id)} className="hq-btn" style={{ padding: '5px 10px', fontSize: '11px', background: '#ef4444' }}>Delete</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 6. DISCOUNT CODES */}
+        {activeTab === 'discounts' && (
+          <div>
+            <div className="hq-card">
+              <div className="hq-card-header">
+                <h2 className="hq-card-title">CREATE DISCOUNT CODE</h2>
+              </div>
+              <form onSubmit={handleAddDiscount} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Coupon Code</label>
+                  <input type="text" value={discountForm.code} onChange={e => setDiscountForm({...discountForm, code: e.target.value})} placeholder="e.g. LUXE20" className="hq-input" required />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Discount Percentage (%)</label>
+                  <input type="number" value={discountForm.discountPercent} onChange={e => setDiscountForm({...discountForm, discountPercent: e.target.value})} placeholder="e.g. 20" className="hq-input" required />
+                </div>
+                <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <input type="checkbox" id="disc-active" checked={discountForm.active} onChange={e => setDiscountForm({...discountForm, active: e.target.checked})} style={{ width: '18px', height: '18px', accentColor: '#ff4d1c' }} />
+                  <label htmlFor="disc-active" style={{ fontSize: '13px', color: '#94a3b8', cursor: 'pointer' }}>Set Code as Active Immediately</label>
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <button type="submit" className="hq-btn">Generate Coupon Code</button>
+                </div>
+              </form>
+            </div>
+
+            <div className="hq-card">
+              <div className="hq-card-header">
+                <h2 className="hq-card-title">ACTIVE PROMO CODES</h2>
+              </div>
+              <div style={{ overflowX: 'auto' }}>
+                <table className="hq-table">
+                  <thead>
+                    <tr>
+                      <th>Coupon Code</th>
+                      <th>Discount Percent</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {discounts.map((disc, idx) => (
+                      <tr key={idx}>
+                        <td style={{ color: '#ff4d1c', fontWeight: 'bold', letterSpacing: '1px' }}>{disc.code}</td>
+                        <td style={{ color: '#fff' }}>{disc.discount_percent}% OFF</td>
+                        <td>
+                          <span className="hq-badge" style={{ background: disc.active ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.05)', color: disc.active ? '#4ade80' : '#64748b' }}>
+                            {disc.active ? 'Active' : 'Disabled'}
+                          </span>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '10px' }}>
+                            <button onClick={() => handleToggleDiscount(disc.id, disc.active)} className="hq-btn" style={{ padding: '5px 10px', fontSize: '11px', background: '#334155' }}>
+                              {disc.active ? 'Disable' : 'Enable'}
+                            </button>
+                            <button onClick={() => handleDeleteDiscount(disc.id)} className="hq-btn" style={{ padding: '5px 10px', fontSize: '11px', background: '#ef4444' }}>Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 7. SHIPPING COURIERS */}
+        {activeTab === 'shipping' && (
+          <div>
+            <div className="hq-card">
+              <div className="hq-card-header">
+                <h2 className="hq-card-title">ADD SHIPPING COURIER</h2>
+              </div>
+              <form onSubmit={handleAddShipping} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Courier Service Name</label>
+                  <input type="text" value={shippingForm.name} onChange={e => setShippingForm({...shippingForm, name: e.target.value})} placeholder="e.g. TCS Express" className="hq-input" required />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Shipping Rate (PKR)</label>
+                  <input type="number" value={shippingForm.rate} onChange={e => setShippingForm({...shippingForm, rate: e.target.value})} placeholder="e.g. 250" className="hq-input" required />
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Estimated Transit Duration</label>
+                  <input type="text" value={shippingForm.duration} onChange={e => setShippingForm({...shippingForm, duration: e.target.value})} placeholder="e.g. 1-2 Days" className="hq-input" required />
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <button type="submit" className="hq-btn">Register Courier Service</button>
+                </div>
+              </form>
+            </div>
+
+            <div className="hq-card">
+              <div className="hq-card-header">
+                <h2 className="hq-card-title">SHIPPING PARTNERS</h2>
+              </div>
+              <div style={{ overflowX: 'auto' }}>
+                <table className="hq-table">
+                  <thead>
+                    <tr>
+                      <th>Partner Name</th>
+                      <th>Rate Bracket</th>
+                      <th>Transit Time</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {shipping.map((s, idx) => (
+                      <tr key={idx}>
+                        <td style={{ color: '#fff', fontWeight: 600 }}>{s.name}</td>
+                        <td style={{ color: '#4ade80', fontWeight: 'bold' }}>PKR {Number(s.rate).toLocaleString()}</td>
+                        <td style={{ color: '#94a3b8' }}>{s.duration}</td>
+                        <td>
+                          <button onClick={() => handleDeleteShipping(s.id)} className="hq-btn" style={{ padding: '5px 10px', fontSize: '11px', background: '#ef4444' }}>Delete</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 8. SYSTEM CONFIGURATION */}
+        {activeTab === 'settings' && (
+          <div>
+            <div className="hq-card">
+              <div className="hq-card-header">
+                <h2 className="hq-card-title">HQ CORE SYSTEM CONSTANTS</h2>
+              </div>
+              <form onSubmit={handleSaveSettings} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Storefront Name</label>
+                  <input type="text" value={settings.storeName} onChange={e => setSettings({...settings, storeName: e.target.value})} className="hq-input" required />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Contact Support Phone</label>
+                  <input type="text" value={settings.phone} onChange={e => setSettings({...settings, phone: e.target.value})} className="hq-input" required />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Support Notification Email</label>
+                  <input type="email" value={settings.email} onChange={e => setSettings({...settings, email: e.target.value})} className="hq-input" style={{ width: '100%', padding: '10px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', color: '#fff', outline: 'none' }} required />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Base Currency Symbol</label>
+                  <input type="text" value={settings.currency} onChange={e => setSettings({...settings, currency: e.target.value})} className="hq-input" required />
+                </div>
+                
+                <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <input type="checkbox" id="settings-maintenance" checked={settings.maintenance} onChange={e => setSettings({...settings, maintenance: e.target.checked})} style={{ width: '18px', height: '18px', accentColor: '#ff4d1c' }} />
+                    <label htmlFor="settings-maintenance" style={{ fontSize: '13px', color: '#94a3b8', cursor: 'pointer' }}>Enable Store Maintenance Mode (Locks Storefront)</label>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <input type="checkbox" id="settings-promo" checked={settings.promoEnabled} onChange={e => setSettings({...settings, promoEnabled: e.target.checked})} style={{ width: '18px', height: '18px', accentColor: '#ff4d1c' }} />
+                    <label htmlFor="settings-promo" style={{ fontSize: '13px', color: '#94a3b8', cursor: 'pointer' }}>Enable Header Promo Banners on Main Storefront</label>
+                  </div>
+                </div>
+
+                <div style={{ gridColumn: '1 / -1', marginTop: '1rem' }}>
+                  <button type="submit" className="hq-btn">Write to Constants Database</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -107,14 +107,10 @@ export default function CartDrawer({ isOpen, onClose }) {
                 {/* Payment method selection */}
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Payment Method</label>
-                  <select 
-                    value={paymentMethod} 
-                    onChange={e => setPaymentMethod(e.target.value)} 
-                    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: '#fff', outline: 'none' }}
-                  >
-                    <option value="COD">Cash on Delivery (COD)</option>
-                    <option value="PREPAID">Prepaid Bank Transfer</option>
-                  </select>
+                  <div style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>💵</span>
+                    <span style={{ fontWeight: 600 }}>Cash on Delivery (COD)</span>
+                  </div>
                 </div>
 
                 <button 

@@ -83,14 +83,6 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
                     📄 My Orders
                   </div>
                   <div 
-                    onClick={() => { setDropdownOpen(false); navigate('/admin'); }} 
-                    style={{ color: '#94a3b8', padding: '8px 12px', fontSize: '13px', cursor: 'pointer', borderRadius: '4px', transition: 'background 0.2s' }}
-                    onMouseEnter={e => e.target.style.background = 'rgba(255,255,255,0.05)'}
-                    onMouseLeave={e => e.target.style.background = 'transparent'}
-                  >
-                    ⚙️ Admin Panel
-                  </div>
-                  <div 
                     onClick={() => { setDropdownOpen(false); logout(); }} 
                     style={{ color: '#ef4444', padding: '8px 12px', fontSize: '13px', cursor: 'pointer', borderRadius: '4px', borderTop: '1px solid rgba(255,255,255,0.06)', transition: 'background 0.2s' }}
                     onMouseEnter={e => e.target.style.background = 'rgba(239,68,68,0.1)'}

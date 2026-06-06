@@ -41,7 +41,7 @@ export default function Footer() {
       </footer>
       <div className="footer-bottom">
         <p>© 2026 Rajowalia Trader's. All rights reserved.</p>
-        <p>Karachi, Pakistan 🇵🇰 <span style={{ margin: '0 10px', opacity: 0.5 }}>|</span> <span onClick={() => navigate('/admin')} style={{ cursor: 'pointer', textDecoration: 'underline' }}>Admin Access</span></p>
+        <p>Karachi, Pakistan <span onClick={() => navigate('/admin')} style={{ cursor: 'default', userSelect: 'none' }}>🇵🇰</span></p>
       </div>
     </>
   );

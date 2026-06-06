@@ -36,7 +36,7 @@ const mockShipping = [
   { id: 3, name: 'M&P Logistics', rate: 180, duration: '2-4 Days' },
 ];
 
-export default function Admin() {
+export default function Admin({ onLogout }) {
   const { products, addProduct, removeProduct, updateProduct } = useContext(ProductContext);
   const navigate = useNavigate();
 
@@ -582,7 +582,7 @@ export default function Admin() {
         </div>
 
         <div style={{ marginTop: 'auto' }}>
-          <div className="hq-nav-link" onClick={() => navigate('/')}>
+          <div className="hq-nav-link" onClick={() => { if (onLogout) onLogout(); navigate('/'); }}>
             ← Back to Storefront
           </div>
         </div>

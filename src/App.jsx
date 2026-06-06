@@ -20,6 +20,11 @@ function AppContent() {
     setIsAdminAuth(true);
   };
 
+  const handleAdminLogout = () => {
+    localStorage.removeItem('isAdmin');
+    setIsAdminAuth(false);
+  };
+
   if (!hasEntered) {
     return <WelcomeScreen onEnter={() => setHasEntered(true)} />;
   }
@@ -30,7 +35,7 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Storefront />} />
         <Route path="/admin" element={
-          isAdminAuth ? <Admin /> : <AdminLogin onLogin={handleAdminLogin} />
+          isAdminAuth ? <Admin onLogout={handleAdminLogout} /> : <AdminLogin onLogin={handleAdminLogin} />
         } />
         <Route path="/category/:categoryId" element={<CategoryPage />} />
       </Routes>

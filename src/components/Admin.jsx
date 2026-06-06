@@ -73,6 +73,7 @@ export default function Admin({ onLogout }) {
   const [categoryForm, setCategoryForm] = useState({ name: '', emoji: '' });
   const [discountForm, setDiscountForm] = useState({ code: '', discountPercent: '', active: true });
   const [shippingForm, setShippingForm] = useState({ name: '', rate: '', duration: '' });
+  const [subscribers, setSubscribers] = useState([]);
 
   // Verify DB Connection on mount
   useEffect(() => {
@@ -105,6 +106,7 @@ export default function Admin({ onLogout }) {
     if (activeTab === 'discounts') fetchDiscounts();
     if (activeTab === 'shipping') fetchShipping();
     if (activeTab === 'settings') fetchSettings();
+    if (activeTab === 'subscribers') fetchSubscribers();
   }, [activeTab, isDemoMode]);
 
   // DB Fetching Functions
@@ -205,6 +207,63 @@ export default function Admin({ onLogout }) {
     } catch (err) {
       console.error('Fetch settings failed:', err.message);
     }
+  };
+
+  const fetchSubscribers = async () => {
+    if (isDemoMode) {
+      const saved = localStorage.getItem('luxeSubscribers');
+      setSubscribers(saved ? JSON.parse(saved) : [
+        { id: 1, email: 'customer1@example.com', created_at: new Date(Date.now() - 86400000).toISOString() },
+        { id: 2, email: 'customer2@example.com', created_at: new Date(Date.now() - 172800000).toISOString() }
+      ]);
+      return;
+    }
+    try {
+      const { data, error } = await supabase.from('subscribers').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      setSubscribers(data || []);
+    } catch (err) {
+      console.error('Fetch subscribers failed:', err.message);
+      const saved = localStorage.getItem('luxeSubscribers');
+      setSubscribers(saved ? JSON.parse(saved) : []);
+    }
+  };
+
+  const handleDeleteSubscriber = async (id) => {
+    if (isDemoMode) {
+      setSubscribers(prev => {
+        const filtered = prev.filter(s => s.id !== id);
+        localStorage.setItem('luxeSubscribers', JSON.stringify(filtered));
+        return filtered;
+      });
+      return;
+    }
+    try {
+      const { error } = await supabase.from('subscribers').delete().eq('id', id);
+      if (error) throw error;
+      setSubscribers(prev => prev.filter(s => s.id !== id));
+    } catch (err) {
+      alert('Failed to delete subscriber: ' + err.message);
+    }
+  };
+
+  const copySubscriberEmails = () => {
+    if (subscribers.length === 0) {
+      alert('No subscribers to copy!');
+      return;
+    }
+    const list = subscribers.map(s => s.email).join(', ');
+    navigator.clipboard.writeText(list);
+    alert('Subscriber emails copied to clipboard! You can paste them in the BCC field of your email client.');
+  };
+
+  const emailSubscribers = () => {
+    if (subscribers.length === 0) {
+      alert('No subscribers to email!');
+      return;
+    }
+    const list = subscribers.map(s => s.email).join(',');
+    window.open(`mailto:?bcc=${encodeURIComponent(list)}&subject=Special Deals from Rajowalia Traders`);
   };
 
   // Mutations
@@ -562,6 +621,9 @@ export default function Admin({ onLogout }) {
           </div>
           <div className={`hq-nav-link ${activeTab === 'customers' ? 'active' : ''}`} onClick={() => setActiveTab('customers')}>
             👥 Customer Base
+          </div>
+          <div className={`hq-nav-link ${activeTab === 'subscribers' ? 'active' : ''}`} onClick={() => setActiveTab('subscribers')}>
+            📧 Subscribers List
           </div>
         </div>
 
@@ -1189,6 +1251,56 @@ export default function Admin({ onLogout }) {
                   <button type="submit" className="hq-btn">Write to Constants Database</button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* 9. SUBSCRIBERS VIEW */}
+        {activeTab === 'subscribers' && (
+          <div>
+            <div className="hq-card">
+              <div className="hq-card-header" style={{ flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
+                <div>
+                  <h2 className="hq-card-title">NEWSLETTER SUBSCRIBERS ({subscribers.length})</h2>
+                  <p style={{ color: '#64748b', fontSize: '12px', marginTop: '4px' }}>Emails of users who subscribed to get exclusive deals</p>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button onClick={copySubscriberEmails} className="hq-btn" style={{ background: '#334155' }}>📋 Copy All for BCC</button>
+                  <button onClick={emailSubscribers} className="hq-btn">✉️ Send Email to All</button>
+                  <button onClick={fetchSubscribers} className="hq-btn" style={{ background: 'rgba(255,255,255,0.05)' }}>🔄 Refresh</button>
+                </div>
+              </div>
+
+              <div style={{ overflowX: 'auto' }}>
+                <table className="hq-table">
+                  <thead>
+                    <tr>
+                      <th>Subscriber Email</th>
+                      <th>Subscribed On</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {subscribers.length === 0 ? (
+                      <tr>
+                        <td colSpan="3" style={{ textAlign: 'center', color: '#64748b', padding: '2rem' }}>No subscribers found.</td>
+                      </tr>
+                    ) : (
+                      subscribers.map((s, idx) => (
+                        <tr key={s.id || idx}>
+                          <td style={{ color: '#fff', fontWeight: 600 }}>{s.email}</td>
+                          <td style={{ color: '#94a3b8' }}>
+                            {new Date(s.created_at).toLocaleDateString()} {new Date(s.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </td>
+                          <td>
+                            <button onClick={() => handleDeleteSubscriber(s.id)} className="hq-btn" style={{ padding: '5px 10px', fontSize: '11px', background: '#ef4444' }}>Delete</button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}

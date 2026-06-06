@@ -1,15 +1,43 @@
 import React, { useState } from 'react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import { supabase } from '../lib/supabase';
 
 export default function Newsletter() {
   useScrollReveal();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email) return;
-    setSubscribed(true);
+    setLoading(true);
+
+    try {
+      const { error } = await supabase
+        .from('subscribers')
+        .insert([{ email }]);
+
+      if (error && error.code !== '23505') { // 23505 is PostgreSQL duplicate key error
+        throw error;
+      }
+    } catch (err) {
+      console.warn('Supabase subscribe failed, using fallback:', err.message);
+      const saved = localStorage.getItem('luxeSubscribers');
+      const list = saved ? JSON.parse(saved) : [];
+      if (!list.some(item => item.email === email)) {
+        list.push({
+          id: Date.now(),
+          email,
+          created_at: new Date().toISOString()
+        });
+        localStorage.setItem('luxeSubscribers', JSON.stringify(list));
+      }
+    } finally {
+      setLoading(false);
+      setSubscribed(true);
+      setEmail('');
+    }
   };
 
   return (
@@ -29,8 +57,11 @@ export default function Newsletter() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={loading}
           />
-          <button type="submit" className="nl-submit">Subscribe</button>
+          <button type="submit" className="nl-submit" disabled={loading}>
+            {loading ? 'Subscribing...' : 'Subscribe'}
+          </button>
         </form>
       )}
     </div>

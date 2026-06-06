@@ -199,11 +199,16 @@ nav {
 }
 
 .floating-card {
-  position: absolute; background: rgba(20,20,20,0.95);
-  border: 0.5px solid rgba(255,255,255,0.12);
-  border-radius: 12px; padding: 10px 14px;
-  backdrop-filter: blur(10px);
-  display: flex; align-items: center; gap: 10px;
+  position: absolute;
+  background: rgba(13, 12, 22, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   font-size: 12px;
 }
 .fc-1 {
@@ -221,7 +226,7 @@ nav {
 
 /* ── TICKER ── */
 .ticker {
-  background: var(--accent); padding: 10px 0;
+  background: linear-gradient(135deg, rgba(255, 77, 28, 0.9), rgba(255, 140, 66, 0.9)); padding: 10px 0;
   overflow: hidden; white-space: nowrap;
 }
 .ticker-inner {
@@ -953,4 +958,169 @@ footer {
 }
 .modal-overlay.open .modal-content {
   transform: scale(1);
+}
+
+/* FLASH TIMER */
+.flash-bar {
+  margin: 1.5rem 2rem;
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 77, 28, 0.2);
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+.flash-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255, 77, 28, 0.05), transparent 60%);
+}
+.flash-left-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+.flash-badge {
+  background: linear-gradient(135deg, #ff4d1c, #ff8c42);
+  color: #fff;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(255, 77, 28, 0.4);
+}
+.flash-info h4 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 1px;
+  color: var(--white);
+}
+.flash-info p {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.timer-boxes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  z-index: 2;
+}
+.tbox {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 14px;
+  text-align: center;
+  min-width: 56px;
+}
+.tbox-n {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--white);
+}
+.tbox-l {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+.tsep {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+/* FEATURES */
+.features-grid {
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+.feat {
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 1.4rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  transition: all 0.3s;
+}
+.feat:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 77, 28, 0.3);
+}
+.feat-ico {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.fi1 { background: rgba(255, 77, 28, 0.12); }
+.fi2 { background: rgba(6, 182, 212, 0.1); }
+.fi3 { background: rgba(34, 197, 94, 0.1); }
+.fi4 { background: rgba(245, 158, 11, 0.1); }
+.feat-t {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+.feat-d {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* PROMO ROTATING RINGS */
+.promo-ring1, .promo-ring2, .promo-ring3 {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 77, 28, 0.08);
+}
+.promo-ring1 {
+  width: 300px;
+  height: 300px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.promo-ring2 {
+  width: 210px;
+  height: 210px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: ringPulse 5s ease-in-out infinite;
+}
+.promo-ring3 {
+  width: 120px;
+  height: 120px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: ringPulse 3s ease-in-out infinite 1s;
+}
+@keyframes ringPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1) }
+  50% { transform: translate(-50%, -50%) scale(1.12) }
 }

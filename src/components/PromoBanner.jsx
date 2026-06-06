@@ -15,7 +15,10 @@ export default function PromoBanner() {
         <button className="promo-btn" onClick={() => navigate('/category/Deals')}>Grab the Deal</button>
       </div>
       <div className="promo-right">
-        <div className="promo-emoji">🎧</div>
+        <div className="promo-ring1"></div>
+        <div className="promo-ring2"></div>
+        <div className="promo-ring3"></div>
+        <div className="promo-emo">🎧</div>
       </div>
     </div>
   );

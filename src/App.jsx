@@ -13,15 +13,13 @@ function AppContent() {
   const [hasEntered, setHasEntered] = useState(false);
   
   // Admin authentication state
-  const [isAdminAuth, setIsAdminAuth] = useState(localStorage.getItem('isAdmin') === 'true');
+  const [isAdminAuth, setIsAdminAuth] = useState(false);
 
   const handleAdminLogin = () => {
-    localStorage.setItem('isAdmin', 'true');
     setIsAdminAuth(true);
   };
 
   const handleAdminLogout = () => {
-    localStorage.removeItem('isAdmin');
     setIsAdminAuth(false);
   };
 

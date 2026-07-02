@@ -120,11 +120,13 @@ export const ProductProvider = ({ children }) => {
       if (error) throw error;
       if (data && data[0]) {
         setProducts((prev) => [...prev, mapFromDb(data[0])]);
+        alert('Product successfully added to Supabase!');
       } else {
         setProducts((prev) => [...prev, { ...product, id: Date.now() }]);
       }
     } catch (err) {
       console.error('Failed to add product to Supabase:', err.message);
+      alert('Database Save Error: ' + err.message + '\n\nPlease make sure you have run the ALTER TABLE sql commands in your Supabase SQL Editor!');
       setProducts((prev) => [...prev, { ...product, id: Date.now() }]);
     }
   };
@@ -154,8 +156,10 @@ export const ProductProvider = ({ children }) => {
 
       if (error) throw error;
       setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...updatedData } : p)));
+      alert('Product successfully updated in Supabase!');
     } catch (err) {
       console.error('Failed to update product in Supabase:', err.message);
+      alert('Database Save Error: ' + err.message + '\n\nPlease make sure you have run the ALTER TABLE sql commands in your Supabase SQL Editor!');
       setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, ...updatedData } : p)));
     }
   };

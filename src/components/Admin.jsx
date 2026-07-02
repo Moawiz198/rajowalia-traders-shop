@@ -69,7 +69,7 @@ export default function Admin({ onLogout }) {
   // Generic Form States for other modules
   const [orderForm, setOrderForm] = useState({ customer: '', location: '', sector: 'Electronics', item: '', price: '', method: 'COD', status_icon: '📦', status_text: 'Pending Call' });
   const [customerForm, setCustomerForm] = useState({ name: '', email: '', phone: '', location: '', totalOrders: '0' });
-  const [categoryForm, setCategoryForm] = useState({ name: '', emoji: '' });
+  const [categoryForm, setCategoryForm] = useState({ parent: 'Karyania', sub: '', emoji: '' });
   const [discountForm, setDiscountForm] = useState({ code: '', discountPercent: '', active: true });
   const [shippingForm, setShippingForm] = useState({ name: '', rate: '', duration: '' });
   const [subscribers, setSubscribers] = useState([]);
@@ -364,21 +364,24 @@ export default function Admin({ onLogout }) {
 
   const handleAddCategory = async (e) => {
     e.preventDefault();
+    if (!categoryForm.sub) return;
+
+    const finalName = `${categoryForm.parent} - ${categoryForm.sub.trim()}`;
     const newCat = {
-      name: categoryForm.name,
+      name: finalName,
       emoji: categoryForm.emoji || '📁'
     };
 
     if (isDemoMode) {
       setCategories(prev => [...prev, { ...newCat, id: Date.now() }]);
-      setCategoryForm({ name: '', emoji: '' });
+      setCategoryForm({ parent: 'Karyania', sub: '', emoji: '' });
       return;
     }
     try {
       const { data, error } = await supabase.from('categories').insert([newCat]).select();
       if (error) throw error;
       if (data && data[0]) setCategories(prev => [...prev, data[0]]);
-      setCategoryForm({ name: '', emoji: '' });
+      setCategoryForm({ parent: 'Karyania', sub: '', emoji: '' });
     } catch (err) {
       alert('Failed to add category: ' + err.message);
     }
@@ -1068,12 +1071,39 @@ export default function Admin({ onLogout }) {
               </div>
               <form onSubmit={handleAddCategory} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Category Name</label>
-                  <input type="text" value={categoryForm.name} onChange={e => setCategoryForm({...categoryForm, name: e.target.value})} placeholder="e.g. Electronics" className="hq-input" required />
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Parent Category / Department</label>
+                  <select 
+                    value={categoryForm.parent} 
+                    onChange={e => setCategoryForm({...categoryForm, parent: e.target.value})} 
+                    className="hq-input" 
+                    required
+                  >
+                    <option value="Karyania">Karyania</option>
+                    <option value="Women Dresses">Women Dresses</option>
+                    <option value="Electronics">Electronics</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Subcategory Name</label>
+                  <input 
+                    type="text" 
+                    value={categoryForm.sub} 
+                    onChange={e => setCategoryForm({...categoryForm, sub: e.target.value})} 
+                    placeholder="e.g. Sugar, Gadgets, Lawn" 
+                    className="hq-input" 
+                    required 
+                  />
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Emoji Indicator</label>
-                  <input type="text" value={categoryForm.emoji} onChange={e => setCategoryForm({...categoryForm, emoji: e.target.value})} placeholder="e.g. 📱" className="hq-input" required />
+                  <input 
+                    type="text" 
+                    value={categoryForm.emoji} 
+                    onChange={e => setCategoryForm({...categoryForm, emoji: e.target.value})} 
+                    placeholder="e.g. 📱, 👗, 🌾" 
+                    className="hq-input" 
+                    required 
+                  />
                 </div>
                 <div style={{ gridColumn: '1 / -1' }}>
                   <button type="submit" className="hq-btn">Save Category Mapping</button>

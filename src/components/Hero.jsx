@@ -85,8 +85,14 @@ export default function Hero() {
 
       <div className="hero-visual">
         <div className="hero-phone">
-          <div className="phone-screen">
-            <div className="phone-product" id="heroEmoji">{currentProduct.emoji || '📦'}</div>
+          <div className="phone-screen" style={{ overflow: 'hidden' }}>
+            <div className="phone-product" id="heroEmoji" style={{ width: '100%', height: '65%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '10px' }}>
+              {currentProduct.image ? (
+                <img src={currentProduct.image} alt={currentProduct.name} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '8px', zIndex: 1 }} />
+              ) : (
+                <span style={{ fontSize: '72px' }}>{currentProduct.emoji || '📦'}</span>
+              )}
+            </div>
             <div className="phone-info" style={{ textAlign: language === 'ur' ? 'right' : 'left' }}>
               <div className="phone-brand">{t(currentProduct.brand) || 'Rajowalia'}</div>
               <div className="phone-name">{t(currentProduct.name) || 'Amazing Product'}</div>

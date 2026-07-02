@@ -56,6 +56,13 @@ export default function Admin({ onLogout }) {
     currency: 'PKR',
     maintenance: false,
     promoEnabled: true,
+    holidayMode: false,
+    holidayTextEn: 'Deliveries may be delayed by 2-3 days due to holidays.',
+    holidayTextUr: 'تعطیلات کی وجہ سے ڈیلیوری میں 2 سے 3 دن کی تاخیر ہو سکتی ہے۔',
+    durationRykEn: '48 Hours',
+    durationRykUr: '48 گھنٹے',
+    durationPkEn: '4-5 Days',
+    durationPkUr: '4 سے 5 دن'
   });
 
   // Product Inventory Form State
@@ -1427,7 +1434,45 @@ export default function Admin({ onLogout }) {
                   <input type="text" value={settings.currency} onChange={e => setSettings({...settings, currency: e.target.value})} className="hq-input" required />
                 </div>
                 
-                <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px' }}>
+                <div style={{ gridColumn: '1 / -1', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '20px', marginTop: '10px' }}>
+                  <h3 style={{ fontSize: '14px', color: '#ff4d1c', fontWeight: 600, marginBottom: '15px' }}>🚚 DELIVERY & HOLIDAY STATUS SETTINGS</h3>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>RYK Delivery Time (English)</label>
+                  <input type="text" value={settings.durationRykEn || ''} onChange={e => setSettings({...settings, durationRykEn: e.target.value})} className="hq-input" placeholder="e.g. 48 Hours" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>RYK Delivery Time (Urdu)</label>
+                  <input type="text" value={settings.durationRykUr || ''} onChange={e => setSettings({...settings, durationRykUr: e.target.value})} className="hq-input" placeholder="مثال: 48 گھنٹے" />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Pakistan Delivery Time (English)</label>
+                  <input type="text" value={settings.durationPkEn || ''} onChange={e => setSettings({...settings, durationPkEn: e.target.value})} className="hq-input" placeholder="e.g. 4-5 Days" />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Pakistan Delivery Time (Urdu)</label>
+                  <input type="text" value={settings.durationPkUr || ''} onChange={e => setSettings({...settings, durationPkUr: e.target.value})} className="hq-input" placeholder="مثال: 4 سے 5 دن" />
+                </div>
+
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                    <input type="checkbox" id="settings-holiday" checked={settings.holidayMode || false} onChange={e => setSettings({...settings, holidayMode: e.target.checked})} style={{ width: '18px', height: '18px', accentColor: '#ff4d1c' }} />
+                    <label htmlFor="settings-holiday" style={{ fontSize: '13px', color: '#ffd700', fontWeight: 'bold', cursor: 'pointer' }}>⚠️ Activate Holiday Delay Mode (Notifies customers & delays deliveries)</label>
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Holiday Alert Text (English)</label>
+                  <textarea value={settings.holidayTextEn || ''} onChange={e => setSettings({...settings, holidayTextEn: e.target.value})} className="hq-input" style={{ height: '60px', width: '100%', padding: '10px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', color: '#fff', outline: 'none' }} placeholder="Deliveries may be delayed by 2-3 days due to holidays." />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Holiday Alert Text (Urdu)</label>
+                  <textarea value={settings.holidayTextUr || ''} onChange={e => setSettings({...settings, holidayTextUr: e.target.value})} className="hq-input" style={{ height: '60px', width: '100%', padding: '10px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', color: '#fff', outline: 'none' }} placeholder="تعطیلات کی وجہ سے ڈیلیوری میں تاخیر ہو سکتی ہے۔" />
+                </div>
+
+                <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '10px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '20px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <input type="checkbox" id="settings-maintenance" checked={settings.maintenance} onChange={e => setSettings({...settings, maintenance: e.target.checked})} style={{ width: '18px', height: '18px', accentColor: '#ff4d1c' }} />
                     <label htmlFor="settings-maintenance" style={{ fontSize: '13px', color: '#94a3b8', cursor: 'pointer' }}>Enable Store Maintenance Mode (Locks Storefront)</label>

@@ -1,10 +1,26 @@
 import React, { useContext } from 'react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { LanguageContext } from '../context/LanguageContext';
+import { ProductContext } from '../context/ProductContext';
 
 export default function Features() {
   useScrollReveal();
-  const { t } = useContext(LanguageContext);
+  const { language, t } = useContext(LanguageContext);
+  const { settings } = useContext(ProductContext);
+
+  const getDeliveryText = () => {
+    const ryk = language === 'ur' ? (settings.durationRykUr || '48 گھنٹے') : (settings.durationRykEn || '48 Hours');
+    const pk = language === 'ur' ? (settings.durationPkUr || '4 سے 5 دن') : (settings.durationPkEn || '4-5 Days');
+    
+    let text = language === 'ur'
+      ? `رحیم یار خان: ${ryk} | پورے پاکستان میں: ${pk}`
+      : `RYK: ${ryk} | Pakistan: ${pk}`;
+
+    if (settings.holidayMode) {
+      text += language === 'ur' ? ' (تعطیلات کی وجہ سے تاخیر متوقع ہے)' : ' (Holiday delays expected)';
+    }
+    return text;
+  };
 
   return (
     <div className="features-grid reveal">
@@ -12,7 +28,7 @@ export default function Features() {
         <div className="feat-ico fi1">🚚</div>
         <div>
           <div className="feat-t">{t('feat_delivery_t')}</div>
-          <div className="feat-d">{t('feat_delivery_d')}</div>
+          <div className="feat-d">{getDeliveryText()}</div>
         </div>
       </div>
       <div className="feat">

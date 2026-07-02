@@ -70,6 +70,37 @@ export const ProductProvider = ({ children }) => {
   const [products, setProducts] = useState(initialProducts);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState({
+    storeName: 'Rajowalia Traders',
+    phone: '+92 300 1234567',
+    email: 'hq@rajowalia.com',
+    currency: 'PKR',
+    maintenance: false,
+    promoEnabled: true,
+    holidayMode: false,
+    holidayTextEn: 'Deliveries may be delayed by 2-3 days due to holidays.',
+    holidayTextUr: 'تعطیلات کی وجہ سے ڈیلیوری میں 2 سے 3 دن کی تاخیر ہو سکتی ہے۔',
+    durationRykEn: '48 Hours',
+    durationRykUr: '48 گھنٹے',
+    durationPkEn: '4-5 Days',
+    durationPkUr: '4 سے 5 دن'
+  });
+
+  const fetchSettings = async () => {
+    try {
+      const { data, error } = await supabase.from('settings').select('*');
+      if (error) throw error;
+      if (data && data.length > 0) {
+        const dbSettings = {};
+        data.forEach(item => {
+          dbSettings[item.key] = item.value === 'true' ? true : item.value === 'false' ? false : item.value;
+        });
+        setSettings(prev => ({ ...prev, ...dbSettings }));
+      }
+    } catch (err) {
+      console.warn('Failed to load settings from Supabase:', err.message);
+    }
+  };
 
   const fetchCategories = async () => {
     try {
@@ -108,6 +139,8 @@ export const ProductProvider = ({ children }) => {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
+    fetchSettings();
     fetchCategories();
   }, []);
 
@@ -167,7 +200,7 @@ export const ProductProvider = ({ children }) => {
   };
 
   return (
-    <ProductContext.Provider value={{ products, categories, loading, addProduct, removeProduct, updateProduct, fetchProducts, fetchCategories }}>
+    <ProductContext.Provider value={{ products, categories, settings, loading, addProduct, removeProduct, updateProduct, fetchProducts, fetchCategories, fetchSettings }}>
       {children}
     </ProductContext.Provider>
   );

@@ -94,83 +94,106 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const registerOrLogin = async (profile) => {
+  const signUp = async (profile) => {
     setLoading(true);
     try {
-      // Check if user exists by phone or email
-      const { data: existing, error: findErr } = await supabase
+      // Create new customer
+      const { data: created, error: insertErr } = await supabase
         .from('customers')
-        .select('*')
-        .or(`email.eq.${profile.email},phone.eq.${profile.phone}`)
-        .limit(1);
+        .insert([{
+          name: profile.name,
+          email: profile.email,
+          phone: profile.phone,
+          location: profile.location,
+          password: profile.password || null,
+          total_orders: 0
+        }])
+        .select();
 
-      if (findErr) throw findErr;
-
+      if (insertErr) throw insertErr;
+      
       let user = null;
-      if (existing && existing.length > 0) {
-        user = existing[0];
-        // Update customer details if they changed
-        const { error: updErr } = await supabase
-          .from('customers')
-          .update({ name: profile.name, location: profile.location })
-          .eq('id', user.id);
-        if (!updErr) {
-          user.name = profile.name;
-          user.location = profile.location;
-        }
-      } else {
-        // Create new customer
-        const { data: created, error: insertErr } = await supabase
-          .from('customers')
-          .insert([{
-            name: profile.name,
-            email: profile.email,
-            phone: profile.phone,
-            location: profile.location,
-            total_orders: 0
-          }])
-          .select();
-
-        if (insertErr) throw insertErr;
-        if (created && created[0]) {
-          user = created[0];
-        }
+      if (created && created[0]) {
+        user = created[0];
       }
 
       if (user) {
         localStorage.setItem('luxeUser', JSON.stringify(user));
         setCurrentUser(user);
         await syncUserData(user.id);
-        
-        // Execute pending action if any
         if (pendingAction) {
           pendingAction();
           setPendingAction(null);
         }
         setAuthModalOpen(false);
-        return user;
+        return { success: true, user };
       }
+      return { success: false, error: 'Registration failed' };
     } catch (err) {
-      console.error('Login/registration failed, using fallback:', err.message);
+      console.error('Registration failed, using fallback:', err.message);
       const fallbackUser = {
         id: Date.now(),
         name: profile.name,
         email: profile.email,
         phone: profile.phone,
-        location: profile.location
+        location: profile.location,
+        password: profile.password || null
       };
       localStorage.setItem('luxeUser', JSON.stringify(fallbackUser));
       setCurrentUser(fallbackUser);
-      
       if (pendingAction) {
         pendingAction();
         setPendingAction(null);
       }
       setAuthModalOpen(false);
-      return fallbackUser;
+      return { success: true, user: fallbackUser };
     } finally {
       setLoading(false);
     }
+  };
+
+  const signIn = async (email, password) => {
+    setLoading(true);
+    try {
+      // Find customer by email or phone
+      const { data: existing, error: findErr } = await supabase
+        .from('customers')
+        .select('*')
+        .or(`email.eq.${email},phone.eq.${email}`)
+        .limit(1);
+
+      if (findErr) throw findErr;
+
+      if (!existing || existing.length === 0) {
+        return { success: false, error: 'No account found with this email or phone.' };
+      }
+
+      const user = existing[0];
+      
+      // Check password if it is set in DB
+      if (user.password && user.password !== password) {
+        return { success: false, error: 'Incorrect password. Please try again.' };
+      }
+
+      localStorage.setItem('luxeUser', JSON.stringify(user));
+      setCurrentUser(user);
+      await syncUserData(user.id);
+      if (pendingAction) {
+        pendingAction();
+        setPendingAction(null);
+      }
+      setAuthModalOpen(false);
+      return { success: true, user };
+    } catch (err) {
+      console.error('Login failed:', err.message);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const registerOrLogin = async (profile) => {
+    return await signUp(profile);
   };
 
   const logout = () => {
@@ -373,6 +396,8 @@ Please process this order in your admin panel.
       setAuthModalOpen,
       requireAuth,
       registerOrLogin,
+      signUp,
+      signIn,
       logout,
       addToCart,
       updateCartQuantity,

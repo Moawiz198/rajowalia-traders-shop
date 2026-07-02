@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS public.customers (
     email text UNIQUE,
     phone text UNIQUE,
     location text,
+    password text, -- Added for sign-in verification
     total_orders numeric DEFAULT 0
 );
 
@@ -46,7 +47,7 @@ CREATE POLICY "Allow public access for auth" ON public.customers FOR ALL USING (
 
 -- 3. Create Orders Table
 CREATE TABLE IF NOT EXISTS public.orders (
-    id text PRIMARY KEY, -- Holds order number e.g. #LX-1234
+    id text PRIMARY KEY, -- Holds order number 
     created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
     customer_id bigint REFERENCES public.customers(id) ON DELETE CASCADE,
     customer text NOT NULL,

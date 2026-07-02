@@ -6,12 +6,42 @@ import { UserContext } from '../context/UserContext';
 import { LanguageContext } from '../context/LanguageContext';
 import { ThemeContext } from '../context/ThemeContext';
 
+const urduDictionary = {
+  'sugar': 'چینی',
+  'brown sugar': 'شکر',
+  'gurr': 'گڑ',
+  'lawn': 'لان',
+  'silk': 'سلک',
+  'evening gown': 'شام کا لباس',
+  'gadgets': 'آلات',
+  'accessories': 'سامان',
+  'smartwatches': 'اسمارٹ واچز',
+  'mobiles': 'موبائلز',
+  'dresses': 'کپڑے',
+  'electronics': 'الیکٹرانکس',
+  'karyania': 'کریانہ',
+  'rice': 'چاول',
+  'flour': 'آٹا',
+  'spices': 'مصالحے',
+  'oil': 'تیل',
+  'ghee': 'گھی',
+  'tea': 'چائے',
+  'milk': 'دودھ',
+  'watches': 'گھڑیاں',
+  'laptops': 'لیپ ٹاپس',
+  'bridal': 'عروسی',
+  'unstitched': 'ان سلا',
+  'stitched': 'سلا ہوا'
+};
+
 export default function Products({ selectedCategory, initialSubCategory = 'All' }) {
   useScrollReveal();
   const { products, categories } = useContext(ProductContext);
   const { wishlist, toggleWishlist, addToCart, requireAuth } = useContext(UserContext);
   const { language, t } = useContext(LanguageContext);
   const { theme } = useContext(ThemeContext);
+
+  const [translatedLabels, setTranslatedLabels] = useState({});
 
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
@@ -78,16 +108,53 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
       });
     }
 
-    const list = Array.from(subs).map(sub => ({
-      key: sub,
-      labelEn: sub,
-      labelUr: sub
-    }));
+    const list = Array.from(subs).map(sub => {
+      let labelEn = sub;
+      let labelUr = sub;
+      if (sub.includes(' | ')) {
+        const parts = sub.split(' | ');
+        labelEn = parts[0];
+        labelUr = parts[1];
+      }
+      const lowerKey = labelEn.toLowerCase().trim();
+      const finalUrdu = translatedLabels[labelEn] || urduDictionary[lowerKey] || labelUr;
+      return {
+        key: labelEn,
+        labelEn,
+        labelUr: finalUrdu
+      };
+    });
 
     return [{ key: 'All', labelEn: 'All Items', labelUr: 'تمام اشیاء' }, ...list];
   };
 
   const currentSubCategories = getDynamicSubCategories();
+
+  useEffect(() => {
+    const keysToTranslate = currentSubCategories
+      .filter(sub => sub.key !== 'All' && sub.labelUr === sub.labelEn && !translatedLabels[sub.key])
+      .map(sub => sub.key);
+
+    keysToTranslate.forEach(async (key) => {
+      const lowerKey = key.toLowerCase().trim();
+      if (urduDictionary[lowerKey]) {
+        setTranslatedLabels(prev => ({ ...prev, [key]: urduDictionary[lowerKey] }));
+        return;
+      }
+
+      // Fetch from Google Translate
+      try {
+        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ur&dt=t&q=${encodeURIComponent(key)}`);
+        const json = await res.json();
+        if (json && json[0] && json[0][0] && json[0][0][0]) {
+          const translation = json[0][0][0];
+          setTranslatedLabels(prev => ({ ...prev, [key]: translation }));
+        }
+      } catch (e) {
+        console.warn('Translation failed for', key, e);
+      }
+    });
+  }, [products, categories, selectedCategory]);
 
   const filteredProducts = products.filter(product => {
     // 1. Search Query Filter (name or brand)
@@ -104,13 +171,14 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
     } else if (selectedCategory === 'Deals') {
       categoryMatch = product.discountPercentage > 0 || (product.badge && product.badge.toUpperCase().includes('SALE'));
     } else if (['Karyania', 'Women Dresses', 'Electronics'].includes(selectedCategory)) {
-      // Matches both "Parent" and "Parent - Sub"
-      const isParent = product.category === selectedCategory || product.category.startsWith(`${selectedCategory} - `) || product.category.startsWith(`${selectedCategory}-`);
+      // Strip Urdu translation suffix if present in category mapping (e.g. "Karyania - Sugar | چینی" or product category "Karyania - Sugar")
+      const cleanProdCategory = product.category.split(' | ')[0].trim();
+      const isParent = cleanProdCategory === selectedCategory || cleanProdCategory.startsWith(`${selectedCategory} - `) || cleanProdCategory.startsWith(`${selectedCategory}-`);
       if (isParent) {
         if (subCategoryFilter === 'All') {
           categoryMatch = true;
         } else {
-          categoryMatch = product.category === `${selectedCategory} - ${subCategoryFilter}` || product.category === `${selectedCategory}-${subCategoryFilter}`;
+          categoryMatch = cleanProdCategory === `${selectedCategory} - ${subCategoryFilter}` || cleanProdCategory === `${selectedCategory}-${subCategoryFilter}`;
         }
       }
     } else {

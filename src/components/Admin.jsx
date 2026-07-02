@@ -423,7 +423,36 @@ export default function Admin({ onLogout }) {
     e.preventDefault();
     if (!categoryForm.sub) return;
 
-    const finalName = `${categoryForm.parent} - ${categoryForm.sub.trim()}`;
+    const subVal = categoryForm.sub.trim();
+    let urduTrans = '';
+    
+    try {
+      const lowerSub = subVal.toLowerCase();
+      const dictMatch = {
+        'sugar': 'چینی', 'brown sugar': 'شکر', 'gurr': 'گڑ', 'lawn': 'لان', 'silk': 'سلک',
+        'evening gown': 'شام کا لباس', 'gadgets': 'آلات', 'accessories': 'سامان', 'smartwatches': 'اسمارٹ واچز',
+        'mobiles': 'موبائلز', 'dresses': 'کپڑے', 'electronics': 'الیکٹرانکس', 'karyania': 'کریانہ',
+        'rice': 'چاول', 'flour': 'آٹا', 'spices': 'مصالحے', 'oil': 'تیل', 'ghee': 'گھی',
+        'tea': 'چائے', 'milk': 'دودھ', 'watches': 'گھڑیاں', 'laptops': 'لیپ ٹاپس'
+      }[lowerSub];
+
+      if (dictMatch) {
+        urduTrans = dictMatch;
+      } else {
+        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ur&dt=t&q=${encodeURIComponent(subVal)}`);
+        const json = await res.json();
+        if (json && json[0] && json[0][0] && json[0][0][0]) {
+          urduTrans = json[0][0][0];
+        }
+      }
+    } catch (err) {
+      console.warn('Auto translation failed:', err);
+    }
+
+    const finalName = urduTrans 
+      ? `${categoryForm.parent} - ${subVal} | ${urduTrans}`
+      : `${categoryForm.parent} - ${subVal}`;
+
     const newCat = {
       name: finalName,
       emoji: categoryForm.emoji || '📁'

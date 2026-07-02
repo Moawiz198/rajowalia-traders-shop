@@ -93,11 +93,8 @@ export const ProductProvider = ({ children }) => {
       if (error) {
         throw error;
       }
-      if (data && data.length > 0) {
+      if (data) {
         setProducts(data.map(mapFromDb));
-      } else {
-        // Seed initialProducts locally if Supabase is empty or connection fails
-        setProducts(initialProducts);
       }
     } catch (err) {
       console.warn('Failed to load products from Supabase, using local defaults:', err.message);

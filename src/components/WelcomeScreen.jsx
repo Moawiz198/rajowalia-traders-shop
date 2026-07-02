@@ -28,16 +28,37 @@ export default function WelcomeScreen({ onEnter }) {
       }, 850); // Wait for the transition exit animation to finish
     }, 4500);
 
-    return () => clearTimeout(autoEnterTimer);
-  }, [onEnter]);
+    // Skip welcome screen when mouse cursor is moved
+    let initialX = null;
+    let initialY = null;
+    const skipThreshold = 20; // ignore minor pixel jitters on initial load
 
-  const handleEnterHover = () => {
-    if (isExiting) return;
-    setIsExiting(true);
-    setTimeout(() => {
-      onEnter?.();
-    }, 850); // Wait for the transition exit animation to finish
-  };
+    const handleMouseMove = (e) => {
+      if (initialX === null || initialY === null) {
+        initialX = e.clientX;
+        initialY = e.clientY;
+        return;
+      }
+
+      const diffX = Math.abs(e.clientX - initialX);
+      const diffY = Math.abs(e.clientY - initialY);
+
+      if (diffX > skipThreshold || diffY > skipThreshold) {
+        setIsExiting(true);
+        window.removeEventListener('mousemove', handleMouseMove);
+        setTimeout(() => {
+          onEnter?.();
+        }, 850);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      clearTimeout(autoEnterTimer);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [onEnter]);
 
   return (
     <div className={`welcome-screen ${isExiting ? 'exit' : ''} ${language === 'ur' ? 'rtl' : ''}`} style={{ direction: language === 'ur' ? 'rtl' : 'ltr' }}>

@@ -99,10 +99,10 @@ export default function WelcomeScreen({ onEnter }) {
         <div className="logo-draw-wrap">
           <div className="logo-shine"></div>
           <svg className="logo-svg-main" viewBox="0 0 300 280" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ maxHeight: '150px' }}>
-            <path className="bag-path" d="M 60 100 L 40 240 Q 40 260 60 260 L 240 260 Q 260 260 260 240 L 240 100 Z" stroke="white" stroke-width="2.5" fill="none"/>
-            <path className="bag-path2" d="M 100 100 Q 100 50 150 50 Q 200 50 200 100" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-            <path className="bag-path3" d="M 200 60 Q 280 100 260 200" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-            <path className="bag-path2" d="M 96 98 L 204 98" stroke="white" stroke-width="2" fill="none"/>
+            <path className="bag-path" d="M 60 100 L 40 240 Q 40 260 60 260 L 240 260 Q 260 260 260 240 L 240 100 Z" stroke="white" strokeWidth="2.5" fill="none"/>
+            <path className="bag-path2" d="M 100 100 Q 100 50 150 50 Q 200 50 200 100" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+            <path className="bag-path3" d="M 200 60 Q 280 100 260 200" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+            <path className="bag-path2" d="M 96 98 L 204 98" stroke="white" strokeWidth="2" fill="none"/>
           </svg>
         </div>
         

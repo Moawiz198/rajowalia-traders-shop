@@ -66,6 +66,53 @@ export default function Admin({ onLogout }) {
     category: 'Electronics', weightOptions: ''
   });
 
+  const [tempPrimary, setTempPrimary] = useState('Electronics');
+  const [tempSub, setTempSub] = useState('');
+
+  const getAvailableSubs = () => {
+    const subs = new Set();
+    
+    // Default subcategories
+    if (tempPrimary === 'Karyania') {
+      ['Sugar', 'Brown Sugar', 'Gurr'].forEach(s => subs.add(s));
+    } else if (tempPrimary === 'Women Dresses') {
+      ['Lawn', 'Silk', 'Evening Gown'].forEach(s => subs.add(s));
+    } else if (tempPrimary === 'Electronics') {
+      ['Gadgets', 'Accessories', 'Smartwatches'].forEach(s => subs.add(s));
+    }
+
+    // Dynamic ones from categories state
+    categories.forEach(cat => {
+      if (cat.name.startsWith(`${tempPrimary} - `)) {
+        const sub = cat.name.replace(`${tempPrimary} - `, '').trim();
+        if (sub) subs.add(sub);
+      } else if (cat.name.startsWith(`${tempPrimary}-`)) {
+        const sub = cat.name.replace(`${tempPrimary}-`, '').trim();
+        if (sub) subs.add(sub);
+      }
+    });
+
+    return Array.from(subs);
+  };
+
+  const availableSubs = getAvailableSubs();
+
+  const handlePrimaryChange = (e) => {
+    const prim = e.target.value;
+    setTempPrimary(prim);
+    setTempSub('');
+    setFormData(prev => ({ ...prev, category: prim }));
+  };
+
+  const handleSubChange = (e) => {
+    const sub = e.target.value;
+    setTempSub(sub);
+    setFormData(prev => ({ 
+      ...prev, 
+      category: sub ? `${tempPrimary} - ${sub}` : tempPrimary
+    }));
+  };
+
   // Generic Form States for other modules
   const [orderForm, setOrderForm] = useState({ customer: '', location: '', sector: 'Electronics', item: '', price: '', method: 'COD', status_icon: '📦', status_text: 'Pending Call' });
   const [customerForm, setCustomerForm] = useState({ name: '', email: '', phone: '', location: '', totalOrders: '0' });
@@ -556,10 +603,26 @@ export default function Admin({ onLogout }) {
       badge: '', condition: 'New', stars: '5', inStock: true, discountPercentage: '0', 
       category: 'Electronics', weightOptions: ''
     });
+    setTempPrimary('Electronics');
+    setTempSub('');
   };
 
   const handleEdit = (p) => {
     setEditingId(p.id);
+    const cat = p.category || 'Electronics';
+    let prim = cat;
+    let sub = '';
+    if (cat.includes(' - ')) {
+      const parts = cat.split(' - ');
+      prim = parts[0];
+      sub = parts[1];
+    } else if (cat.includes('-')) {
+      const parts = cat.split('-');
+      prim = parts[0];
+      sub = parts[1];
+    }
+    setTempPrimary(prim);
+    setTempSub(sub);
     setFormData({
       emoji: p.emoji || '', image: p.image || '', brand: p.brand, name: p.name, price: p.price.toString(),
       oldPrice: p.oldPrice ? p.oldPrice.toString() : '',
@@ -577,6 +640,8 @@ export default function Admin({ onLogout }) {
       badge: '', condition: 'New', stars: '5', inStock: true, discountPercentage: '0', 
       category: 'Electronics', weightOptions: ''
     });
+    setTempPrimary('Electronics');
+    setTempSub('');
   };
 
   const placeRandomTestOrder = () => {
@@ -761,25 +826,21 @@ export default function Admin({ onLogout }) {
                 <h2 className="hq-card-title">{editingId ? 'EDIT INVENTORY ITEM' : 'ADD NEW INVENTORY ITEM'}</h2>
               </div>
               <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Sector Category</label>
-                  <select name="category" value={formData.category} onChange={handleChange} className="hq-input">
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Primary Category</label>
+                  <select value={tempPrimary} onChange={handlePrimaryChange} className="hq-input">
                     <option value="Electronics">Electronics</option>
                     <option value="Women Dresses">Women Dresses</option>
-                    <option value="Karyania - Sugar">Karyania - Sugar</option>
-                    <option value="Karyania - Brown Sugar">Karyania - Brown Sugar</option>
-                    <option value="Karyania - Gurr">Karyania - Gurr</option>
-                    
-                    {categories.map((cat) => {
-                      if (['Electronics', 'Women Dresses', 'Karyania - Sugar', 'Karyania - Brown Sugar', 'Karyania - Gurr'].includes(cat.name)) {
-                        return null;
-                      }
-                      return (
-                        <option key={cat.id || cat.name} value={cat.name}>
-                          {cat.name}
-                        </option>
-                      );
-                    })}
+                    <option value="Karyania">Karyania</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Sub-Category (Dynamic)</label>
+                  <select value={tempSub} onChange={handleSubChange} className="hq-input">
+                    <option value="">None / General</option>
+                    {availableSubs.map((sub) => (
+                      <option key={sub} value={sub}>{sub}</option>
+                    ))}
                   </select>
                 </div>
                 <div>

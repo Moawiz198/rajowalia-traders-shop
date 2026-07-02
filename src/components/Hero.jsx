@@ -69,15 +69,15 @@ export default function Hero() {
         </div>
         <div className="hero-stats" style={{ justifyContent: language === 'ur' ? 'flex-end' : 'flex-start' }}>
           <div className="stat-item">
-            <div className="stat-num">50K+</div>
+            <div className="stat-num">{(50000 + products.length).toLocaleString()}+</div>
             <div className="stat-label">{t('products')}</div>
           </div>
           <div className="stat-item">
-            <div className="stat-num">200K</div>
+            <div className="stat-num">2K+</div>
             <div className="stat-label">{t('customers')}</div>
           </div>
           <div className="stat-item">
-            <div className="stat-num">4.9★</div>
+            <div className="stat-num">4.8★</div>
             <div className="stat-label">{t('rating')}</div>
           </div>
         </div>

@@ -133,6 +133,7 @@ export const UserProvider = ({ children }) => {
       return { success: false, error: 'Registration failed' };
     } catch (err) {
       console.error('Registration failed, using fallback:', err.message);
+      alert('Database Save Error: ' + err.message + '\n\nPlease make sure you have run the ALTER TABLE sql commands in your Supabase SQL Editor to add the password column!');
       const fallbackUser = {
         id: Date.now(),
         name: profile.name,

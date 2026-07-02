@@ -8,7 +8,7 @@ import { ThemeContext } from '../context/ThemeContext';
 
 export default function Products({ selectedCategory, initialSubCategory = 'All' }) {
   useScrollReveal();
-  const { products } = useContext(ProductContext);
+  const { products, categories } = useContext(ProductContext);
   const { wishlist, toggleWishlist, addToCart, requireAuth } = useContext(UserContext);
   const { language, t } = useContext(LanguageContext);
   const { theme } = useContext(ThemeContext);
@@ -48,6 +48,47 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
     });
   };
 
+  // Get all subcategories for the currently selectedCategory
+  const getDynamicSubCategories = () => {
+    const subs = new Set();
+    
+    // 1. Parse from custom categories added in Admin Panel
+    if (categories && categories.length > 0) {
+      categories.forEach(cat => {
+        if (cat.name.startsWith(`${selectedCategory} - `)) {
+          const sub = cat.name.replace(`${selectedCategory} - `, '').trim();
+          if (sub) subs.add(sub);
+        } else if (cat.name.startsWith(`${selectedCategory}-`)) {
+          const sub = cat.name.replace(`${selectedCategory}-`, '').trim();
+          if (sub) subs.add(sub);
+        }
+      });
+    }
+
+    // 2. Parse from products as fallback
+    if (products && products.length > 0) {
+      products.forEach(prod => {
+        if (prod.category.startsWith(`${selectedCategory} - `)) {
+          const sub = prod.category.replace(`${selectedCategory} - `, '').trim();
+          if (sub) subs.add(sub);
+        } else if (prod.category.startsWith(`${selectedCategory}-`)) {
+          const sub = prod.category.replace(`${selectedCategory}-`, '').trim();
+          if (sub) subs.add(sub);
+        }
+      });
+    }
+
+    const list = Array.from(subs).map(sub => ({
+      key: sub,
+      labelEn: sub,
+      labelUr: sub
+    }));
+
+    return [{ key: 'All', labelEn: 'All Items', labelUr: 'تمام اشیاء' }, ...list];
+  };
+
+  const currentSubCategories = getDynamicSubCategories();
+
   const filteredProducts = products.filter(product => {
     // 1. Search Query Filter (name or brand)
     if (searchQuery) {
@@ -62,10 +103,15 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
       categoryMatch = true;
     } else if (selectedCategory === 'Deals') {
       categoryMatch = product.discountPercentage > 0 || (product.badge && product.badge.toUpperCase().includes('SALE'));
-    } else if (selectedCategory === 'Karyania') {
-      categoryMatch = product.category.startsWith('Karyania');
-      if (categoryMatch && subCategoryFilter !== 'All') {
-        categoryMatch = product.category === `Karyania - ${subCategoryFilter}`;
+    } else if (['Karyania', 'Women Dresses', 'Electronics'].includes(selectedCategory)) {
+      // Matches both "Parent" and "Parent - Sub"
+      const isParent = product.category === selectedCategory || product.category.startsWith(`${selectedCategory} - `) || product.category.startsWith(`${selectedCategory}-`);
+      if (isParent) {
+        if (subCategoryFilter === 'All') {
+          categoryMatch = true;
+        } else {
+          categoryMatch = product.category === `${selectedCategory} - ${subCategoryFilter}` || product.category === `${selectedCategory}-${subCategoryFilter}`;
+        }
       }
     } else {
       categoryMatch = product.category === selectedCategory;
@@ -92,13 +138,6 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
     ? (language === 'ur' ? `"${searchQuery}" کے لیے تلاش کے نتائج` : `Search Results for "${searchQuery}"`)
     : getCategoryTitle();
 
-  const karyaniaSubs = [
-    { key: 'All', labelEn: 'All Items', labelUr: 'تمام اشیاء' },
-    { key: 'Sugar', labelEn: 'Sugar', labelUr: 'چینی' },
-    { key: 'Brown Sugar', labelEn: 'Brown Sugar', labelUr: 'شکر' },
-    { key: 'Gurr', labelEn: 'Gurr', labelUr: 'گڑ' }
-  ];
-
   return (
     <section id="products-section" className="section reveal">
       <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
@@ -108,8 +147,8 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
         </div>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          {/* Subcategory selectors for Karyania */}
-          {selectedCategory === 'Karyania' && (
+          {/* Subcategory selectors for parent departments */}
+          {['Karyania', 'Women Dresses', 'Electronics'].includes(selectedCategory) && currentSubCategories.length > 1 && (
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
@@ -120,7 +159,7 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
               border: theme === 'dark' ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.08)', 
               flexWrap: 'wrap' 
             }}>
-              {karyaniaSubs.map((sub) => (
+              {currentSubCategories.map((sub) => (
                 <button
                   key={sub.key}
                   onClick={() => setSubCategoryFilter(sub.key)}
@@ -145,7 +184,7 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
           )}
 
           {/* Condition Filter (Hidden for Karyania category) */}
-          {selectedCategory !== 'Karyania' && (
+          {!selectedCategory?.startsWith('Karyania') && (
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 

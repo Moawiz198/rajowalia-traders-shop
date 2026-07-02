@@ -66,7 +66,21 @@ const mapToDb = (p) => ({
 
 export const ProductProvider = ({ children }) => {
   const [products, setProducts] = useState(initialProducts);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      if (data) setCategories(data);
+    } catch (err) {
+      console.warn('Failed to load categories from Supabase:', err.message);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -95,6 +109,7 @@ export const ProductProvider = ({ children }) => {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
 
   const addProduct = async (product) => {
@@ -149,7 +164,7 @@ export const ProductProvider = ({ children }) => {
   };
 
   return (
-    <ProductContext.Provider value={{ products, loading, addProduct, removeProduct, updateProduct, fetchProducts }}>
+    <ProductContext.Provider value={{ products, categories, loading, addProduct, removeProduct, updateProduct, fetchProducts, fetchCategories }}>
       {children}
     </ProductContext.Provider>
   );

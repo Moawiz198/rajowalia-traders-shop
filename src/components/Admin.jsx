@@ -7,8 +7,8 @@ import { supabase } from '../lib/supabase';
 const mockOrders = [
   { id: '#LX-9402', customer: 'Zainab Ahmed', location: 'Lahore', sector: 'Electronics', item: 'iPhone 16', price: 399999, method: 'PREPAID', status_icon: '🚚', status_text: 'In Transit via TCS' },
   { id: '#LX-9401', customer: 'Muhammad Ali', location: 'Karachi', sector: 'Karyana', item: 'Restock Bundle', price: 8450, method: 'COD', status_icon: '📦', status_text: 'Packing Phase' },
-  { id: '#LX-9400', customer: 'Hamza Khan', location: 'Islamabad', sector: 'Gadgets', item: 'Sony XM5', price: 52000, method: 'COD', status_icon: '⚠️', status_text: 'Pending Call Verification' },
-  { id: '#LX-9399', customer: 'Ayesha Umar', location: 'Multan', sector: 'Suits', item: 'Air Jordan', price: 18500, method: 'PREPAID', status_icon: '✅', status_text: 'Dispatched' },
+  { id: '#LX-9400', customer: 'Hamza Khan', location: 'Islamabad', sector: 'Electronics', item: 'Sony XM5', price: 52000, method: 'COD', status_icon: '⚠️', status_text: 'Pending Call Verification' },
+  { id: '#LX-9399', customer: 'Ayesha Umar', location: 'Multan', sector: 'Women Dresses', item: 'Silk Gown', price: 18500, method: 'PREPAID', status_icon: '✅', status_text: 'Dispatched' },
 ];
 
 const mockCustomers = [
@@ -19,9 +19,8 @@ const mockCustomers = [
 
 const mockCategories = [
   { id: 1, name: 'Electronics', emoji: '📱' },
-  { id: 2, name: 'Gadgets', emoji: '⌚' },
-  { id: 3, name: 'Suits', emoji: '👔' },
-  { id: 4, name: 'Karyania', emoji: '🛒' },
+  { id: 4, name: 'Women Dresses', emoji: '👗' },
+  { id: 7, name: 'Karyania', emoji: '🛒' },
 ];
 
 const mockDiscounts = [
@@ -63,7 +62,7 @@ export default function Admin({ onLogout }) {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     emoji: '', image: '', brand: '', name: '', price: '', oldPrice: '', 
-    badge: '', stars: '5', inStock: true, discountPercentage: '0', 
+    badge: '', condition: 'New', stars: '5', inStock: true, discountPercentage: '0', 
     category: 'Electronics'
   });
 
@@ -551,7 +550,7 @@ export default function Admin({ onLogout }) {
     // reset form
     setFormData({
       emoji: '', image: '', brand: '', name: '', price: '', oldPrice: '', 
-      badge: '', stars: '5', inStock: true, discountPercentage: '0', 
+      badge: '', condition: 'New', stars: '5', inStock: true, discountPercentage: '0', 
       category: 'Electronics'
     });
   };
@@ -561,7 +560,7 @@ export default function Admin({ onLogout }) {
     setFormData({
       emoji: p.emoji || '', image: p.image || '', brand: p.brand, name: p.name, price: p.price.toString(),
       oldPrice: p.oldPrice ? p.oldPrice.toString() : '',
-      badge: p.badge || '', stars: p.stars.toString(), inStock: p.inStock,
+      badge: p.badge || '', condition: p.condition || 'New', stars: p.stars.toString(), inStock: p.inStock,
       discountPercentage: p.discountPercentage.toString(), category: p.category
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -571,7 +570,7 @@ export default function Admin({ onLogout }) {
     setEditingId(null);
     setFormData({
       emoji: '', image: '', brand: '', name: '', price: '', oldPrice: '', 
-      badge: '', stars: '5', inStock: true, discountPercentage: '0', 
+      badge: '', condition: 'New', stars: '5', inStock: true, discountPercentage: '0', 
       category: 'Electronics'
     });
   };
@@ -579,8 +578,8 @@ export default function Admin({ onLogout }) {
   const placeRandomTestOrder = () => {
     const testNames = ['Aslam Khan', 'Sana Malik', 'Bilal Shah', 'Faisal Riaz', 'Khadija Bibi'];
     const testLocs = ['Karachi', 'Faisalabad', 'Peshawar', 'Rawalpindi', 'Quetta'];
-    const testSectors = ['Electronics', 'Gadgets', 'Suits', 'Karyana'];
-    const testItems = ['Samsung S24 Ultra', 'Sony Headphones', 'Unstitched Linen Suit', 'Grocery Bulk Restock'];
+    const testSectors = ['Electronics', 'Women Dresses', 'Karyania'];
+    const testItems = ['Samsung S24 Ultra', 'Sony Headphones', 'Silk Maxi Evening Gown', 'Grocery Bulk Restock'];
     
     const randomOrder = {
       customer: testNames[Math.floor(Math.random() * testNames.length)],
@@ -762,9 +761,10 @@ export default function Admin({ onLogout }) {
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Sector Category</label>
                   <select name="category" value={formData.category} onChange={handleChange} className="hq-input">
                     <option value="Electronics">Electronics</option>
-                    <option value="Gadgets">Gadgets</option>
-                    <option value="Suits">Suits</option>
-                    <option value="Karyania">Karyania</option>
+                    <option value="Women Dresses">Women Dresses</option>
+                    <option value="Karyania - Sugar">Karyania - Sugar</option>
+                    <option value="Karyania - Brown Sugar">Karyania - Brown Sugar</option>
+                    <option value="Karyania - Gurr">Karyania - Gurr</option>
                   </select>
                 </div>
                 <div>
@@ -807,6 +807,13 @@ export default function Admin({ onLogout }) {
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Badge (e.g. HOT)</label>
                   <input type="text" name="badge" value={formData.badge} onChange={handleChange} className="hq-input" />
                 </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Product Condition</label>
+                  <select name="condition" value={formData.condition} onChange={handleChange} className="hq-input">
+                    <option value="New">New</option>
+                    <option value="Used">Used</option>
+                  </select>
+                </div>
                 <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <button type="submit" className="hq-btn">{editingId ? 'Update Item' : 'Add Item'}</button>
                   {editingId && <button type="button" onClick={cancelEdit} className="hq-btn" style={{ background: '#334155' }}>Cancel</button>}
@@ -837,7 +844,9 @@ export default function Admin({ onLogout }) {
                           </div>
                           <div>
                             <div style={{ fontWeight: 600, color: '#fff' }}>{p.name}</div>
-                            <div style={{ fontSize: '12px', color: '#64748b' }}>{p.brand} • {p.category}</div>
+                            <div style={{ fontSize: '12px', color: '#64748b' }}>
+                              {p.brand} • {p.category} • <span style={{ color: p.condition === 'Used' ? '#ffd700' : '#4ade80', fontWeight: 600 }}>{p.condition || 'New'}</span>
+                            </div>
                           </div>
                         </div>
                       </td>

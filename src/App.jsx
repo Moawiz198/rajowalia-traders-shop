@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ProductProvider } from './context/ProductContext';
 import { UserProvider, UserContext } from './context/UserContext';
+import { LanguageProvider } from './context/LanguageContext';
 import Storefront from './components/Storefront';
 import Admin from './components/Admin';
 import AdminLogin from './components/AdminLogin';
@@ -41,13 +42,19 @@ function AppContent() {
   );
 }
 
+import { ThemeProvider } from './context/ThemeContext';
+
 function App() {
   return (
-    <ProductProvider>
-      <UserProvider>
-        <AppContent />
-      </UserProvider>
-    </ProductProvider>
+    <LanguageProvider>
+      <ThemeProvider>
+        <ProductProvider>
+          <UserProvider>
+            <AppContent />
+          </UserProvider>
+        </ProductProvider>
+      </ThemeProvider>
+    </LanguageProvider>
   );
 }
 

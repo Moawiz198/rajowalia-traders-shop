@@ -1,25 +1,33 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { LanguageContext } from '../context/LanguageContext';
 
 export default function Ticker() {
+  const { t } = useContext(LanguageContext);
+
+  const items = [
+    t('electronics'),
+    t('dresses'),
+    t('karyania'),
+    t('electronics'),
+    t('dresses'),
+    t('karyania'),
+    t('electronics'),
+    t('dresses'),
+    t('karyania'),
+    t('electronics'),
+    t('dresses'),
+    t('karyania')
+  ];
+
   return (
     <div className="ticker">
       <div className="ticker-inner" id="ticker">
-        <span>Electronics</span><span className="ticker-dot">◆</span>
-        <span>Gadgets</span><span className="ticker-dot">◆</span>
-        <span>Fashion</span><span className="ticker-dot">◆</span>
-        <span>Karyania</span><span className="ticker-dot">◆</span>
-        <span>Groceries</span><span className="ticker-dot">◆</span>
-        <span>Appliances</span><span className="ticker-dot">◆</span>
-        <span>Jewellery</span><span className="ticker-dot">◆</span>
-        <span>Sports</span><span className="ticker-dot">◆</span>
-        <span>Electronics</span><span className="ticker-dot">◆</span>
-        <span>Gadgets</span><span className="ticker-dot">◆</span>
-        <span>Fashion</span><span className="ticker-dot">◆</span>
-        <span>Karyania</span><span className="ticker-dot">◆</span>
-        <span>Groceries</span><span className="ticker-dot">◆</span>
-        <span>Appliances</span><span className="ticker-dot">◆</span>
-        <span>Jewellery</span><span className="ticker-dot">◆</span>
-        <span>Sports</span><span className="ticker-dot">◆</span>
+        {items.map((item, idx) => (
+          <React.Fragment key={idx}>
+            <span>{item}</span>
+            {idx < items.length - 1 && <span className="ticker-dot">◆</span>}
+          </React.Fragment>
+        ))}
       </div>
     </div>
   );

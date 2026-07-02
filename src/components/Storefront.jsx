@@ -7,7 +7,6 @@ import Categories from './Categories';
 import PromoBanner from './PromoBanner';
 import Products from './Products';
 import Features from './Features';
-import Brands from './Brands';
 import Newsletter from './Newsletter';
 
 export default function Storefront() {
@@ -20,7 +19,6 @@ export default function Storefront() {
       <PromoBanner />
       <Products />
       <Features />
-      <Brands />
       <Newsletter />
     </MainLayout>
   );

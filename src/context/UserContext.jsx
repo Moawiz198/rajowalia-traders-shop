@@ -304,6 +304,45 @@ export const UserProvider = ({ children }) => {
       const { error: ordErr } = await supabase.from('orders').insert([newOrder]);
       if (ordErr) throw ordErr;
 
+      // Send Email Notification (non-blocking)
+      const apiKey = import.meta.env.VITE_WEB3FORMS_KEY;
+      if (apiKey) {
+        fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            access_key: apiKey,
+            subject: `New Order Received - ${orderId}`,
+            from_name: 'Rajowalia Storefront',
+            to_email: 'rajowaliaryk@gmail.com',
+            message: `
+🎉 NEW ORDER RECEIVED!
+
+📦 Order Details:
+---------------------------------------------
+Order ID:       ${orderId}
+Category/Dept:  ${newOrder.sector}
+Payment Method: ${newOrder.method}
+Total Price:    PKR ${newOrder.price.toLocaleString()}
+
+👤 Customer Details:
+---------------------------------------------
+Name:           ${newOrder.customer}
+Phone:          ${currentUser.phone || 'N/A'}
+Email:          ${currentUser.email || 'N/A'}
+City/Address:   ${newOrder.location}
+
+🛒 Items Ordered:
+---------------------------------------------
+${newOrder.item}
+
+---------------------------------------------
+Please process this order in your admin panel.
+            `
+          })
+        }).catch(err => console.error('Failed to dispatch order email:', err));
+      }
+
       // 2. Clear user cart in DB
       await supabase.from('cart_items').delete().eq('customer_id', currentUser.id);
 

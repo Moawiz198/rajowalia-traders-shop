@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
+import { LanguageContext } from '../context/LanguageContext';
 
 export default function WelcomeScreen({ onEnter }) {
+  const { language, setLanguage, t } = useContext(LanguageContext);
   const [particles, setParticles] = useState([]);
   const [isExiting, setIsExiting] = useState(false);
 
@@ -17,9 +19,20 @@ export default function WelcomeScreen({ onEnter }) {
       });
     }
     setParticles(list);
-  }, []);
 
-  const handleEnterClick = () => {
+    // Automatically enter store after full welcome animation plays (4.5s)
+    const autoEnterTimer = setTimeout(() => {
+      setIsExiting(true);
+      setTimeout(() => {
+        onEnter?.();
+      }, 850); // Wait for the transition exit animation to finish
+    }, 4500);
+
+    return () => clearTimeout(autoEnterTimer);
+  }, [onEnter]);
+
+  const handleEnterHover = () => {
+    if (isExiting) return;
     setIsExiting(true);
     setTimeout(() => {
       onEnter?.();
@@ -27,7 +40,7 @@ export default function WelcomeScreen({ onEnter }) {
   };
 
   return (
-    <div className={`welcome-screen ${isExiting ? 'exit' : ''}`}>
+    <div className={`welcome-screen ${isExiting ? 'exit' : ''} ${language === 'ur' ? 'rtl' : ''}`} style={{ direction: language === 'ur' ? 'rtl' : 'ltr' }}>
       <div className="intro-glow"></div>
       <div className="particles">
         {particles.map((p) => (
@@ -46,34 +59,138 @@ export default function WelcomeScreen({ onEnter }) {
         ))}
       </div>
 
-      <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '1rem', width: '100%' }}>
+      {/* Language Toggle in Welcome Screen */}
+      <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 100, display: 'flex', gap: '8px' }}>
+        <button 
+          onClick={() => setLanguage('en')}
+          style={{
+            background: language === 'en' ? 'var(--accent)' : 'rgba(255,255,255,0.08)',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: '20px',
+            padding: '6px 14px',
+            fontSize: '12px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          English
+        </button>
+        <button 
+          onClick={() => setLanguage('ur')}
+          style={{
+            background: language === 'ur' ? 'var(--accent)' : 'rgba(255,255,255,0.08)',
+            color: '#fff',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: '20px',
+            padding: '6px 14px',
+            fontSize: '12px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          اردو
+        </button>
+      </div>
+
+      <div style={{ position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', padding: '1rem', width: '100%', maxWidth: '800px' }}>
         <div className="logo-draw-wrap">
           <div className="logo-shine"></div>
-          {/* Animated SVG bag drawing itself */}
-          <svg className="logo-svg-main" viewBox="0 0 300 280" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ maxHeight: '180px' }}>
-            {/* Bag body — draws itself */}
+          <svg className="logo-svg-main" viewBox="0 0 300 280" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ maxHeight: '150px' }}>
             <path className="bag-path" d="M 60 100 L 40 240 Q 40 260 60 260 L 240 260 Q 260 260 260 240 L 240 100 Z" stroke="white" stroke-width="2.5" fill="none"/>
-            {/* Bag handle left */}
             <path className="bag-path2" d="M 100 100 Q 100 50 150 50 Q 200 50 200 100" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-            {/* Decorative swoosh */}
             <path className="bag-path3" d="M 200 60 Q 280 100 260 200" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-            {/* Handle top bar */}
             <path className="bag-path2" d="M 96 98 L 204 98" stroke="white" stroke-width="2" fill="none"/>
           </svg>
         </div>
+        
         <div className="logo-text-anim" style={{ marginTop: '-15px' }}>
-          <div className="s1-name">Rajowalia</div>
+          <div className="s1-name">{t('app_name')}</div>
         </div>
+        
         <div className="logo-sub-anim">
-          <div className="s1-traders" style={{ margin: 0 }}>Trader's</div>
-          <div className="s1-tag" style={{ margin: '5px 0 0 0' }}>Pakistan's Premium Store</div>
+          <div className="s1-traders" style={{ margin: 0 }}>{t('app_name') === 'Rajowalia' ? "Trader's" : "ٹریڈرز"}</div>
+          <div className="s1-tag" style={{ margin: '5px 0 0 0' }}>{t('app_tagline')}</div>
         </div>
 
-        {/* Enter prompt */}
-        <div className="enter-prompt" style={{ marginTop: '1.5rem' }}>
-          <div className="enter-ring" onClick={handleEnterClick}>→</div>
-          <div className="enter-hint">Click to Enter</div>
-        </div>
+        {/* Showcase what we offer */}
+        <div style={{ marginTop: '1.5rem', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+          <div style={{ fontSize: '10px', letterSpacing: '2px', color: 'var(--accent)', fontWeight: 700, textTransform: 'uppercase' }}>
+            {t('welcome_explore')}
+          </div>
+          <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
+            {/* Electronics */}
+            <div style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '12px',
+              padding: '12px 18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              minWidth: '160px',
+              transition: 'transform 0.3s ease',
+              backdropFilter: 'blur(5px)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+            >
+              <span style={{ fontSize: '24px' }}>📱</span>
+              <div style={{ textAlign: language === 'ur' ? 'right' : 'left' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#fff' }}>{t('electronics')}</div>
+                <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{t('electronics_sub')}</div>
+              </div>
+            </div>
+
+            {/* Dress */}
+            <div style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '12px',
+              padding: '12px 18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              minWidth: '160px',
+              transition: 'transform 0.3s ease',
+              backdropFilter: 'blur(5px)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+            >
+              <span style={{ fontSize: '24px' }}>👗</span>
+              <div style={{ textAlign: language === 'ur' ? 'right' : 'left' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#fff' }}>{t('dresses')}</div>
+                <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{t('dresses_sub')}</div>
+              </div>
+            </div>
+
+            {/* Karyania */}
+            <div style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: '12px',
+              padding: '12px 18px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              minWidth: '160px',
+              transition: 'transform 0.3s ease',
+              backdropFilter: 'blur(5px)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+            >
+              <span style={{ fontSize: '24px' }}>🛒</span>
+              <div style={{ textAlign: language === 'ur' ? 'right' : 'left' }}>
+                <div style={{ fontSize: '12px', fontWeight: 700, color: '#fff' }}>{t('karyania')}</div>
+                <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{t('karyania_sub')}</div>
+              </div>
+            </div>
+          </div>
+        </div>        
       </div>
     </div>
   );

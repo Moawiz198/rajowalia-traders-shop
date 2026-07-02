@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { supabase } from '../lib/supabase';
+import { LanguageContext } from '../context/LanguageContext';
 
 export default function Newsletter() {
   useScrollReveal();
+  const { language, t } = useContext(LanguageContext);
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -42,25 +44,25 @@ export default function Newsletter() {
 
   return (
     <div className="newsletter reveal">
-      <h3 className="nl-title">GET EXCLUSIVE DEALS 🔥</h3>
+      <h3 className="nl-title">{t('get_deals')}</h3>
       <p className="nl-sub">
         {subscribed 
-          ? 'Thank you for subscribing! Check your inbox for updates.' 
-          : 'Subscribe and be first to know about flash sales, new arrivals & more.'}
+          ? t('subscribe_thank_you') 
+          : t('subscribe_sub')}
       </p>
       {!subscribed && (
         <form onSubmit={handleSubmit} className="nl-form">
           <input 
             className="nl-input" 
             type="email" 
-            placeholder="your@email.com" 
+            placeholder={t('email_placeholder')} 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
             disabled={loading}
           />
           <button type="submit" className="nl-submit" disabled={loading}>
-            {loading ? 'Subscribing...' : 'Subscribe'}
+            {loading ? t('subscribing_btn') : t('subscribe_btn')}
           </button>
         </form>
       )}

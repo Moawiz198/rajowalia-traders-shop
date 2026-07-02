@@ -4,26 +4,49 @@ import { supabase } from '../lib/supabase';
 export const ProductContext = createContext();
 
 const initialProducts = [
-  { id: 1, emoji: '📱', brand: 'Samsung', name: 'Galaxy S24 Ultra 5G', price: 289999, oldPrice: 350000, badge: 'HOT', stars: 5, inStock: true, discountPercentage: 17, category: 'Electronics' },
-  { id: 2, emoji: '💻', brand: 'Apple', name: 'MacBook Air M3 2024', price: 449000, oldPrice: null, badge: 'NEW', stars: 5, inStock: true, discountPercentage: 0, category: 'Gadgets' },
-  { id: 3, emoji: '👟', brand: 'Nike', name: 'Air Jordan Retro High', price: 18500, oldPrice: 24000, badge: 'SALE', stars: 4, inStock: true, discountPercentage: 22, category: 'Suits' },
-  { id: 4, emoji: '⌚', brand: 'Apple', name: 'Apple Watch Series 10', price: 89999, oldPrice: null, badge: 'HOT', stars: 5, inStock: false, discountPercentage: 0, category: 'Gadgets' },
+  { id: 1, emoji: '📱', brand: 'Samsung', name: 'Galaxy S24 Ultra 5G', price: 289999, oldPrice: 350000, badge: 'HOT', condition: 'New', stars: 5, inStock: true, discountPercentage: 17, category: 'Electronics' },
+  { id: 2, emoji: '💻', brand: 'Apple', name: 'MacBook Air M3 2024', price: 449000, oldPrice: null, badge: 'NEW', condition: 'New', stars: 5, inStock: true, discountPercentage: 0, category: 'Electronics' },
+  { id: 4, emoji: '⌚', brand: 'Apple', name: 'Apple Watch Series 10', price: 89999, oldPrice: null, badge: 'HOT', condition: 'New', stars: 5, inStock: false, discountPercentage: 0, category: 'Electronics' },
+  { id: 6, emoji: '👗', brand: 'H&M', name: 'Floral Summer Dress', price: 4500, oldPrice: null, badge: '', condition: 'New', stars: 5, inStock: true, discountPercentage: 0, category: 'Women Dresses' },
+  { id: 7, emoji: '💃', brand: 'Zara', name: 'Silk Maxi Evening Gown', price: 14500, oldPrice: 18000, badge: 'HOT', condition: 'New', stars: 5, inStock: true, discountPercentage: 19, category: 'Women Dresses' },
+  { id: 8, emoji: '👘', brand: 'Sana Safinaz', name: 'Luxury Printed Lawn Suit', price: 8900, oldPrice: 12000, badge: 'SALE', condition: 'New', stars: 4, inStock: true, discountPercentage: 25, category: 'Women Dresses' },
+  
+  // Karyana Products
+  { id: 10, emoji: '🍬', brand: 'Refined', name: 'Fine White Sugar 1kg', price: 150, oldPrice: null, badge: '', condition: 'New', stars: 4, inStock: true, discountPercentage: 0, category: 'Karyania - Sugar' },
+  { id: 15, emoji: '🟤', brand: 'Organic Desi', name: 'Premium Brown Sugar 1kg', price: 220, oldPrice: null, badge: 'NEW', condition: 'New', stars: 5, inStock: true, discountPercentage: 0, category: 'Karyania - Brown Sugar' },
+  { id: 16, emoji: '🪵', brand: 'Desi Pure', name: 'Pure Organic Gurr 1kg', price: 280, oldPrice: 320, badge: 'BEST', condition: 'New', stars: 5, inStock: true, discountPercentage: 12, category: 'Karyania - Gurr' }
 ];
 
-const mapFromDb = (p) => ({
-  id: p.id,
-  emoji: p.emoji || '',
-  image: p.image || '',
-  brand: p.brand || '',
-  name: p.name || '',
-  price: Number(p.price || 0),
-  oldPrice: p.old_price ? Number(p.old_price) : null,
-  badge: p.badge || '',
-  stars: Number(p.stars || 5),
-  inStock: p.in_stock !== false,
-  discountPercentage: Number(p.discount_percentage || 0),
-  category: p.category || 'Electronics'
-});
+const mapFromDb = (p) => {
+  let condition = 'New';
+  let badge = p.badge || '';
+  if (badge.includes('|')) {
+    const parts = badge.split('|');
+    condition = parts[0];
+    badge = parts[1];
+  } else if (badge.toLowerCase() === 'used') {
+    condition = 'Used';
+    badge = '';
+  } else if (badge.toLowerCase() === 'new') {
+    condition = 'New';
+    badge = '';
+  }
+  return {
+    id: p.id,
+    emoji: p.emoji || '',
+    image: p.image || '',
+    brand: p.brand || '',
+    name: p.name || '',
+    price: Number(p.price || 0),
+    oldPrice: p.old_price ? Number(p.old_price) : null,
+    badge: badge,
+    condition: condition,
+    stars: Number(p.stars || 5),
+    inStock: p.in_stock !== false,
+    discountPercentage: Number(p.discount_percentage || 0),
+    category: p.category || 'Electronics'
+  };
+};
 
 const mapToDb = (p) => ({
   emoji: p.emoji,
@@ -32,7 +55,7 @@ const mapToDb = (p) => ({
   name: p.name,
   price: p.price,
   old_price: p.oldPrice || null,
-  badge: p.badge || null,
+  badge: p.badge ? `${p.condition || 'New'}|${p.badge}` : (p.condition || 'New'),
   stars: p.stars,
   in_stock: p.inStock,
   discount_percentage: p.discountPercentage || 0,

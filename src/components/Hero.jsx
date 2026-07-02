@@ -1,14 +1,20 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { ProductContext } from '../context/ProductContext';
 import { UserContext } from '../context/UserContext';
+import { LanguageContext } from '../context/LanguageContext';
 
 export default function Hero() {
   const { products } = useContext(ProductContext);
   const { addToCart, requireAuth } = useContext(UserContext);
+  const { language, t } = useContext(LanguageContext);
   const [currentProductIndex, setCurrentProductIndex] = useState(0);
 
-  // Filter for products that are in stock so we only feature available items on the hero
-  const featuredProducts = products.filter(p => p.inStock);
+  // Filter for in-stock products that have highlight badges (e.g. HOT, NEW, SALE, BEST, FEATURED)
+  // This allows showing only selected items in the hero mockup by setting their badges in the Admin panel.
+  let featuredProducts = products.filter(p => p.inStock && (p.badge === 'HOT' || p.badge === 'NEW' || p.badge === 'SALE' || p.badge === 'BEST' || p.badge === 'FEATURED'));
+  if (featuredProducts.length === 0) {
+    featuredProducts = products.filter(p => p.inStock);
+  }
 
   useEffect(() => {
     if (featuredProducts.length === 0) return;
@@ -50,29 +56,29 @@ export default function Hero() {
       <div className="hero-bg"></div>
       <div className="hero-grid"></div>
       <div className="hero-content">
-        <div className="hero-tag"><span className="tag-dot"></span> New Season 2025 Collection</div>
-        <h1 className="hero-title">
-          <span>SHOP THE</span>
-          <span className="accent">FUTURE</span>
-          <span className="outline">TODAY</span>
+        <div className="hero-tag"><span className="tag-dot"></span> {t('new_season')}</div>
+        <h1 className="hero-title" style={{ display: 'flex', flexDirection: 'column' }}>
+          <span>{t('shop_the_future')}</span>
+          <span className="accent">{t('future')}</span>
+          <span className="outline">{t('today')}</span>
         </h1>
-        <p className="hero-sub">Electronics, fashion, gadgets & lifestyle — all in one electrifying store. Fast delivery across Pakistan.</p>
+        <p className="hero-sub">{t('hero_sub')}</p>
         <div className="hero-actions">
-          <button className="btn-primary" onClick={scrollToCategories}>Explore Store →</button>
-          <button className="btn-secondary" onClick={scrollToProducts}>View Deals</button>
+          <button className="btn-primary" onClick={scrollToCategories}>{t('explore_store')}</button>
+          <button className="btn-secondary" onClick={scrollToProducts}>{t('view_deals')}</button>
         </div>
-        <div className="hero-stats">
+        <div className="hero-stats" style={{ justifyContent: language === 'ur' ? 'flex-end' : 'flex-start' }}>
           <div className="stat-item">
             <div className="stat-num">50K+</div>
-            <div className="stat-label">Products</div>
+            <div className="stat-label">{t('products')}</div>
           </div>
           <div className="stat-item">
             <div className="stat-num">200K</div>
-            <div className="stat-label">Customers</div>
+            <div className="stat-label">{t('customers')}</div>
           </div>
           <div className="stat-item">
             <div className="stat-num">4.9★</div>
-            <div className="stat-label">Rating</div>
+            <div className="stat-label">{t('rating')}</div>
           </div>
         </div>
       </div>
@@ -81,26 +87,26 @@ export default function Hero() {
         <div className="hero-phone">
           <div className="phone-screen">
             <div className="phone-product" id="heroEmoji">{currentProduct.emoji || '📦'}</div>
-            <div className="phone-info">
-              <div className="phone-brand">{currentProduct.brand || 'Rajowalia'}</div>
-              <div className="phone-name">{currentProduct.name || 'Amazing Product'}</div>
+            <div className="phone-info" style={{ textAlign: language === 'ur' ? 'right' : 'left' }}>
+              <div className="phone-brand">{t(currentProduct.brand) || 'Rajowalia'}</div>
+              <div className="phone-name">{t(currentProduct.name) || 'Amazing Product'}</div>
               <div className="phone-price">{currentProduct.price ? `PKR ${currentProduct.price.toLocaleString()}` : ''}</div>
-              <button className="phone-btn" onClick={handleAddToCart}>Add to Cart</button>
+              <button className="phone-btn" onClick={handleAddToCart}>{t('add_to_cart')}</button>
             </div>
           </div>
         </div>
-        <div className="floating-card fc-1">
+        <div className="floating-card fc-1" style={{ right: '-10px', left: 'auto' }}>
           <div className="fc-icon">🔥</div>
-          <div>
-            <div className="fc-label">Trending</div>
-            <div className="fc-val">+4,200 sold today</div>
+          <div style={{ textAlign: language === 'ur' ? 'right' : 'left' }}>
+            <div className="fc-label">{t('trending')}</div>
+            <div className="fc-val">{t('sold_today')}</div>
           </div>
         </div>
-        <div className="floating-card fc-2">
+        <div className="floating-card fc-2" style={{ left: '-20px', right: 'auto' }}>
           <div className="fc-icon">✅</div>
-          <div>
-            <div className="fc-label">Free Delivery</div>
-            <div className="fc-val">On orders above PKR 2,000</div>
+          <div style={{ textAlign: language === 'ur' ? 'right' : 'left' }}>
+            <div className="fc-label">{t('free_delivery')}</div>
+            <div className="fc-val">{t('min_order')}</div>
           </div>
         </div>
       </div>

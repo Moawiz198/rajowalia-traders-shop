@@ -5,14 +5,23 @@ import Products from './Products';
 
 export default function CategoryPage() {
   const { categoryId } = useParams();
+  const decoded = decodeURIComponent(categoryId);
 
-  // e.g. 'electronics' -> 'Electronics'
-  const formattedCategory = categoryId.charAt(0).toUpperCase() + categoryId.slice(1);
+  let mainCategory = decoded;
+  let subCategory = 'All';
+
+  const lowerDecoded = decoded.toLowerCase();
+  if (lowerDecoded === 'clothing' || lowerDecoded.startsWith('clothing-') || lowerDecoded.startsWith('clothing - ') || lowerDecoded === 'women dresses') {
+    mainCategory = 'Women Dresses';
+    subCategory = 'All';
+  } else {
+    mainCategory = decoded.charAt(0).toUpperCase() + decoded.slice(1);
+  }
 
   return (
     <MainLayout>
       <div style={{ minHeight: '60vh', paddingTop: '2rem' }}>
-        <Products selectedCategory={formattedCategory} />
+        <Products selectedCategory={mainCategory} initialSubCategory={subCategory} />
       </div>
     </MainLayout>
   );

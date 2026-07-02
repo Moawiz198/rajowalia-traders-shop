@@ -28,7 +28,7 @@ export default function AuthModal() {
 
   return (
     <div className={`modal-overlay ${authModalOpen ? 'open' : ''}`} onClick={handleClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ color: '#fff', maxWidth: '420px' }}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '420px' }}>
         
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '1rem' }}>
@@ -70,7 +70,7 @@ export default function AuthModal() {
               value={email} 
               onChange={e => setEmail(e.target.value)} 
               placeholder="e.g. name@example.com" 
-              style={{ width: '100%', padding: '10px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', color: '#fff', outline: 'none' }}
+              className="hq-input"
               required 
             />
           </div>

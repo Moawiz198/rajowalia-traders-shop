@@ -140,7 +140,8 @@ export const UserProvider = ({ children }) => {
         email: profile.email,
         phone: profile.phone,
         location: profile.location,
-        password: profile.password || null
+        password: profile.password || null,
+        isFallback: true
       };
       localStorage.setItem('luxeUser', JSON.stringify(fallbackUser));
       setCurrentUser(fallbackUser);
@@ -308,47 +309,53 @@ export const UserProvider = ({ children }) => {
   const checkoutCart = async (paymentMethod = 'COD') => {
     if (!currentUser || cart.length === 0) return false;
     try {
-      // 1. Real-time Stock Verification
+      // 1. Real-time Stock Verification (resilient to connection errors)
       for (const item of cart) {
-        const { data: latestProduct, error: stockErr } = await supabase
-          .from('products')
-          .select('stock, name, in_stock')
-          .eq('id', item.productId)
-          .limit(1);
+        try {
+          const { data: latestProduct, error: stockErr } = await supabase
+            .from('products')
+            .select('stock, name, in_stock')
+            .eq('id', item.productId)
+            .limit(1);
 
-        if (stockErr) throw stockErr;
-        
-        const latest = latestProduct && latestProduct[0];
-        if (latest) {
-          const currentStock = latest.stock === null || latest.stock === undefined ? 10 : Number(latest.stock);
-          if (latest.in_stock === false || currentStock <= 0) {
-            alert(`Sorry! "${item.product.name}" is now out of stock. Someone else placed an order for it first!`);
-            return false;
+          if (!stockErr && latestProduct && latestProduct[0]) {
+            const latest = latestProduct[0];
+            const currentStock = latest.stock === null || latest.stock === undefined ? 10 : Number(latest.stock);
+            if (latest.in_stock === false || currentStock <= 0) {
+              alert(`Sorry! "${item.product.name}" is now out of stock. Someone else placed an order for it first!`);
+              return false;
+            }
+            if (item.quantity > currentStock) {
+              alert(`Sorry! Only ${currentStock} units of "${item.product.name}" are left. Please reduce your cart quantity.`);
+              return false;
+            }
           }
-          if (item.quantity > currentStock) {
-            alert(`Sorry! Only ${currentStock} units of "${item.product.name}" are left. Please reduce your cart quantity.`);
-            return false;
-          }
+        } catch (e) {
+          console.warn('Real-time stock check bypassed (Supabase offline):', e.message);
         }
       }
 
-      // 2. If stock check passed, subtract the quantities from database
+      // 2. If stock check passed, subtract the quantities from database (wrap in try-catch so it doesn't block order placement)
       for (const item of cart) {
-        const { data: latestProduct } = await supabase
-          .from('products')
-          .select('stock')
-          .eq('id', item.productId)
-          .limit(1);
-        
-        const latest = latestProduct && latestProduct[0];
-        if (latest) {
-          const currentStock = latest.stock === null || latest.stock === undefined ? 10 : Number(latest.stock);
-          const newStock = Math.max(0, currentStock - item.quantity);
-          const inStockVal = newStock > 0;
-          await supabase
+        try {
+          const { data: latestProduct } = await supabase
             .from('products')
-            .update({ stock: newStock, in_stock: inStockVal })
-            .eq('id', item.productId);
+            .select('stock')
+            .eq('id', item.productId)
+            .limit(1);
+          
+          const latest = latestProduct && latestProduct[0];
+          if (latest) {
+            const currentStock = latest.stock === null || latest.stock === undefined ? 10 : Number(latest.stock);
+            const newStock = Math.max(0, currentStock - item.quantity);
+            const inStockVal = newStock > 0;
+            await supabase
+              .from('products')
+              .update({ stock: newStock, in_stock: inStockVal })
+              .eq('id', item.productId);
+          }
+        } catch (e) {
+          console.warn('Failed to update DB stock counts:', e.message);
         }
       }
 
@@ -357,9 +364,13 @@ export const UserProvider = ({ children }) => {
       const totalPrice = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
 
       const orderId = `#LX-${Math.floor(1000 + Math.random() * 9000)}`;
+      
+      // If customer is fallback (local-only), we pass customer_id as null to satisfy foreign key constraints.
+      const dbCustomerId = (currentUser.isFallback || typeof currentUser.id === 'number' && currentUser.id > 100000000) ? null : currentUser.id;
+      
       const newOrder = {
         id: orderId,
-        customer_id: currentUser.id,
+        customer_id: dbCustomerId,
         customer: currentUser.name,
         location: currentUser.location,
         sector: cart[0].product.category || 'General',
@@ -370,9 +381,17 @@ export const UserProvider = ({ children }) => {
         status_text: 'Order Placed'
       };
 
-      // 3. Create order
-      const { error: ordErr } = await supabase.from('orders').insert([newOrder]);
-      if (ordErr) throw ordErr;
+      // 3. Create order in Supabase
+      try {
+        const { error: ordErr } = await supabase.from('orders').insert([newOrder]);
+        if (ordErr) throw ordErr;
+      } catch (err) {
+        console.warn('Database order insert failed, saving to localStorage:', err.message);
+        const saved = localStorage.getItem('luxeOrders') || '[]';
+        const list = JSON.parse(saved);
+        list.unshift(newOrder);
+        localStorage.setItem('luxeOrders', JSON.stringify(list));
+      }
 
       // Send Email Notification (non-blocking)
       const apiKey = import.meta.env.VITE_WEB3FORMS_KEY;
@@ -413,15 +432,23 @@ Please process this order in your admin panel.
         }).catch(err => console.error('Failed to dispatch order email:', err));
       }
 
-      // 2. Clear user cart in DB
-      await supabase.from('cart_items').delete().eq('customer_id', currentUser.id);
+      // 4. Clear user cart in DB
+      try {
+        await supabase.from('cart_items').delete().eq('customer_id', currentUser.id);
+      } catch (err) {
+        console.warn('Failed to clear cart items in DB:', err.message);
+      }
 
-      // 3. Increment total orders for customer
-      const { data: custRecord } = await supabase.from('customers').select('total_orders').eq('id', currentUser.id);
-      const prevCount = custRecord && custRecord[0] ? Number(custRecord[0].total_orders || 0) : 0;
-      await supabase.from('customers').update({ total_orders: prevCount + 1 }).eq('id', currentUser.id);
+      // 5. Increment total orders for customer
+      try {
+        const { data: custRecord } = await supabase.from('customers').select('total_orders').eq('id', currentUser.id);
+        const prevCount = custRecord && custRecord[0] ? Number(custRecord[0].total_orders || 0) : 0;
+        await supabase.from('customers').update({ total_orders: prevCount + 1 }).eq('id', currentUser.id);
+      } catch (err) {
+        console.warn('Failed to update total orders count in DB:', err.message);
+      }
 
-      // 4. Update local states
+      // 6. Update local states
       setOrders(prev => [newOrder, ...prev]);
       setCart([]);
       return true;

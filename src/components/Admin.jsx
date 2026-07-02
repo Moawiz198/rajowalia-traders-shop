@@ -63,7 +63,7 @@ export default function Admin({ onLogout }) {
   const [formData, setFormData] = useState({
     emoji: '', image: '', brand: '', name: '', price: '', oldPrice: '', 
     badge: '', condition: 'New', stars: '5', inStock: true, discountPercentage: '0', 
-    category: 'Electronics'
+    category: 'Electronics', weightOptions: ''
   });
 
   // Generic Form States for other modules
@@ -551,7 +551,7 @@ export default function Admin({ onLogout }) {
     setFormData({
       emoji: '', image: '', brand: '', name: '', price: '', oldPrice: '', 
       badge: '', condition: 'New', stars: '5', inStock: true, discountPercentage: '0', 
-      category: 'Electronics'
+      category: 'Electronics', weightOptions: ''
     });
   };
 
@@ -561,7 +561,8 @@ export default function Admin({ onLogout }) {
       emoji: p.emoji || '', image: p.image || '', brand: p.brand, name: p.name, price: p.price.toString(),
       oldPrice: p.oldPrice ? p.oldPrice.toString() : '',
       badge: p.badge || '', condition: p.condition || 'New', stars: p.stars.toString(), inStock: p.inStock,
-      discountPercentage: p.discountPercentage.toString(), category: p.category
+      discountPercentage: p.discountPercentage.toString(), category: p.category,
+      weightOptions: p.weightOptions || ''
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -571,7 +572,7 @@ export default function Admin({ onLogout }) {
     setFormData({
       emoji: '', image: '', brand: '', name: '', price: '', oldPrice: '', 
       badge: '', condition: 'New', stars: '5', inStock: true, discountPercentage: '0', 
-      category: 'Electronics'
+      category: 'Electronics', weightOptions: ''
     });
   };
 
@@ -765,6 +766,17 @@ export default function Admin({ onLogout }) {
                     <option value="Karyania - Sugar">Karyania - Sugar</option>
                     <option value="Karyania - Brown Sugar">Karyania - Brown Sugar</option>
                     <option value="Karyania - Gurr">Karyania - Gurr</option>
+                    
+                    {categories.map((cat) => {
+                      if (['Electronics', 'Women Dresses', 'Karyania - Sugar', 'Karyania - Brown Sugar', 'Karyania - Gurr'].includes(cat.name)) {
+                        return null;
+                      }
+                      return (
+                        <option key={cat.id || cat.name} value={cat.name}>
+                          {cat.name}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
                 <div>
@@ -813,6 +825,10 @@ export default function Admin({ onLogout }) {
                     <option value="New">New</option>
                     <option value="Used">Used</option>
                   </select>
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Weight / Size Options (Comma-separated, optional)</label>
+                  <input type="text" name="weightOptions" value={formData.weightOptions || ''} onChange={handleChange} placeholder="e.g. 500g, 1kg, 2kg or S, M, L" className="hq-input" />
                 </div>
                 <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <button type="submit" className="hq-btn">{editingId ? 'Update Item' : 'Add Item'}</button>

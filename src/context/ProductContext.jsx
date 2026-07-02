@@ -44,7 +44,8 @@ const mapFromDb = (p) => {
     stars: Number(p.stars || 5),
     inStock: p.in_stock !== false,
     discountPercentage: Number(p.discount_percentage || 0),
-    category: p.category || 'Electronics'
+    category: p.category || 'Electronics',
+    weightOptions: p.weight_options || ''
   };
 };
 
@@ -59,7 +60,8 @@ const mapToDb = (p) => ({
   stars: p.stars,
   in_stock: p.inStock,
   discount_percentage: p.discountPercentage || 0,
-  category: p.category
+  category: p.category,
+  weight_options: p.weightOptions || null
 });
 
 export const ProductProvider = ({ children }) => {

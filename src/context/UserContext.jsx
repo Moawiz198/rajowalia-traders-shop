@@ -43,6 +43,7 @@ export const UserProvider = ({ children }) => {
           id: item.id,
           productId: item.product_id,
           quantity: item.quantity,
+          selectedWeight: item.selected_weight || null,
           product: {
             id: item.product.id,
             name: item.product.name,
@@ -50,7 +51,8 @@ export const UserProvider = ({ children }) => {
             price: Number(item.product.price),
             emoji: item.product.emoji,
             image: item.product.image,
-            inStock: item.product.in_stock
+            inStock: item.product.in_stock,
+            weightOptions: item.product.weight_options || ''
           }
         })));
       }
@@ -213,61 +215,61 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const addToCart = async (product) => {
+  const addToCart = async (product, selectedWeight = null) => {
     if (!currentUser) return;
-    const existingIndex = cart.findIndex(item => item.productId === product.id);
+    const existingIndex = cart.findIndex(item => item.productId === product.id && item.selectedWeight === selectedWeight);
 
     if (existingIndex > -1) {
       // Update quantity
       const newQty = cart[existingIndex].quantity + 1;
-      setCart(prev => prev.map(item => item.productId === product.id ? { ...item, quantity: newQty } : item));
+      setCart(prev => prev.map((item, idx) => idx === existingIndex ? { ...item, quantity: newQty } : item));
       
       try {
         await supabase
           .from('cart_items')
           .update({ quantity: newQty })
-          .match({ customer_id: currentUser.id, product_id: product.id });
+          .match({ customer_id: currentUser.id, product_id: product.id, selected_weight: selectedWeight });
       } catch (err) {
         console.error('Failed to update DB cart quantity:', err);
       }
     } else {
       // Add new item
-      const newItem = { productId: product.id, quantity: 1, product };
+      const newItem = { productId: product.id, quantity: 1, selectedWeight, product };
       setCart(prev => [...prev, newItem]);
 
       try {
         await supabase
           .from('cart_items')
-          .insert([{ customer_id: currentUser.id, product_id: product.id, quantity: 1 }]);
+          .insert([{ customer_id: currentUser.id, product_id: product.id, selected_weight: selectedWeight, quantity: 1 }]);
       } catch (err) {
         console.error('Failed to insert cart item in DB:', err);
       }
     }
   };
 
-  const updateCartQuantity = async (productId, nextQty) => {
+  const updateCartQuantity = async (productId, nextQty, selectedWeight = null) => {
     if (nextQty <= 0) {
-      removeFromCart(productId);
+      removeFromCart(productId, selectedWeight);
       return;
     }
-    setCart(prev => prev.map(item => item.productId === productId ? { ...item, quantity: nextQty } : item));
+    setCart(prev => prev.map(item => (item.productId === productId && item.selectedWeight === selectedWeight) ? { ...item, quantity: nextQty } : item));
     try {
       await supabase
         .from('cart_items')
         .update({ quantity: nextQty })
-        .match({ customer_id: currentUser.id, product_id: productId });
+        .match({ customer_id: currentUser.id, product_id: productId, selected_weight: selectedWeight });
     } catch (err) {
       console.error('Failed to update DB cart quantity:', err);
     }
   };
 
-  const removeFromCart = async (productId) => {
-    setCart(prev => prev.filter(item => item.productId !== productId));
+  const removeFromCart = async (productId, selectedWeight = null) => {
+    setCart(prev => prev.filter(item => !(item.productId === productId && item.selectedWeight === selectedWeight)));
     try {
       await supabase
         .from('cart_items')
         .delete()
-        .match({ customer_id: currentUser.id, product_id: productId });
+        .match({ customer_id: currentUser.id, product_id: productId, selected_weight: selectedWeight });
     } catch (err) {
       console.error('Failed to delete DB cart item:', err);
     }
@@ -306,7 +308,7 @@ export const UserProvider = ({ children }) => {
     if (!currentUser || cart.length === 0) return false;
     try {
       // Group items description and price
-      const itemNames = cart.map(item => `${item.product.name} x${item.quantity}`).join(', ');
+      const itemNames = cart.map(item => `${item.product.name}${item.selectedWeight ? ` (${item.selectedWeight})` : ''} x${item.quantity}`).join(', ');
       const totalPrice = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
 
       const orderId = `#LX-${Math.floor(1000 + Math.random() * 9000)}`;

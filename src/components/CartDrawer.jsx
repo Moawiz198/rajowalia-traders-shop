@@ -71,31 +71,39 @@ export default function CartDrawer({ isOpen, onClose }) {
                   )}
                 </div>
               ) : (
-                cart.map((item) => (
-                  <div key={item.productId} style={{ display: 'flex', gap: '12px', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', flexDirection: language === 'ur' ? 'row-reverse' : 'row' }}>
-                    {/* Image / Emoji */}
-                    <div style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', overflow: 'hidden' }}>
-                      {item.product.image ? (
-                        <img src={item.product.image} alt={item.product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <span style={{ fontSize: '24px' }}>{item.product.emoji}</span>
-                      )}
+                cart.map((item) => {
+                  const itemKey = `${item.productId}-${item.selectedWeight || 'default'}`;
+                  return (
+                    <div key={itemKey} style={{ display: 'flex', gap: '12px', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', flexDirection: language === 'ur' ? 'row-reverse' : 'row' }}>
+                      {/* Image / Emoji */}
+                      <div style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', overflow: 'hidden' }}>
+                        {item.product.image ? (
+                          <img src={item.product.image} alt={item.product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <span style={{ fontSize: '24px' }}>{item.product.emoji}</span>
+                        )}
+                      </div>
+                      {/* Info */}
+                      <div style={{ flex: 1, textAlign: language === 'ur' ? 'right' : 'left' }}>
+                        <div style={{ fontWeight: 600, fontSize: '14px' }}>{t(item.product.name)}</div>
+                        {item.selectedWeight && (
+                          <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+                            Weight/Size: <span style={{ color: 'var(--white)', fontWeight: 600 }}>{item.selectedWeight}</span>
+                          </div>
+                        )}
+                        <div style={{ fontSize: '12px', color: '#ffd700', fontWeight: 'bold', marginTop: '3px' }}>PKR {item.product.price.toLocaleString()}</div>
+                      </div>
+                      {/* Quantity selectors */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', flexDirection: language === 'ur' ? 'row-reverse' : 'row' }}>
+                        <button onClick={() => updateCartQuantity(item.productId, item.quantity - 1, item.selectedWeight)} style={{ background: 'none', border: 'none', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>-</button>
+                        <span style={{ fontSize: '13px', fontWeight: 600, width: '15px', textAlign: 'center' }}>{item.quantity}</span>
+                        <button onClick={() => updateCartQuantity(item.productId, item.quantity + 1, item.selectedWeight)} style={{ background: 'none', border: 'none', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>+</button>
+                      </div>
+                      {/* Delete button */}
+                      <button onClick={() => removeFromCart(item.productId, item.selectedWeight)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '16px' }}>🗑️</button>
                     </div>
-                    {/* Info */}
-                    <div style={{ flex: 1, textAlign: language === 'ur' ? 'right' : 'left' }}>
-                      <div style={{ fontWeight: 600, fontSize: '14px' }}>{t(item.product.name)}</div>
-                      <div style={{ fontSize: '12px', color: '#ffd700', fontWeight: 'bold', marginTop: '3px' }}>PKR {item.product.price.toLocaleString()}</div>
-                    </div>
-                    {/* Quantity selectors */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', flexDirection: language === 'ur' ? 'row-reverse' : 'row' }}>
-                      <button onClick={() => updateCartQuantity(item.productId, item.quantity - 1)} style={{ background: 'none', border: 'none', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>-</button>
-                      <span style={{ fontSize: '13px', fontWeight: 600, width: '15px', textAlign: 'center' }}>{item.quantity}</span>
-                      <button onClick={() => updateCartQuantity(item.productId, item.quantity + 1)} style={{ background: 'none', border: 'none', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>+</button>
-                    </div>
-                    {/* Delete button */}
-                    <button onClick={() => removeFromCart(item.productId)} style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '16px' }}>🗑️</button>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
 

@@ -17,6 +17,7 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
   const searchQuery = searchParams.get('search') || '';
 
   const [addingStates, setAddingStates] = useState({});
+  const [selectedWeights, setSelectedWeights] = useState({});
   const [conditionFilter, setConditionFilter] = useState('All');
   const [subCategoryFilter, setSubCategoryFilter] = useState(initialSubCategory);
 
@@ -29,7 +30,9 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
   const handleAddToCart = (product) => {
     requireAuth(() => {
       setAddingStates((prev) => ({ ...prev, [product.id]: true }));
-      addToCart(product);
+      
+      const chosenWeight = selectedWeights[product.id] || (product.weightOptions ? product.weightOptions.split(',')[0].trim() : null);
+      addToCart(product, chosenWeight);
       
       const dot = document.getElementById('cart-dot');
       if (dot) {
@@ -253,6 +256,29 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
                 )}
               </div>
               <div className="prod-name">{t(product.name)}</div>
+              {product.weightOptions && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '6px 0' }}>
+                  <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 500 }}>Weight / Size:</span>
+                  <select 
+                    value={selectedWeights[product.id] || product.weightOptions.split(',')[0].trim()}
+                    onChange={(e) => setSelectedWeights(prev => ({ ...prev, [product.id]: e.target.value }))}
+                    style={{ 
+                      background: 'rgba(255,255,255,0.05)', 
+                      color: 'var(--white)', 
+                      border: '1px solid rgba(255,255,255,0.1)', 
+                      borderRadius: '4px', 
+                      fontSize: '11px', 
+                      padding: '2px 6px', 
+                      cursor: 'pointer',
+                      outline: 'none'
+                    }}
+                  >
+                    {product.weightOptions.split(',').map(opt => (
+                      <option key={opt.trim()} value={opt.trim()}>{opt.trim()}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="prod-bottom">
                 <div>
                   <span className="prod-price">PKR {product.price.toLocaleString()}</span>

@@ -68,26 +68,27 @@ export default function Admin({ onLogout }) {
 
   const [tempPrimary, setTempPrimary] = useState('Electronics');
   const [tempSub, setTempSub] = useState('');
+  const [customSub, setCustomSub] = useState('');
 
-  const getAvailableSubs = () => {
+  const getAvailableSubsForPrimary = (prim) => {
     const subs = new Set();
     
     // Default subcategories
-    if (tempPrimary === 'Karyania') {
+    if (prim === 'Karyania') {
       ['Sugar', 'Brown Sugar', 'Gurr'].forEach(s => subs.add(s));
-    } else if (tempPrimary === 'Women Dresses') {
+    } else if (prim === 'Women Dresses') {
       ['Lawn', 'Silk', 'Evening Gown'].forEach(s => subs.add(s));
-    } else if (tempPrimary === 'Electronics') {
+    } else if (prim === 'Electronics') {
       ['Gadgets', 'Accessories', 'Smartwatches'].forEach(s => subs.add(s));
     }
 
     // Dynamic ones from categories state
     categories.forEach(cat => {
-      if (cat.name.startsWith(`${tempPrimary} - `)) {
-        const sub = cat.name.replace(`${tempPrimary} - `, '').trim();
+      if (cat.name.startsWith(`${prim} - `)) {
+        const sub = cat.name.replace(`${prim} - `, '').trim();
         if (sub) subs.add(sub);
-      } else if (cat.name.startsWith(`${tempPrimary}-`)) {
-        const sub = cat.name.replace(`${tempPrimary}-`, '').trim();
+      } else if (cat.name.startsWith(`${prim}-`)) {
+        const sub = cat.name.replace(`${prim}-`, '').trim();
         if (sub) subs.add(sub);
       }
     });
@@ -95,22 +96,31 @@ export default function Admin({ onLogout }) {
     return Array.from(subs);
   };
 
-  const availableSubs = getAvailableSubs();
+  const availableSubs = getAvailableSubsForPrimary(tempPrimary);
 
   const handlePrimaryChange = (e) => {
     const prim = e.target.value;
     setTempPrimary(prim);
     setTempSub('');
+    setCustomSub('');
     setFormData(prev => ({ ...prev, category: prim }));
   };
 
   const handleSubChange = (e) => {
     const sub = e.target.value;
     setTempSub(sub);
-    setFormData(prev => ({ 
-      ...prev, 
-      category: sub ? `${tempPrimary} - ${sub}` : tempPrimary
-    }));
+    if (sub === 'custom') {
+      setFormData(prev => ({ 
+        ...prev, 
+        category: customSub ? `${tempPrimary} - ${customSub.trim()}` : tempPrimary 
+      }));
+    } else {
+      setCustomSub('');
+      setFormData(prev => ({ 
+        ...prev, 
+        category: sub ? `${tempPrimary} - ${sub}` : tempPrimary 
+      }));
+    }
   };
 
   // Generic Form States for other modules
@@ -605,6 +615,7 @@ export default function Admin({ onLogout }) {
     });
     setTempPrimary('Electronics');
     setTempSub('');
+    setCustomSub('');
   };
 
   const handleEdit = (p) => {
@@ -622,7 +633,16 @@ export default function Admin({ onLogout }) {
       sub = parts[1];
     }
     setTempPrimary(prim);
-    setTempSub(sub);
+    
+    const currentSubs = getAvailableSubsForPrimary(prim);
+    if (sub && !currentSubs.includes(sub)) {
+      setTempSub('custom');
+      setCustomSub(sub);
+    } else {
+      setTempSub(sub);
+      setCustomSub('');
+    }
+
     setFormData({
       emoji: p.emoji || '', image: p.image || '', brand: p.brand, name: p.name, price: p.price.toString(),
       oldPrice: p.oldPrice ? p.oldPrice.toString() : '',
@@ -642,6 +662,7 @@ export default function Admin({ onLogout }) {
     });
     setTempPrimary('Electronics');
     setTempSub('');
+    setCustomSub('');
   };
 
   const placeRandomTestOrder = () => {
@@ -841,7 +862,26 @@ export default function Admin({ onLogout }) {
                     {availableSubs.map((sub) => (
                       <option key={sub} value={sub}>{sub}</option>
                     ))}
+                    <option value="custom">[ Write Custom Subcategory... ]</option>
                   </select>
+                  {tempSub === 'custom' && (
+                    <div style={{ marginTop: '8px' }}>
+                      <input 
+                        type="text" 
+                        value={customSub} 
+                        onChange={(e) => {
+                          setCustomSub(e.target.value);
+                          setFormData(prev => ({ 
+                            ...prev, 
+                            category: e.target.value ? `${tempPrimary} - ${e.target.value.trim()}` : tempPrimary 
+                          }));
+                        }} 
+                        placeholder="Type custom subcategory name" 
+                        className="hq-input" 
+                        required 
+                      />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Product Image / Emoji</label>

@@ -22,7 +22,9 @@ CREATE TABLE IF NOT EXISTS public.products (
     stars numeric DEFAULT 5,
     in_stock boolean DEFAULT true NOT NULL,
     discount_percentage numeric DEFAULT 0,
-    category text NOT NULL
+    category text NOT NULL,
+    weight_options text,
+    stock integer DEFAULT 10
 );
 
 -- Enable RLS & RLS policies

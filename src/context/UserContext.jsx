@@ -216,13 +216,13 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const addToCart = async (product, selectedWeight = null) => {
+  const addToCart = async (product, selectedWeight = null, qty = 1) => {
     if (!currentUser) return;
     const existingIndex = cart.findIndex(item => item.productId === product.id && item.selectedWeight === selectedWeight);
 
     if (existingIndex > -1) {
       // Update quantity
-      const newQty = cart[existingIndex].quantity + 1;
+      const newQty = cart[existingIndex].quantity + qty;
       setCart(prev => prev.map((item, idx) => idx === existingIndex ? { ...item, quantity: newQty } : item));
       
       try {
@@ -235,13 +235,13 @@ export const UserProvider = ({ children }) => {
       }
     } else {
       // Add new item
-      const newItem = { productId: product.id, quantity: 1, selectedWeight, product };
+      const newItem = { productId: product.id, quantity: qty, selectedWeight, product };
       setCart(prev => [...prev, newItem]);
 
       try {
         await supabase
           .from('cart_items')
-          .insert([{ customer_id: currentUser.id, product_id: product.id, selected_weight: selectedWeight, quantity: 1 }]);
+          .insert([{ customer_id: currentUser.id, product_id: product.id, selected_weight: selectedWeight, quantity: qty }]);
       } catch (err) {
         console.error('Failed to insert cart item in DB:', err);
       }
@@ -308,6 +308,50 @@ export const UserProvider = ({ children }) => {
   const checkoutCart = async (paymentMethod = 'COD') => {
     if (!currentUser || cart.length === 0) return false;
     try {
+      // 1. Real-time Stock Verification
+      for (const item of cart) {
+        const { data: latestProduct, error: stockErr } = await supabase
+          .from('products')
+          .select('stock, name, in_stock')
+          .eq('id', item.productId)
+          .limit(1);
+
+        if (stockErr) throw stockErr;
+        
+        const latest = latestProduct && latestProduct[0];
+        if (latest) {
+          const currentStock = latest.stock === null || latest.stock === undefined ? 10 : Number(latest.stock);
+          if (latest.in_stock === false || currentStock <= 0) {
+            alert(`Sorry! "${item.product.name}" is now out of stock. Someone else placed an order for it first!`);
+            return false;
+          }
+          if (item.quantity > currentStock) {
+            alert(`Sorry! Only ${currentStock} units of "${item.product.name}" are left. Please reduce your cart quantity.`);
+            return false;
+          }
+        }
+      }
+
+      // 2. If stock check passed, subtract the quantities from database
+      for (const item of cart) {
+        const { data: latestProduct } = await supabase
+          .from('products')
+          .select('stock')
+          .eq('id', item.productId)
+          .limit(1);
+        
+        const latest = latestProduct && latestProduct[0];
+        if (latest) {
+          const currentStock = latest.stock === null || latest.stock === undefined ? 10 : Number(latest.stock);
+          const newStock = Math.max(0, currentStock - item.quantity);
+          const inStockVal = newStock > 0;
+          await supabase
+            .from('products')
+            .update({ stock: newStock, in_stock: inStockVal })
+            .eq('id', item.productId);
+        }
+      }
+
       // Group items description and price
       const itemNames = cart.map(item => `${item.product.name}${item.selectedWeight ? ` (${item.selectedWeight})` : ''} x${item.quantity}`).join(', ');
       const totalPrice = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
@@ -326,7 +370,7 @@ export const UserProvider = ({ children }) => {
         status_text: 'Order Placed'
       };
 
-      // 1. Create order
+      // 3. Create order
       const { error: ordErr } = await supabase.from('orders').insert([newOrder]);
       if (ordErr) throw ordErr;
 

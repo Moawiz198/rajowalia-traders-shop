@@ -63,7 +63,7 @@ export default function Admin({ onLogout }) {
   const [formData, setFormData] = useState({
     emoji: '', image: '', brand: '', name: '', price: '', oldPrice: '', 
     badge: '', condition: 'New', stars: '5', inStock: true, discountPercentage: '0', 
-    category: 'Electronics', weightOptions: ''
+    category: 'Electronics', weightOptions: '', stock: '10'
   });
 
   const [tempPrimary, setTempPrimary] = useState('Electronics');
@@ -626,7 +626,8 @@ export default function Admin({ onLogout }) {
       price: Number(formData.price),
       oldPrice: formData.oldPrice ? Number(formData.oldPrice) : null,
       stars: Number(formData.stars),
-      discountPercentage: Number(formData.discountPercentage)
+      discountPercentage: Number(formData.discountPercentage),
+      stock: Number(formData.stock || 0)
     };
 
     if (editingId) {
@@ -640,7 +641,7 @@ export default function Admin({ onLogout }) {
     setFormData({
       emoji: '', image: '', brand: '', name: '', price: '', oldPrice: '', 
       badge: '', condition: 'New', stars: '5', inStock: true, discountPercentage: '0', 
-      category: 'Electronics', weightOptions: ''
+      category: 'Electronics', weightOptions: '', stock: '10'
     });
     setTempPrimary('Electronics');
     setTempSub('');
@@ -677,7 +678,8 @@ export default function Admin({ onLogout }) {
       oldPrice: p.oldPrice ? p.oldPrice.toString() : '',
       badge: p.badge || '', condition: p.condition || 'New', stars: p.stars.toString(), inStock: p.inStock,
       discountPercentage: p.discountPercentage.toString(), category: p.category,
-      weightOptions: p.weightOptions || ''
+      weightOptions: p.weightOptions || '',
+      stock: (p.stock !== undefined ? p.stock : 10).toString()
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -687,7 +689,7 @@ export default function Admin({ onLogout }) {
     setFormData({
       emoji: '', image: '', brand: '', name: '', price: '', oldPrice: '', 
       badge: '', condition: 'New', stars: '5', inStock: true, discountPercentage: '0', 
-      category: 'Electronics', weightOptions: ''
+      category: 'Electronics', weightOptions: '', stock: '10'
     });
     setTempPrimary('Electronics');
     setTempSub('');
@@ -952,12 +954,16 @@ export default function Admin({ onLogout }) {
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Badge (e.g. HOT)</label>
                   <input type="text" name="badge" value={formData.badge} onChange={handleChange} className="hq-input" />
                 </div>
-                <div style={{ gridColumn: '1 / -1' }}>
+                <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Product Condition</label>
                   <select name="condition" value={formData.condition} onChange={handleChange} className="hq-input">
                     <option value="New">New</option>
                     <option value="Used">Used</option>
                   </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Stock Quantity</label>
+                  <input type="number" name="stock" value={formData.stock || ''} onChange={handleChange} placeholder="e.g. 10" className="hq-input" min="0" required />
                 </div>
                 <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Weight / Size Options (Comma-separated, optional)</label>
@@ -1002,7 +1008,7 @@ export default function Admin({ onLogout }) {
                       <td style={{ color: '#fff' }}>PKR {p.price.toLocaleString()}</td>
                       <td>
                         <span className="hq-badge" style={{ background: p.inStock ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)', color: p.inStock ? '#4ade80' : '#ef4444' }}>
-                          {p.inStock ? 'In Stock' : 'Sold Out'}
+                          {p.inStock ? `${p.stock !== undefined ? p.stock : 10} Left` : 'Sold Out'}
                         </span>
                       </td>
                       <td>

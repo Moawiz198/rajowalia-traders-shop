@@ -48,6 +48,7 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
 
   const [addingStates, setAddingStates] = useState({});
   const [selectedWeights, setSelectedWeights] = useState({});
+  const [quantities, setQuantities] = useState({});
   const [conditionFilter, setConditionFilter] = useState('All');
   const [subCategoryFilter, setSubCategoryFilter] = useState(initialSubCategory);
 
@@ -62,7 +63,8 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
       setAddingStates((prev) => ({ ...prev, [product.id]: true }));
       
       const chosenWeight = selectedWeights[product.id] || (product.weightOptions ? product.weightOptions.split(',')[0].trim() : null);
-      addToCart(product, chosenWeight);
+      const qty = quantities[product.id] || 1;
+      addToCart(product, chosenWeight, qty);
       
       const dot = document.getElementById('cart-dot');
       if (dot) {
@@ -386,6 +388,37 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
                   </select>
                 </div>
               )}
+              
+              {product.inStock && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '8px 0', background: theme === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)', padding: '6px 10px', borderRadius: '6px', border: theme === 'dark' ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)' }}>
+                  <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 500 }}>Quantity:</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button 
+                      onClick={() => setQuantities(prev => ({ ...prev, [product.id]: Math.max(1, (prev[product.id] || 1) - 1) }))}
+                      style={{ background: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', border: 'none', color: theme === 'dark' ? '#fff' : '#000', width: '20px', height: '20px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}
+                    >
+                      -
+                    </button>
+                    <span style={{ fontSize: '12px', fontWeight: 'bold', minWidth: '16px', textAlign: 'center', color: theme === 'dark' ? '#fff' : '#000' }}>
+                      {quantities[product.id] || 1}
+                    </span>
+                    <button 
+                      onClick={() => setQuantities(prev => ({ ...prev, [product.id]: Math.min(product.stock || 10, (prev[product.id] || 1) + 1) }))}
+                      style={{ background: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)', border: 'none', color: theme === 'dark' ? '#fff' : '#000', width: '20px', height: '20px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Low Stock Warning Alert */}
+              {product.inStock && product.stock !== undefined && product.stock > 0 && product.stock <= 3 && (
+                <div style={{ fontSize: '11px', color: '#ff4d1c', fontWeight: 600, margin: '4px 0', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  ⚠️ Only {product.stock} left in stock!
+                </div>
+              )}
+
               <div className="prod-bottom">
                 <div>
                   <span className="prod-price">PKR {product.price.toLocaleString()}</span>

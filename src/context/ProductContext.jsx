@@ -42,10 +42,11 @@ const mapFromDb = (p) => {
     badge: badge,
     condition: condition,
     stars: Number(p.stars || 5),
-    inStock: p.in_stock !== false,
+    inStock: (p.in_stock !== false) && (p.stock === null || p.stock === undefined || Number(p.stock) > 0),
     discountPercentage: Number(p.discount_percentage || 0),
     category: p.category || 'Electronics',
-    weightOptions: p.weight_options || ''
+    weightOptions: p.weight_options || '',
+    stock: p.stock === null || p.stock === undefined ? 10 : Number(p.stock)
   };
 };
 
@@ -61,7 +62,8 @@ const mapToDb = (p) => ({
   in_stock: p.inStock,
   discount_percentage: p.discountPercentage || 0,
   category: p.category,
-  weight_options: p.weightOptions || null
+  weight_options: p.weightOptions || null,
+  stock: p.stock !== undefined ? Number(p.stock) : 10
 });
 
 export const ProductProvider = ({ children }) => {

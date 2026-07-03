@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 import { LanguageContext } from '../context/LanguageContext';
 import { ThemeContext } from '../context/ThemeContext';
+import { ProductContext } from '../context/ProductContext';
 
 export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
   const navigate = useNavigate();
   const { currentUser, cart, wishlist, logout, setAuthModalOpen, requireAuth } = useContext(UserContext);
+  const { categories } = useContext(ProductContext);
   const { language, setLanguage, t } = useContext(LanguageContext);
   const { theme, toggleTheme } = useContext(ThemeContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -16,6 +18,23 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
 
   const cartCount = cart ? cart.reduce((sum, item) => sum + item.quantity, 0) : 0;
   const wishlistCount = wishlist ? wishlist.length : 0;
+
+  const getUniquePrimaryCategories = () => {
+    const primaries = new Set(['Electronics', 'Dresses', 'Karyania']);
+    if (categories && categories.length > 0) {
+      categories.forEach(cat => {
+        const namePart = cat.name.split(' | ')[0].trim();
+        if (namePart.includes(' - ')) {
+          const parent = namePart.split(' - ')[0].trim();
+          if (parent) primaries.add(parent);
+        } else if (namePart.includes('-')) {
+          const parent = namePart.split('-')[0].trim();
+          if (parent) primaries.add(parent);
+        }
+      });
+    }
+    return Array.from(primaries);
+  };
 
   return (
     <nav style={{ direction: language === 'ur' ? 'rtl' : 'ltr' }}>
@@ -43,9 +62,13 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
       </div>
       <ul className="nav-links">
         <li><a onClick={() => navigate('/')} style={{cursor: 'pointer'}}>{t('home')}</a></li>
-        <li><a onClick={() => navigate('/category/Electronics')} style={{cursor: 'pointer'}}>{t('electronics')}</a></li>
-        <li><a onClick={() => navigate('/category/Dresses')} style={{cursor: 'pointer'}}>{t('dresses')}</a></li>
-        <li><a onClick={() => navigate('/category/Karyania')} style={{cursor: 'pointer'}}>{t('karyania')}</a></li>
+        {getUniquePrimaryCategories().map(cat => (
+          <li key={cat}>
+            <a onClick={() => navigate(`/category/${cat}`)} style={{cursor: 'pointer'}}>
+              {t(cat.toLowerCase()) || cat}
+            </a>
+          </li>
+        ))}
         <li><a onClick={() => navigate('/category/Deals')} style={{cursor: 'pointer'}}>{t('deals')}</a></li>
       </ul>
       
@@ -312,9 +335,13 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
 
             <ul className="mobile-drawer-links" style={{ overflowY: 'auto', textAlign: language === 'ur' ? 'right' : 'left' }}>
               <li><a onClick={() => { setMobileMenuOpen(false); navigate('/'); }}>{t('home')}</a></li>
-              <li><a onClick={() => { setMobileMenuOpen(false); navigate('/category/Electronics'); }}>{t('electronics')}</a></li>
-              <li><a onClick={() => { setMobileMenuOpen(false); navigate('/category/Dresses'); }}>{t('dresses')}</a></li>
-              <li><a onClick={() => { setMobileMenuOpen(false); navigate('/category/Karyania'); }}>{t('karyania')}</a></li>
+              {getUniquePrimaryCategories().map(cat => (
+                <li key={cat}>
+                  <a onClick={() => { setMobileMenuOpen(false); navigate(`/category/${cat}`); }}>
+                    {t(cat.toLowerCase()) || cat}
+                  </a>
+                </li>
+              ))}
               <li><a onClick={() => { setMobileMenuOpen(false); navigate('/category/Deals'); }}>{t('deals')}</a></li>
             </ul>
 

@@ -103,6 +103,21 @@ export default function Admin({ onLogout }) {
     return Array.from(subs);
   };
 
+  const getUniquePrimaryCategories = () => {
+    const primaries = new Set(['Electronics', 'Dresses', 'Karyania']);
+    categories.forEach(cat => {
+      const namePart = cat.name.split(' | ')[0].trim();
+      if (namePart.includes(' - ')) {
+        const parent = namePart.split(' - ')[0].trim();
+        if (parent) primaries.add(parent);
+      } else if (namePart.includes('-')) {
+        const parent = namePart.split('-')[0].trim();
+        if (parent) primaries.add(parent);
+      }
+    });
+    return Array.from(primaries);
+  };
+
   const availableSubs = getAvailableSubsForPrimary(tempPrimary);
 
   const handlePrimaryChange = (e) => {
@@ -133,7 +148,7 @@ export default function Admin({ onLogout }) {
   // Generic Form States for other modules
   const [orderForm, setOrderForm] = useState({ customer: '', location: '', sector: 'Electronics', item: '', price: '', method: 'COD', status_icon: '📦', status_text: 'Pending Call' });
   const [customerForm, setCustomerForm] = useState({ name: '', email: '', phone: '', location: '', totalOrders: '0' });
-  const [categoryForm, setCategoryForm] = useState({ parent: 'Karyania', sub: '', emoji: '' });
+  const [categoryForm, setCategoryForm] = useState({ parent: 'Karyania', sub: '', emoji: '', customParent: '' });
   const [discountForm, setDiscountForm] = useState({ code: '', discountPercent: '', active: true });
   const [shippingForm, setShippingForm] = useState({ name: '', rate: '', duration: '' });
   const [subscribers, setSubscribers] = useState([]);
@@ -456,9 +471,15 @@ export default function Admin({ onLogout }) {
       console.warn('Auto translation failed:', err);
     }
 
+    const parentVal = categoryForm.parent === 'custom' ? (categoryForm.customParent || '').trim() : categoryForm.parent;
+    if (!parentVal) {
+      alert('Please enter a parent category name.');
+      return;
+    }
+
     const finalName = urduTrans 
-      ? `${categoryForm.parent} - ${subVal} | ${urduTrans}`
-      : `${categoryForm.parent} - ${subVal}`;
+      ? `${parentVal} - ${subVal} | ${urduTrans}`
+      : `${parentVal} - ${subVal}`;
 
     const newCat = {
       name: finalName,
@@ -467,14 +488,14 @@ export default function Admin({ onLogout }) {
 
     if (isDemoMode) {
       setCategories(prev => [...prev, { ...newCat, id: Date.now() }]);
-      setCategoryForm({ parent: 'Karyania', sub: '', emoji: '' });
+      setCategoryForm({ parent: 'Karyania', sub: '', emoji: '', customParent: '' });
       return;
     }
     try {
       const { data, error } = await supabase.from('categories').insert([newCat]).select();
       if (error) throw error;
       if (data && data[0]) setCategories(prev => [...prev, data[0]]);
-      setCategoryForm({ parent: 'Karyania', sub: '', emoji: '' });
+      setCategoryForm({ parent: 'Karyania', sub: '', emoji: '', customParent: '' });
     } catch (err) {
       alert('Failed to add category: ' + err.message);
     }
@@ -888,9 +909,9 @@ export default function Admin({ onLogout }) {
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Primary Category</label>
                   <select value={tempPrimary} onChange={handlePrimaryChange} className="hq-input">
-                    <option value="Electronics">Electronics</option>
-                    <option value="Dresses">Dresses</option>
-                    <option value="Karyania">Karyania</option>
+                    {getUniquePrimaryCategories().map(prim => (
+                      <option key={prim} value={prim}>{prim}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -1226,8 +1247,22 @@ export default function Admin({ onLogout }) {
                     <option value="Karyania">Karyania</option>
                     <option value="Dresses">Dresses</option>
                     <option value="Electronics">Electronics</option>
+                    <option value="custom">[ Create Custom Parent Category... ]</option>
                   </select>
                 </div>
+                {categoryForm.parent === 'custom' && (
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Custom Parent Category Name</label>
+                    <input 
+                      type="text" 
+                      value={categoryForm.customParent || ''} 
+                      onChange={e => setCategoryForm({...categoryForm, customParent: e.target.value})} 
+                      placeholder="e.g. Painting, Shoes" 
+                      className="hq-input" 
+                      required 
+                    />
+                  </div>
+                )}
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Subcategory Name</label>
                   <input 

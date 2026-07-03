@@ -1626,6 +1626,32 @@ footer {
   .timer-boxes {
     justify-content: center !important;
   }
+  
+  /* Mobile Header Adjustments */
+  nav {
+    padding: 0 0.75rem !important;
+  }
+  .nav-logo {
+    font-size: 20px !important;
+  }
+  .nav-logo span {
+    font-size: 10px !important;
+    letter-spacing: 1px !important;
+  }
+  .nav-btn {
+    padding: 6px 12px !important;
+    font-size: 11px !important;
+  }
+  .mobile-hamburger {
+    display: flex !important;
+    color: var(--white);
+    margin-right: 8px;
+  }
+  .nav-theme-toggle-desktop,
+  .nav-lang-switcher-desktop,
+  .nav-wishlist-desktop {
+    display: none !important;
+  }
 }
 
 @media (max-width: 480px) {

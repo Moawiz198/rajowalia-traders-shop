@@ -19,6 +19,17 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
 
   return (
     <nav style={{ direction: language === 'ur' ? 'rtl' : 'ltr' }}>
+      {/* Mobile Hamburger Menu Icon */}
+      <div 
+        className="mobile-hamburger"
+        onClick={() => setMobileMenuOpen(true)}
+        style={{ cursor: 'pointer', alignItems: 'center', fontSize: '20px' }}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="18" y2="18"/>
+        </svg>
+      </div>
+
       <div className="nav-logo" style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => navigate('/')}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', borderRadius: '50%', width: '32px', height: '32px', padding: '6px' }}>
           <svg viewBox="0 0 300 280" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }}>
@@ -77,6 +88,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
         {/* Theme Toggler */}
         <button 
           onClick={toggleTheme}
+          className="nav-theme-toggle-desktop"
           style={{
             background: theme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
             color: theme === 'dark' ? '#fff' : '#000',
@@ -100,7 +112,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
         </button>
 
         {/* Language Switcher */}
-        <div style={{ display: 'flex', gap: '4px', marginRight: '6px', marginLeft: '6px' }}>
+        <div className="nav-lang-switcher-desktop" style={{ display: 'flex', gap: '4px', marginRight: '6px', marginLeft: '6px' }}>
           <button 
             onClick={() => setLanguage(language === 'en' ? 'ur' : 'en')}
             style={{
@@ -125,6 +137,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
         {/* Wishlist Trigger */}
         <div 
           onClick={() => requireAuth(onOpenWishlist)} 
+          className="nav-wishlist-desktop"
           style={{ cursor: 'pointer', userSelect: 'none', marginRight: '8px', position: 'relative', display: 'flex', alignItems: 'center' }}
         >
           {wishlistCount > 0 ? (
@@ -217,16 +230,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
           <button className="nav-btn" onClick={() => setAuthModalOpen(true)}>{t('sign_in')}</button>
         )}
         
-        {/* Mobile Hamburger Menu Icon */}
-        <div 
-          className="mobile-hamburger"
-          onClick={() => setMobileMenuOpen(true)}
-          style={{ cursor: 'pointer', display: 'none', alignItems: 'center', fontSize: '20px', marginLeft: '10px' }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>
-          </svg>
-        </div>
+        {/* Mobile Hamburger moved to top of nav */}
       </div>
 
       {/* Mobile Drawer Overlay */}
@@ -364,6 +368,45 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
                 </button>
               )}
             </div>
+
+            {/* Mobile Switchers inside drawer footer */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 20px', borderTop: '1px solid rgba(255,255,255,0.06)', gap: '10px' }}>
+              <button 
+                onClick={() => setLanguage(language === 'en' ? 'ur' : 'en')}
+                style={{
+                  flex: 1,
+                  background: 'rgba(255,255,255,0.06)',
+                  color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '20px',
+                  padding: '8px 12px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  textAlign: 'center'
+                }}
+              >
+                🌐 {language === 'en' ? 'اردو' : 'English'}
+              </button>
+              <button 
+                onClick={toggleTheme}
+                style={{
+                  flex: 1,
+                  background: 'rgba(255,255,255,0.06)',
+                  color: '#fff',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '20px',
+                  padding: '8px 12px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  textAlign: 'center'
+                }}
+              >
+                {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+              </button>
+            </div>
+
           </div>
         </div>
       )}

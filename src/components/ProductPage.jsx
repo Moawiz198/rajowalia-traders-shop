@@ -97,6 +97,7 @@ export default function ProductPage() {
   const isWishlisted = wishlist.some(w => w.productId === product.id);
 
   const avgStars = reviews.length > 0 ? (reviews.reduce((s, r) => s + r.stars, 0) / reviews.length).toFixed(1) : product.stars;
+  const starCounts = [5, 4, 3, 2, 1].map(s => ({ star: s, count: reviews.filter(r => r.stars === s).length }));
   const getWeightFactor = (weightLabel) => {
     if (!weightLabel) return 1;
     const clean = weightLabel.toLowerCase().trim();

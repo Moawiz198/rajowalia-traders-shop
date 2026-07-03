@@ -366,7 +366,9 @@ export const UserProvider = ({ children }) => {
       const orderId = `#LX-${Math.floor(1000 + Math.random() * 9000)}`;
       
       // If customer is fallback (local-only), we pass customer_id as null to satisfy foreign key constraints.
-      const dbCustomerId = (currentUser.isFallback || typeof currentUser.id === 'number' && currentUser.id > 100000000) ? null : currentUser.id;
+      const parsedId = Number(currentUser.id);
+      const isTempId = !isNaN(parsedId) && parsedId > 100000;
+      const dbCustomerId = (currentUser.isFallback || isTempId) ? null : currentUser.id;
       
       const newOrder = {
         id: orderId,

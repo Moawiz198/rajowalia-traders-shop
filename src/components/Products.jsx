@@ -290,8 +290,28 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
         </div>
       </div>
 
-      <div className="products-grid">
-        {filteredProducts.map((product) => (
+      {filteredProducts.length === 0 ? (
+        <div style={{ 
+          width: '100%', 
+          textAlign: 'center', 
+          padding: '4rem 2rem', 
+          background: theme === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', 
+          borderRadius: '12px', 
+          border: theme === 'dark' ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)', 
+          margin: '2rem auto',
+          maxWidth: '600px'
+        }}>
+          <span style={{ fontSize: '48px', display: 'block', marginBottom: '1rem' }}>📦</span>
+          <h3 style={{ fontSize: '20px', fontWeight: 600, color: theme === 'dark' ? '#fff' : '#000', marginBottom: '0.5rem' }}>
+            {language === 'ur' ? 'جلد ہی آرہا ہے' : 'Coming Soon'}
+          </h3>
+          <p style={{ color: '#64748b', fontSize: '14px' }}>
+            {language === 'ur' ? 'اس کیٹیگری میں فی الحال کوئی مصنوعات دستیاب نہیں ہیں۔' : 'No products are currently listed in this category.'}
+          </p>
+        </div>
+      ) : (
+        <div className="products-grid">
+          {filteredProducts.map((product) => (
           <div className="product-card" key={product.id}>
             <div className="prod-img-wrap">
               <div className="prod-img">
@@ -301,7 +321,28 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
                   <span style={{ fontSize: '80px' }}>{product.emoji}</span>
                 )}
               </div>
-              {product.badge && <div className={`prod-badge ${product.badge.toLowerCase()}`}>{product.badge}</div>}
+              {/* Stacked Badges */}
+              {product.badge && (
+                <div className={`prod-badge ${product.badge.toLowerCase()}`} style={{ zIndex: 3 }}>
+                  {product.badge}
+                </div>
+              )}
+              {!product.category.startsWith('Karyania') && (
+                <div 
+                  className={`prod-badge ${product.condition?.toLowerCase() === 'used' ? 'used' : 'new'}`}
+                  style={{
+                    top: product.badge ? '36px' : '10px',
+                    background: product.condition === 'Used' ? '#eab308' : '#22c55e',
+                    color: '#000',
+                    fontWeight: 800,
+                    borderRadius: '4px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+                    zIndex: 2
+                  }}
+                >
+                  {product.condition === 'Used' ? (language === 'ur' ? 'مستعمل' : 'USED') : (language === 'ur' ? 'نیا' : 'NEW')}
+                </div>
+              )}
               {product.discountPercentage > 0 && (
                 <div className="prod-discount-badge">-{product.discountPercentage}%</div>
               )}
@@ -431,7 +472,8 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
     </section>
   );
 }

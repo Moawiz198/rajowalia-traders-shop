@@ -6,14 +6,14 @@ import { supabase } from '../lib/supabase';
 // Mock/fallback datasets for Demo Mode
 const mockOrders = [
   { id: '#LX-9402', customer: 'Zainab Ahmed', location: 'Lahore', sector: 'Electronics', item: 'iPhone 16', price: 399999, method: 'PREPAID', status_icon: '🚚', status_text: 'In Transit via TCS' },
-  { id: '#LX-9401', customer: 'Muhammad Ali', location: 'Karachi', sector: 'Karyana', item: 'Restock Bundle', price: 8450, method: 'COD', status_icon: '📦', status_text: 'Packing Phase' },
+  { id: '#LX-9401', customer: 'Muhammad Ali', location: 'Rahim Yar Khan', sector: 'Karyana', item: 'Restock Bundle', price: 8450, method: 'COD', status_icon: '📦', status_text: 'Packing Phase' },
   { id: '#LX-9400', customer: 'Hamza Khan', location: 'Islamabad', sector: 'Electronics', item: 'Sony XM5', price: 52000, method: 'COD', status_icon: '⚠️', status_text: 'Pending Call Verification' },
   { id: '#LX-9399', customer: 'Ayesha Umar', location: 'Multan', sector: 'Dresses', item: 'Silk Gown', price: 18500, method: 'PREPAID', status_icon: '✅', status_text: 'Dispatched' },
 ];
 
 const mockCustomers = [
   { id: 1, name: 'Zainab Ahmed', email: 'zainab@example.com', phone: '+92 300 1234567', location: 'Lahore', total_orders: 12 },
-  { id: 2, name: 'Muhammad Ali', email: 'ali@example.com', phone: '+92 321 7654321', location: 'Karachi', total_orders: 8 },
+  { id: 2, name: 'Muhammad Ali', email: 'ali@example.com', phone: '+92 321 7654321', location: 'Rahim Yar Khan', total_orders: 8 },
   { id: 3, name: 'Hamza Khan', email: 'hamza@example.com', phone: '+92 333 9876543', location: 'Islamabad', total_orders: 5 },
 ];
 
@@ -705,7 +705,7 @@ export default function Admin({ onLogout }) {
 
   const placeRandomTestOrder = () => {
     const testNames = ['Aslam Khan', 'Sana Malik', 'Bilal Shah', 'Faisal Riaz', 'Khadija Bibi'];
-    const testLocs = ['Karachi', 'Faisalabad', 'Peshawar', 'Rawalpindi', 'Quetta'];
+    const testLocs = ['Rahim Yar Khan', 'Faisalabad', 'Peshawar', 'Rawalpindi', 'Quetta'];
     const testSectors = ['Electronics', 'Women Dresses', 'Karyania'];
     const testItems = ['Samsung S24 Ultra', 'Sony Headphones', 'Silk Maxi Evening Gown', 'Grocery Bulk Restock'];
     

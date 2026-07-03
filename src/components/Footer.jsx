@@ -120,7 +120,7 @@ export default function Footer() {
       </footer>
       <div className="footer-bottom">
         <p>© 2026 {t('app_name')} {t('app_name') === 'Rajowalia' ? "Trader's" : "ٹریڈرز"}. {t('all_rights')}</p>
-        <p>Karachi, Pakistan <span onClick={() => navigate('/admin')} style={{ cursor: 'default', userSelect: 'none' }}>🇵🇰</span></p>
+        <p>Rahim Yar Khan, Pakistan <span onClick={() => navigate('/admin')} style={{ cursor: 'default', userSelect: 'none' }}>🇵🇰</span></p>
       </div>
     </>
   );

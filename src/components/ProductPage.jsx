@@ -76,7 +76,12 @@ export default function ProductPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
     if (product) {
-      if (product.weightOptions) setSelectedWeight(product.weightOptions.split(',')[0].trim());
+      let wl = product.weightOptions ? product.weightOptions.split(',').map(w => w.trim()).filter(w => w) : [];
+      if (wl.some(w => /kg$|g$|grams$/i.test(w.replace(/\s/g, '')))) {
+        wl = ['100g', '150g', '200g', '250g', '500g', '1kg', '2kg', '3kg', '5kg'];
+      }
+      if (wl.length > 0) setSelectedWeight(wl[0]);
+      
       const saved = localStorage.getItem(REVIEWS_KEY(product.id));
       if (saved) setReviews(JSON.parse(saved));
     }
@@ -93,7 +98,12 @@ export default function ProductPage() {
   }
 
   const images = parseImages(product.image);
-  const weightList = product.weightOptions ? product.weightOptions.split(',').map(w => w.trim()) : [];
+  let weightList = product.weightOptions ? product.weightOptions.split(',').map(w => w.trim()).filter(w => w) : [];
+  
+  const isWeightProduct = weightList.some(w => /kg$|g$|grams$/i.test(w.replace(/\s/g, '')));
+  if (isWeightProduct) {
+    weightList = ['100g', '150g', '200g', '250g', '500g', '1kg', '2kg', '3kg', '5kg'];
+  }
   const isWishlisted = wishlist.some(w => w.productId === product.id);
 
   const avgStars = reviews.length > 0 ? (reviews.reduce((s, r) => s + r.stars, 0) / reviews.length).toFixed(1) : product.stars;

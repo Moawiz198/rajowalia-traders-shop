@@ -20,10 +20,12 @@ const initialProducts = [
 const mapFromDb = (p) => {
   let condition = 'New';
   let badge = p.badge || '';
+  let description = '';
   if (badge.includes('|')) {
     const parts = badge.split('|');
-    condition = parts[0];
-    badge = parts[1];
+    condition = parts[0] || 'New';
+    badge = parts[1] || '';
+    description = parts[2] || '';
   } else if (badge.toLowerCase() === 'used') {
     condition = 'Used';
     badge = '';
@@ -41,6 +43,7 @@ const mapFromDb = (p) => {
     oldPrice: p.old_price ? Number(p.old_price) : null,
     badge: badge,
     condition: condition,
+    description: description,
     stars: Number(p.stars || 5),
     inStock: (p.in_stock !== false) && (p.stock === null || p.stock === undefined || Number(p.stock) > 0),
     discountPercentage: Number(p.discount_percentage || 0),
@@ -57,7 +60,7 @@ const mapToDb = (p) => ({
   name: p.name,
   price: p.price,
   old_price: p.oldPrice || null,
-  badge: p.badge ? `${p.condition || 'New'}|${p.badge}` : (p.condition || 'New'),
+  badge: `${p.condition || 'New'}|${p.badge || ''}|${p.description || ''}`,
   stars: p.stars,
   in_stock: p.inStock,
   discount_percentage: p.discountPercentage || 0,

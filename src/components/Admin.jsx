@@ -70,7 +70,7 @@ export default function Admin({ onLogout }) {
   const [formData, setFormData] = useState({
     emoji: '', image: '', brand: '', name: '', price: '', oldPrice: '', 
     badge: '', condition: 'New', stars: '5', inStock: true, discountPercentage: '0', 
-    category: 'Electronics', weightOptions: '', stock: '10'
+    category: 'Electronics', weightOptions: '', stock: '10', description: ''
   });
 
   const [tempPrimary, setTempPrimary] = useState('Electronics');
@@ -677,7 +677,7 @@ export default function Admin({ onLogout }) {
     setFormData({
       emoji: '', image: '', brand: '', name: '', price: '', oldPrice: '', 
       badge: '', condition: 'New', stars: '5', inStock: true, discountPercentage: '0', 
-      category: 'Electronics', weightOptions: '', stock: '10'
+      category: 'Electronics', weightOptions: '', stock: '10', description: ''
     });
     setTempPrimary('Electronics');
     setTempSub('');
@@ -724,7 +724,8 @@ export default function Admin({ onLogout }) {
       badge: p.badge || '', condition: p.condition || 'New', stars: p.stars.toString(), inStock: p.inStock,
       discountPercentage: p.discountPercentage.toString(), category: p.category,
       weightOptions: p.weightOptions || '',
-      stock: (p.stock !== undefined ? p.stock : 10).toString()
+      stock: (p.stock !== undefined ? p.stock : 10).toString(),
+      description: p.description || ''
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -997,6 +998,17 @@ export default function Admin({ onLogout }) {
                 <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Product Name</label>
                   <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Galaxy S24" className="hq-input" required />
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Product Description</label>
+                  <textarea 
+                    name="description" 
+                    value={formData.description || ''} 
+                    onChange={handleChange} 
+                    placeholder="Describe the product (e.g. key features, specifications, materials...)" 
+                    className="hq-input" 
+                    style={{ minHeight: '80px', resize: 'vertical' }}
+                  />
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Price (PKR)</label>

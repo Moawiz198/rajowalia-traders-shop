@@ -417,6 +417,26 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
                 )}
               </div>
               <div className="prod-name">{t(product.name)}</div>
+              {product.description && (
+                <div 
+                  title={t(product.description)}
+                  style={{ 
+                    fontSize: '11px', 
+                    color: '#94a3b8', 
+                    marginTop: '4px', 
+                    fontStyle: 'italic', 
+                    lineHeight: '1.4', 
+                    display: '-webkit-box', 
+                    WebKitLineClamp: '2', 
+                    WebKitBoxOrient: 'vertical', 
+                    overflow: 'hidden',
+                    cursor: 'help',
+                    textAlign: language === 'ur' ? 'right' : 'left'
+                  }}
+                >
+                  {t(product.description)}
+                </div>
+              )}
               {product.weightOptions && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '6px 0' }}>
                   <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 500 }}>Weight / Size:</span>

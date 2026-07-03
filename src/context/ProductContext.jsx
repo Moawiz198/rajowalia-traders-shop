@@ -86,7 +86,8 @@ export const ProductProvider = ({ children }) => {
     durationRykEn: '48 Hours',
     durationRykUr: '48 گھنٹے',
     durationPkEn: '3-5 Days',
-    durationPkUr: '3 سے 5 دن'
+    durationPkUr: '3 سے 5 دن',
+    web3formsKey: ''
   });
 
   const fetchSettings = async () => {

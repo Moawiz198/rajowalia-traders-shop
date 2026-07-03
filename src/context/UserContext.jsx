@@ -458,17 +458,27 @@ export const UserProvider = ({ children }) => {
       }
 
       // Send Email Notification (non-blocking)
-      const apiKey = import.meta.env.VITE_WEB3FORMS_KEY;
-      if (apiKey) {
-        fetch('https://api.web3forms.com/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            access_key: apiKey,
-            subject: `New Order Received - ${orderId}`,
-            from_name: 'Rajowalia Storefront',
-            to_email: 'rajowaliaryk@gmail.com',
-            message: `
+      const sendEmailNotification = async () => {
+        let apiKey = import.meta.env.VITE_WEB3FORMS_KEY;
+        try {
+          const { data: dbSettings } = await supabase.from('settings').select('value').eq('key', 'web3formsKey').limit(1);
+          if (dbSettings && dbSettings[0] && dbSettings[0].value) {
+            apiKey = dbSettings[0].value;
+          }
+        } catch (e) {
+          console.warn('Failed to load web3formsKey setting from Supabase:', e);
+        }
+
+        if (apiKey) {
+          fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              access_key: apiKey,
+              subject: `New Order Received - ${orderId}`,
+              from_name: 'Rajowalia Storefront',
+              to_email: 'rajowaliaryk@gmail.com',
+              message: `
 🎉 NEW ORDER RECEIVED!
 
 📦 Order Details:
@@ -491,10 +501,13 @@ ${newOrder.item}
 
 ---------------------------------------------
 Please process this order in your admin panel.
-            `
-          })
-        }).catch(err => console.error('Failed to dispatch order email:', err));
-      }
+              `
+            })
+          }).catch(err => console.error('Failed to dispatch order email:', err));
+        }
+      };
+
+      sendEmailNotification();
 
       // 4. Clear user cart in DB
       try {

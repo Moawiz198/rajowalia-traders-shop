@@ -62,7 +62,8 @@ export default function Admin({ onLogout }) {
     durationRykEn: '48 Hours',
     durationRykUr: '48 گھنٹے',
     durationPkEn: '3-5 Days',
-    durationPkUr: '3 سے 5 دن'
+    durationPkUr: '3 سے 5 دن',
+    web3formsKey: ''
   });
 
   // Product Inventory Form State
@@ -1509,6 +1510,19 @@ export default function Admin({ onLogout }) {
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Support Notification Email</label>
                   <input type="email" value={settings.email} onChange={e => setSettings({...settings, email: e.target.value})} className="hq-input" style={{ width: '100%', padding: '10px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', background: 'rgba(255,255,255,0.05)', color: '#fff', outline: 'none' }} required />
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Web3Forms Access Key (For Order Email Alerts to {settings.email})</label>
+                  <input 
+                    type="text" 
+                    value={settings.web3formsKey || ''} 
+                    onChange={e => setSettings({...settings, web3formsKey: e.target.value})} 
+                    className="hq-input" 
+                    placeholder="e.g. 13e1876c-7fd4-4e15-b98e-1751ee7abdaf" 
+                  />
+                  <span style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px', display: 'block' }}>
+                    Used for sending new order email notifications to your inbox. Get a free key at <a href="https://web3forms.com/" target="_blank" rel="noreferrer" style={{ color: '#ff4d1c', textDecoration: 'underline' }}>web3forms.com</a>.
+                  </span>
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Base Currency Symbol</label>

@@ -108,15 +108,7 @@ export default function Footer() {
             <li><a href="https://wa.me/923046999198?text=Hi%2C%20I%20need%20some%20help" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>{t('contact_us')}</a></li>
           </ul>
         </div>
-        <div className="footer-col">
-          <h4>{t('company')}</h4>
-          <ul>
-            <li><a>{t('about_us')}</a></li>
-            <li><a>{t('careers')}</a></li>
-            <li><a>{t('blog')}</a></li>
-            <li><a>{t('sellers')}</a></li>
-          </ul>
-        </div>
+
       </footer>
       <div className="footer-bottom">
         <p>© 2026 {t('app_name')} {t('app_name') === 'Rajowalia' ? "Trader's" : "ٹریڈرز"}. {t('all_rights')}</p>

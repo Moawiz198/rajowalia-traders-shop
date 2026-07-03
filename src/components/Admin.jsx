@@ -121,7 +121,7 @@ export default function Admin({ onLogout }) {
     if (prim === 'Karyania') {
       ['Sugar', 'Brown Sugar', 'Gurr'].forEach(s => subs.add(s));
     } else if (prim === 'Dresses') {
-      ['Lawn', 'Silk', 'Evening Gown'].forEach(s => subs.add(s));
+      ['Women Dresses', 'Men Dresses', 'Women_Female', 'Men_Male', 'Lawn', 'Silk', 'Evening Gown'].forEach(s => subs.add(s));
     } else if (prim === 'Electronics') {
       ['Gadgets', 'Accessories', 'Smartwatches'].forEach(s => subs.add(s));
     }

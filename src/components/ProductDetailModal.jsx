@@ -308,8 +308,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
             {/* RIGHT: Product Info */}
             <div style={{
               padding: '32px 28px',
-              display: 'flex', flexDirection: 'column', gap: '18px',
-              overflowY: 'auto', maxHeight: '80vh'
+              display: 'flex', flexDirection: 'column', gap: '18px'
             }}>
               {/* Title */}
               <h1 style={{

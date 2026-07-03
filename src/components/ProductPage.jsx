@@ -70,7 +70,7 @@ export default function ProductPage() {
 
   const handleAddToCart = () => {
     requireAuth(() => {
-      addToCart(product, quantity, selectedWeight);
+      addToCart(product, selectedWeight || null, quantity);
       setCartAdded(true);
       setTimeout(() => setCartAdded(false), 2500);
     });
@@ -78,7 +78,7 @@ export default function ProductPage() {
 
   const handleBuyNow = () => {
     requireAuth(() => {
-      addToCart(product, quantity, selectedWeight);
+      addToCart(product, selectedWeight || null, quantity);
       navigate('/');
       setTimeout(() => document.querySelector('.cart-btn')?.click(), 400);
     });

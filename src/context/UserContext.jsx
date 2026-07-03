@@ -242,7 +242,10 @@ export const UserProvider = ({ children }) => {
       try {
         await supabase
           .from('cart_items')
-          .insert([{ customer_id: currentUser.id, product_id: product.id, selected_weight: selectedWeight, quantity: qty }]);
+          .upsert(
+            [{ customer_id: currentUser.id, product_id: product.id, selected_weight: selectedWeight || null, quantity: qty }],
+            { onConflict: 'customer_id,product_id,selected_weight', ignoreDuplicates: false }
+          );
       } catch (err) {
         console.error('Failed to insert cart item in DB:', err);
       }
@@ -293,13 +296,16 @@ export const UserProvider = ({ children }) => {
         console.error('Failed to delete wishlist item in DB:', err);
       }
     } else {
-      // Add
+      // Add to wishlist
       const newItem = { productId: product.id, product };
       setWishlist(prev => [...prev, newItem]);
       try {
         await supabase
           .from('wishlist_items')
-          .insert([{ customer_id: currentUser.id, product_id: product.id }]);
+          .upsert(
+            [{ customer_id: currentUser.id, product_id: product.id }],
+            { onConflict: 'customer_id,product_id', ignoreDuplicates: true }
+          );
       } catch (err) {
         console.error('Failed to insert wishlist item in DB:', err);
       }

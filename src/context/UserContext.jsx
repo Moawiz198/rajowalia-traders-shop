@@ -433,8 +433,23 @@ export const UserProvider = ({ children }) => {
       }
 
       // Group items description and price
+      const getWeightFactor = (weightLabel) => {
+        if (!weightLabel) return 1;
+        const clean = weightLabel.toLowerCase().trim();
+        const kgMatch = clean.match(/^([0-9.]+)\s*kg$/);
+        if (kgMatch) return parseFloat(kgMatch[1]);
+        const gMatch = clean.match(/^([0-9.]+)\s*(g|gm|grams)$/);
+        if (gMatch) return parseFloat(gMatch[1]) / 1000;
+        return 1;
+      };
+
       const itemNames = cart.map(item => `${item.product.name}${item.selectedWeight ? ` (${item.selectedWeight})` : ''} x${item.quantity}`).join(', ');
-      const totalPrice = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+      
+      const totalPrice = cart.reduce((sum, item) => {
+        const factor = getWeightFactor(item.selectedWeight);
+        const itemPrice = (Number(item.product?.price) || 0) * factor;
+        return sum + (itemPrice * (Number(item.quantity) || 1));
+      }, 0);
 
       const orderId = `#LX-${Math.floor(1000 + Math.random() * 9000)}`;
       

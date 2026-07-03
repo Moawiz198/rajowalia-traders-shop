@@ -97,7 +97,19 @@ export default function ProductPage() {
   const isWishlisted = wishlist.some(w => w.productId === product.id);
 
   const avgStars = reviews.length > 0 ? (reviews.reduce((s, r) => s + r.stars, 0) / reviews.length).toFixed(1) : product.stars;
-  const starCounts = [5, 4, 3, 2, 1].map(s => ({ star: s, count: reviews.filter(r => r.stars === s).length }));
+  const getWeightFactor = (weightLabel) => {
+    if (!weightLabel) return 1;
+    const clean = weightLabel.toLowerCase().trim();
+    const kgMatch = clean.match(/^([0-9.]+)\s*kg$/);
+    if (kgMatch) return parseFloat(kgMatch[1]);
+    const gMatch = clean.match(/^([0-9.]+)\s*(g|gm|grams)$/);
+    if (gMatch) return parseFloat(gMatch[1]) / 1000;
+    return 1;
+  };
+
+  const factor = getWeightFactor(selectedWeight);
+  const currentPrice = product.price * factor;
+  const currentOldPrice = product.oldPrice ? product.oldPrice * factor : null;
 
   const handleAddToCart = () => {
     requireAuth(() => {
@@ -234,16 +246,16 @@ export default function ProductPage() {
             {/* Price */}
             <div style={{ background: card, borderRadius: '16px', border, padding: '20px 24px' }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '32px', fontWeight: 900, color: '#ff4d1c', fontFamily: 'Outfit, sans-serif' }}>PKR {product.price.toLocaleString()}</span>
-                {product.oldPrice && <span style={{ fontSize: '16px', textDecoration: 'line-through', color: sub }}>PKR {product.oldPrice.toLocaleString()}</span>}
+                <span style={{ fontSize: '32px', fontWeight: 900, color: '#ff4d1c', fontFamily: 'Outfit, sans-serif' }}>PKR {currentPrice.toLocaleString()}</span>
+                {currentOldPrice && <span style={{ fontSize: '16px', textDecoration: 'line-through', color: sub }}>PKR {currentOldPrice.toLocaleString()}</span>}
               </div>
-              {product.oldPrice && (
+              {currentOldPrice && (
                 <div style={{ fontSize: '13px', color: '#22c55e', fontWeight: 600, marginTop: '4px' }}>
-                  {isRTL ? `بچت: PKR ${(product.oldPrice - product.price).toLocaleString()}` : `You save: PKR ${(product.oldPrice - product.price).toLocaleString()}`}
+                  {isRTL ? `بچت: PKR ${(currentOldPrice - currentPrice).toLocaleString()}` : `You save: PKR ${(currentOldPrice - currentPrice).toLocaleString()}`}
                 </div>
               )}
-              <div style={{ marginTop: '12px', fontSize: '13px', color: product.price >= 3000 ? '#22c55e' : sub, background: product.price >= 3000 ? 'rgba(34,197,94,0.06)' : 'transparent', padding: product.price >= 3000 ? '8px 12px' : '0', borderRadius: '8px', display: 'inline-block' }}>
-                🚚 {product.price >= 3000 ? (isRTL ? 'مفت ڈیلیوری اہل!' : 'Free Delivery Eligible!') : (isRTL ? `مفت ڈیلیوری کے لیے ${(3000 - product.price).toLocaleString()} مزید خریدیں` : `Add PKR ${(3000 - product.price).toLocaleString()} more for Free Delivery`)}
+              <div style={{ marginTop: '12px', fontSize: '13px', color: currentPrice >= 3000 ? '#22c55e' : sub, background: currentPrice >= 3000 ? 'rgba(34,197,94,0.06)' : 'transparent', padding: currentPrice >= 3000 ? '8px 12px' : '0', borderRadius: '8px', display: 'inline-block' }}>
+                🚚 {currentPrice >= 3000 ? (isRTL ? 'مفت ڈیلیوری اہل!' : 'Free Delivery Eligible!') : (isRTL ? `مفت ڈیلیوری کے لیے ${(3000 - currentPrice).toLocaleString()} مزید خریدیں` : `Add PKR ${(3000 - currentPrice).toLocaleString()} more for Free Delivery`)}
               </div>
             </div>
 

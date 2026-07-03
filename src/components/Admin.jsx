@@ -795,6 +795,21 @@ export default function Admin({ onLogout }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleWeightPresetChange = (weight, isChecked) => {
+    let current = formData.weightOptions ? formData.weightOptions.split(',').map(w => w.trim()).filter(Boolean) : [];
+    if (isChecked) {
+      if (!current.includes(weight)) {
+        current.push(weight);
+      }
+    } else {
+      current = current.filter(w => w !== weight);
+    }
+    setFormData(prev => ({
+      ...prev,
+      weightOptions: current.join(', ')
+    }));
+  };
+
   const cancelEdit = () => {
     setEditingId(null);
     setFormData({
@@ -1114,6 +1129,25 @@ export default function Admin({ onLogout }) {
                 <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Weight / Size Options (Comma-separated, optional)</label>
                   <input type="text" name="weightOptions" value={formData.weightOptions || ''} onChange={handleChange} placeholder="e.g. 500g, 1kg, 2kg or S, M, L" className="hq-input" />
+                  
+                  {/* Presets checkboxes */}
+                  <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginTop: '10px', background: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    <span style={{ fontSize: '11px', color: '#94a3b8', display: 'block', width: '100%', marginBottom: '4px', fontWeight: 600 }}>QUICK PRESETS FOR KARYANIA:</span>
+                    {['100g', '200g', '250g', '500g', '1kg', '2kg', '3kg', '5kg'].map(w => {
+                      const isChecked = formData.weightOptions ? formData.weightOptions.split(',').map(x => x.trim()).includes(w) : false;
+                      return (
+                        <label key={w} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#cbd5e1', cursor: 'pointer' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={isChecked} 
+                            onChange={(e) => handleWeightPresetChange(w, e.target.checked)} 
+                            style={{ cursor: 'pointer', accentColor: '#ff4d1c' }}
+                          />
+                          {w}
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
                 <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <button type="submit" className="hq-btn">{editingId ? 'Update Item' : 'Add Item'}</button>

@@ -11,8 +11,19 @@ export default function CartDrawer({ isOpen, onClose }) {
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const getWeightFactor = (weightLabel) => {
+    if (!weightLabel) return 1;
+    const clean = weightLabel.toLowerCase().trim();
+    const kgMatch = clean.match(/^([0-9.]+)\s*kg$/);
+    if (kgMatch) return parseFloat(kgMatch[1]);
+    const gMatch = clean.match(/^([0-9.]+)\s*(g|gm|grams)$/);
+    if (gMatch) return parseFloat(gMatch[1]) / 1000;
+    return 1;
+  };
+
   const totalPrice = cart.reduce((sum, item) => {
-    const price = Number(item.product?.price) || 0;
+    const factor = getWeightFactor(item.selectedWeight);
+    const price = (Number(item.product?.price) || 0) * factor;
     const qty = Number(item.quantity) || 1;
     return sum + price * qty;
   }, 0);
@@ -95,7 +106,9 @@ export default function CartDrawer({ isOpen, onClose }) {
                             Weight/Size: <span style={{ color: 'var(--white)', fontWeight: 600 }}>{item.selectedWeight}</span>
                           </div>
                         )}
-                        <div style={{ fontSize: '12px', color: '#ffd700', fontWeight: 'bold', marginTop: '3px' }}>PKR {item.product.price.toLocaleString()}</div>
+                        <div style={{ fontSize: '12px', color: '#ffd700', fontWeight: 'bold', marginTop: '3px' }}>
+                          PKR {((Number(item.product?.price) || 0) * getWeightFactor(item.selectedWeight)).toLocaleString()}
+                        </div>
                       </div>
                       {/* Quantity selectors */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', flexDirection: language === 'ur' ? 'row-reverse' : 'row' }}>

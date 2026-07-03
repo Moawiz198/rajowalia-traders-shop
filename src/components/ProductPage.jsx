@@ -120,6 +120,13 @@ export default function ProductPage() {
 
   const getSizeAddend = (weightLabel) => {
     if (!weightLabel) return 0;
+    
+    if (weightLabel.includes(':')) {
+      const parts = weightLabel.split(':');
+      const customPrice = parseFloat(parts[parts.length - 1]);
+      if (!isNaN(customPrice)) return customPrice;
+    }
+
     const clean = weightLabel.toLowerCase().trim();
     if (clean === 'xl' || clean === 'xxl') return 300;
     
@@ -215,7 +222,7 @@ export default function ProductPage() {
               overflow: 'hidden', position: 'relative', cursor: 'zoom-in'
             }}>
               {images.length > 0 ? (
-                (typeof images[activeIdx] === 'string' && (images[activeIdx].toLowerCase().endsWith('.mp4') || images[activeIdx].toLowerCase().endsWith('.webm'))) ? (
+                (typeof images[activeIdx] === 'string' && (images[activeIdx].toLowerCase().endsWith('.mp4') || images[activeIdx].toLowerCase().endsWith('.webm') || images[activeIdx].startsWith('data:video/'))) ? (
                   <video src={images[activeIdx]} controls autoPlay loop muted style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
                 ) : (
                   <img src={images[activeIdx]} alt={product.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transition: 'opacity 0.2s' }} />
@@ -238,7 +245,7 @@ export default function ProductPage() {
             {images.length > 1 && (
               <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
                 {images.map((img, idx) => {
-                  const isVideoThumb = typeof img === 'string' && (img.toLowerCase().endsWith('.mp4') || img.toLowerCase().endsWith('.webm'));
+                  const isVideoThumb = typeof img === 'string' && (img.toLowerCase().endsWith('.mp4') || img.toLowerCase().endsWith('.webm') || img.startsWith('data:video/'));
                   return (
                     <div key={idx} onClick={() => setActiveIdx(idx)} style={{
                       width: '70px', height: '70px', flexShrink: 0, borderRadius: '8px', overflow: 'hidden',

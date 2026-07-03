@@ -447,6 +447,13 @@ export const UserProvider = ({ children }) => {
       
       const getSizeAddend = (weightLabel) => {
         if (!weightLabel) return 0;
+        
+        if (weightLabel.includes(':')) {
+          const parts = weightLabel.split(':');
+          const customPrice = parseFloat(parts[parts.length - 1]);
+          if (!isNaN(customPrice)) return customPrice;
+        }
+
         const clean = weightLabel.toLowerCase().trim();
         if (clean === 'xl' || clean === 'xxl') return 300;
 

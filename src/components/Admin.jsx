@@ -695,6 +695,13 @@ export default function Admin({ onLogout }) {
   // Inventory logic (original code updated)
   const handleImageChange = async (e) => {
     const files = Array.from(e.target.files);
+    const overLimit = files.find(f => f.size > 5 * 1024 * 1024);
+    if (overLimit) {
+      alert("One or more files exceed the 5MB limit. Please select smaller media files.");
+      e.target.value = '';
+      return;
+    }
+    
     if (files.length > 0) {
       const base64Promises = files.map(file => {
         return new Promise((resolve) => {
@@ -1077,7 +1084,7 @@ export default function Admin({ onLogout }) {
                       </div>
                     )}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: 1 }}>
-                      <input type="file" accept="image/*" multiple onChange={handleImageChange} className="hq-input" style={{ padding: '5px' }} />
+                      <input type="file" accept="image/*,video/*" multiple onChange={handleImageChange} className="hq-input" style={{ padding: '5px' }} />
                       <input type="text" name="emoji" value={formData.emoji} onChange={handleChange} placeholder="Or enter emoji (e.g. 📱)" className="hq-input" />
                     </div>
                   </div>
@@ -1166,7 +1173,7 @@ export default function Admin({ onLogout }) {
                 
                 <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Weight / Size Values (Comma-separated)</label>
-                  <input type="text" name="weightOptions" value={formData.weightOptions || ''} onChange={handleChange} placeholder="e.g. 500g, 1kg, 2kg or S, M, L" className="hq-input" />
+                  <input type="text" name="weightOptions" value={formData.weightOptions || ''} onChange={handleChange} placeholder="e.g. S, M, L OR Custom:300, Premium:500 (Use :price to add to base price)" className="hq-input" />
                 </div>
                 <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <button type="submit" className="hq-btn">{editingId ? 'Update Item' : 'Add Item'}</button>

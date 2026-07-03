@@ -74,6 +74,7 @@ export default function Admin({ onLogout }) {
   });
 
   const [tempPrimary, setTempPrimary] = useState('Electronics');
+  const [customPrimary, setCustomPrimary] = useState('');
   const [tempSub, setTempSub] = useState('');
   const [customSub, setCustomSub] = useState('');
 
@@ -120,29 +121,36 @@ export default function Admin({ onLogout }) {
 
   const availableSubs = getAvailableSubsForPrimary(tempPrimary);
 
+  const updateCategoryInForm = (prim, custPrim, sub, custSub) => {
+    const primaryVal = prim === 'custom' ? custPrim.trim() : prim;
+    const subVal = sub === 'custom' ? custSub.trim() : sub;
+    
+    let finalCat = primaryVal;
+    if (subVal) {
+      finalCat = `${primaryVal} - ${subVal}`;
+    }
+    
+    setFormData(prev => ({ ...prev, category: finalCat }));
+  };
+
   const handlePrimaryChange = (e) => {
     const prim = e.target.value;
     setTempPrimary(prim);
     setTempSub('');
     setCustomSub('');
-    setFormData(prev => ({ ...prev, category: prim }));
+    if (prim !== 'custom') {
+      setCustomPrimary('');
+    }
+    updateCategoryInForm(prim, prim === 'custom' ? customPrimary : '', '', '');
   };
 
   const handleSubChange = (e) => {
     const sub = e.target.value;
     setTempSub(sub);
-    if (sub === 'custom') {
-      setFormData(prev => ({ 
-        ...prev, 
-        category: customSub ? `${tempPrimary} - ${customSub.trim()}` : tempPrimary 
-      }));
-    } else {
+    if (sub !== 'custom') {
       setCustomSub('');
-      setFormData(prev => ({ 
-        ...prev, 
-        category: sub ? `${tempPrimary} - ${sub}` : tempPrimary 
-      }));
     }
+    updateCategoryInForm(tempPrimary, customPrimary, sub, sub === 'custom' ? customSub : '');
   };
 
   // Generic Form States for other modules
@@ -674,6 +682,7 @@ export default function Admin({ onLogout }) {
     setTempPrimary('Electronics');
     setTempSub('');
     setCustomSub('');
+    setCustomPrimary('');
   };
 
   const handleEdit = (p) => {
@@ -690,7 +699,15 @@ export default function Admin({ onLogout }) {
       prim = parts[0];
       sub = parts[1];
     }
-    setTempPrimary(prim);
+
+    const uniquePrimaries = getUniquePrimaryCategories();
+    if (prim && !uniquePrimaries.includes(prim)) {
+      setTempPrimary('custom');
+      setCustomPrimary(prim);
+    } else {
+      setTempPrimary(prim);
+      setCustomPrimary('');
+    }
     
     const currentSubs = getAvailableSubsForPrimary(prim);
     if (sub && !currentSubs.includes(sub)) {
@@ -912,7 +929,24 @@ export default function Admin({ onLogout }) {
                     {getUniquePrimaryCategories().map(prim => (
                       <option key={prim} value={prim}>{prim}</option>
                     ))}
+                    <option value="custom">[ Write Custom Primary Category... ]</option>
                   </select>
+                  {tempPrimary === 'custom' && (
+                    <div style={{ marginTop: '8px' }}>
+                      <input 
+                        type="text" 
+                        value={customPrimary} 
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setCustomPrimary(val);
+                          updateCategoryInForm('custom', val, tempSub, customSub);
+                        }} 
+                        placeholder="Type custom primary category name" 
+                        className="hq-input" 
+                        required 
+                      />
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Sub-Category (Dynamic)</label>
@@ -929,11 +963,9 @@ export default function Admin({ onLogout }) {
                         type="text" 
                         value={customSub} 
                         onChange={(e) => {
-                          setCustomSub(e.target.value);
-                          setFormData(prev => ({ 
-                            ...prev, 
-                            category: e.target.value ? `${tempPrimary} - ${e.target.value.trim()}` : tempPrimary 
-                          }));
+                          const val = e.target.value;
+                          setCustomSub(val);
+                          updateCategoryInForm(tempPrimary, customPrimary, 'custom', val);
                         }} 
                         placeholder="Type custom subcategory name" 
                         className="hq-input" 

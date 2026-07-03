@@ -398,11 +398,24 @@ export default function Admin({ onLogout }) {
   };
 
   const toggleDeliveryStatus = (orderId, currentStatus) => {
-    if (currentStatus === 'Completed & Signed') {
-      handleUpdateOrderStatus(orderId, 'Order Placed', '📦');
+    let nextStatus = 'Order Placed';
+    let nextIcon = '📦';
+    
+    if (currentStatus === 'Order Placed' || !currentStatus) {
+      nextStatus = 'In Process';
+      nextIcon = '⚙️';
+    } else if (currentStatus === 'In Process') {
+      nextStatus = 'On Delivery';
+      nextIcon = '🚚';
+    } else if (currentStatus === 'On Delivery' || currentStatus === 'Dispatched via TCS') {
+      nextStatus = 'Completed & Signed';
+      nextIcon = '✅';
     } else {
-      handleUpdateOrderStatus(orderId, 'Completed & Signed', '✅');
+      nextStatus = 'Order Placed';
+      nextIcon = '📦';
     }
+    
+    handleUpdateOrderStatus(orderId, nextStatus, nextIcon);
   };
 
   const handleDeleteOrder = async (id) => {
@@ -1207,16 +1220,30 @@ export default function Admin({ onLogout }) {
                               style={{ 
                                 padding: '6px 12px', 
                                 fontSize: '11px', 
-                                background: o.status_text === 'Completed & Signed' ? '#22c55e' : '#334155',
+                                background: o.status_text === 'Completed & Signed' 
+                                  ? '#22c55e' 
+                                  : o.status_text === 'On Delivery' || o.status_text === 'Dispatched via TCS'
+                                  ? '#3b82f6' 
+                                  : o.status_text === 'In Process'
+                                  ? '#f59e0b' 
+                                  : '#334155',
                                 color: '#fff',
                                 fontWeight: 'bold',
                                 borderRadius: '4px',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '4px'
+                                gap: '4px',
+                                border: 'none',
+                                transition: 'background-color 0.2s'
                               }}
                             >
-                              {o.status_text === 'Completed & Signed' ? '✅ Delivered' : '📦 Pending'}
+                              {o.status_text === 'Completed & Signed' 
+                                ? '✅ Delivered' 
+                                : o.status_text === 'On Delivery' || o.status_text === 'Dispatched via TCS'
+                                ? '🚚 On Delivery' 
+                                : o.status_text === 'In Process'
+                                ? '⚙️ In Process' 
+                                : '📦 Order Placed'}
                             </button>
                             <button onClick={() => handleDeleteOrder(o.id)} className="hq-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#ef4444', borderRadius: '4px' }}>Delete</button>
                           </div>

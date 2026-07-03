@@ -97,6 +97,8 @@ const translations = {
     items_label: "Items:",
     method_label: "Method:",
     order_placed_status: "Order Placed",
+    in_process_status: "In Process",
+    on_delivery_status: "On Delivery",
     dispatched_status: "Dispatched via TCS",
     completed_status: "Completed & Signed",
     
@@ -202,6 +204,8 @@ const translations = {
     items_label: "اشیاء:",
     method_label: "طریقہ:",
     order_placed_status: "آرڈر دے دیا گیا",
+    in_process_status: "پراسیسنگ ہو رہی ہے",
+    on_delivery_status: "ڈیلیوری پر ہے",
     dispatched_status: "ٹی سی ایس کے ذریعے روانہ کر دیا گیا",
     completed_status: "مکمل اور موصول شدہ",
 

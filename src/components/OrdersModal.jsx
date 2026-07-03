@@ -41,6 +41,8 @@ export default function OrdersModal({ isOpen, onClose }) {
   const translateStatusText = (statusText) => {
     if (!statusText) return '';
     if (statusText === 'Order Placed') return t('order_placed_status');
+    if (statusText === 'In Process') return t('in_process_status');
+    if (statusText === 'On Delivery') return t('on_delivery_status');
     if (statusText === 'Dispatched via TCS') return t('dispatched_status');
     if (statusText === 'Completed & Signed') return t('completed_status');
     return statusText;

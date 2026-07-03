@@ -61,8 +61,8 @@ export default function Admin({ onLogout }) {
     holidayTextUr: 'تعطیلات کی وجہ سے ڈیلیوری میں 2 سے 3 دن کی تاخیر ہو سکتی ہے۔',
     durationRykEn: '48 Hours',
     durationRykUr: '48 گھنٹے',
-    durationPkEn: '4-5 Days',
-    durationPkUr: '4 سے 5 دن'
+    durationPkEn: '3-5 Days',
+    durationPkUr: '3 سے 5 دن'
   });
 
   // Product Inventory Form State
@@ -1486,11 +1486,11 @@ export default function Admin({ onLogout }) {
 
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Pakistan Delivery Time (English)</label>
-                  <input type="text" value={settings.durationPkEn || ''} onChange={e => setSettings({...settings, durationPkEn: e.target.value})} className="hq-input" placeholder="e.g. 4-5 Days" />
+                  <input type="text" value={settings.durationPkEn || ''} onChange={e => setSettings({...settings, durationPkEn: e.target.value})} className="hq-input" placeholder="e.g. 3-5 Days" />
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Pakistan Delivery Time (Urdu)</label>
-                  <input type="text" value={settings.durationPkUr || ''} onChange={e => setSettings({...settings, durationPkUr: e.target.value})} className="hq-input" placeholder="مثال: 4 سے 5 دن" />
+                  <input type="text" value={settings.durationPkUr || ''} onChange={e => setSettings({...settings, durationPkUr: e.target.value})} className="hq-input" placeholder="مثال: 3 سے 5 دن" />
                 </div>
 
                 <div style={{ gridColumn: '1 / -1' }}>

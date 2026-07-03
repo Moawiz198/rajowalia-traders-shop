@@ -10,7 +10,7 @@ export default function Features() {
 
   const getDeliveryText = () => {
     const ryk = language === 'ur' ? (settings.durationRykUr || '48 گھنٹے') : (settings.durationRykEn || '48 Hours');
-    const pk = language === 'ur' ? (settings.durationPkUr || '4 سے 5 دن') : (settings.durationPkEn || '4-5 Days');
+    const pk = language === 'ur' ? (settings.durationPkUr || '3 سے 5 دن') : (settings.durationPkEn || '3-5 Days');
     
     let text = language === 'ur'
       ? `رحیم یار خان: ${ryk} | پورے پاکستان میں: ${pk}`

@@ -82,8 +82,8 @@ export const ProductProvider = ({ children }) => {
     holidayTextUr: 'تعطیلات کی وجہ سے ڈیلیوری میں 2 سے 3 دن کی تاخیر ہو سکتی ہے۔',
     durationRykEn: '48 Hours',
     durationRykUr: '48 گھنٹے',
-    durationPkEn: '4-5 Days',
-    durationPkUr: '4 سے 5 دن'
+    durationPkEn: '3-5 Days',
+    durationPkUr: '3 سے 5 دن'
   });
 
   const fetchSettings = async () => {

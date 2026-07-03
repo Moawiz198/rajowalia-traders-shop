@@ -1,10 +1,31 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { LanguageContext } from '../context/LanguageContext';
+import { UserContext } from '../context/UserContext';
 
 export default function WelcomeScreen({ onEnter }) {
   const { language, setLanguage, t } = useContext(LanguageContext);
+  const { categories } = useContext(UserContext);
   const [particles, setParticles] = useState([]);
   const [isExiting, setIsExiting] = useState(false);
+
+  const getPrimaryCategories = () => {
+    const primaries = new Map();
+    primaries.set('Electronics', '📱');
+    primaries.set('Dresses', '👗');
+    primaries.set('Karyania', '🛒');
+    primaries.set('Painting', '🎨');
+    
+    categories?.forEach(c => {
+      const parts = c.name.split('-');
+      const p = parts[0].trim();
+      if (!primaries.has(p)) {
+        primaries.set(p, c.emoji || '✨');
+      } else if (c.emoji && primaries.get(p) === '✨') {
+        primaries.set(p, c.emoji);
+      }
+    });
+    return Array.from(primaries.entries());
+  };
 
   useEffect(() => {
     const list = [];
@@ -144,74 +165,33 @@ export default function WelcomeScreen({ onEnter }) {
             {t('welcome_explore')}
           </div>
           <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
-            {/* Electronics */}
-            <div style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '12px',
-              padding: '12px 18px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              minWidth: '160px',
-              transition: 'transform 0.3s ease',
-              backdropFilter: 'blur(5px)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-            >
-              <span style={{ fontSize: '24px' }}>📱</span>
-              <div style={{ textAlign: language === 'ur' ? 'right' : 'left' }}>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#fff' }}>{t('electronics')}</div>
-                <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{t('electronics_sub')}</div>
+            {getPrimaryCategories().map(([catName, emoji]) => (
+              <div key={catName} style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '12px',
+                padding: '12px 18px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                minWidth: '160px',
+                transition: 'transform 0.3s ease',
+                backdropFilter: 'blur(5px)'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                <span style={{ fontSize: '24px' }}>{emoji}</span>
+                <div style={{ textAlign: language === 'ur' ? 'right' : 'left' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#fff', textTransform: 'uppercase' }}>
+                    {t(catName.toLowerCase()) !== catName.toLowerCase() ? t(catName.toLowerCase()) : catName}
+                  </div>
+                  <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>
+                    {t(`${catName.toLowerCase()}_sub`) !== `${catName.toLowerCase()}_sub` ? t(`${catName.toLowerCase()}_sub`) : 'Explore collection'}
+                  </div>
+                </div>
               </div>
-            </div>
-
-            {/* Dress */}
-            <div style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '12px',
-              padding: '12px 18px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              minWidth: '160px',
-              transition: 'transform 0.3s ease',
-              backdropFilter: 'blur(5px)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-            >
-              <span style={{ fontSize: '24px' }}>👗</span>
-              <div style={{ textAlign: language === 'ur' ? 'right' : 'left' }}>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#fff' }}>{t('dresses')}</div>
-                <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{t('dresses_sub')}</div>
-              </div>
-            </div>
-
-            {/* Karyania */}
-            <div style={{
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '12px',
-              padding: '12px 18px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              minWidth: '160px',
-              transition: 'transform 0.3s ease',
-              backdropFilter: 'blur(5px)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-            >
-              <span style={{ fontSize: '24px' }}>🛒</span>
-              <div style={{ textAlign: language === 'ur' ? 'right' : 'left' }}>
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#fff' }}>{t('karyania')}</div>
-                <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{t('karyania_sub')}</div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>        
       </div>

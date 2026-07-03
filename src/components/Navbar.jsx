@@ -20,7 +20,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
   const wishlistCount = wishlist ? wishlist.length : 0;
 
   const getUniquePrimaryCategories = () => {
-    const primaries = new Set(['Electronics', 'Dresses', 'Karyania']);
+    const primaries = new Set(['Electronics', 'Dresses', 'Karyania', 'Painting']);
     if (categories && categories.length > 0) {
       categories.forEach(cat => {
         const namePart = cat.name.split(' | ')[0].trim();

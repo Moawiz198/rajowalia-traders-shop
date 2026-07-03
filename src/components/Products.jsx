@@ -190,11 +190,16 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
 
     // 2. Category & Subcategory Filter
     let categoryMatch = false;
+    const primaryCategories = Array.from(new Set(categories.map(c => c.name.split('-')[0].trim())));
+    ['Karyania', 'Dresses', 'Electronics', 'Painting'].forEach(p => {
+      if (!primaryCategories.includes(p)) primaryCategories.push(p);
+    });
+
     if (!selectedCategory || selectedCategory === 'All') {
       categoryMatch = true;
     } else if (selectedCategory === 'Deals') {
       categoryMatch = product.discountPercentage > 0 || (product.badge && product.badge.toUpperCase().includes('SALE'));
-    } else if (['Karyania', 'Dresses', 'Electronics'].includes(selectedCategory)) {
+    } else if (primaryCategories.includes(selectedCategory)) {
       // Strip Urdu translation suffix if present in category mapping (e.g. "Karyania - Sugar | چینی" or product category "Karyania - Sugar")
       const cleanProdCategory = product.category.split(' | ')[0].trim();
       const isDressesMatch = (selectedCategory === 'Dresses' && (cleanProdCategory === 'Women Dresses' || cleanProdCategory.startsWith('Women Dresses - ') || cleanProdCategory.startsWith('Women Dresses-')));
@@ -226,6 +231,7 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
     if (selectedCategory === 'Karyania') return t('karyania').toUpperCase();
     if (selectedCategory === 'Dresses') return t('dresses').toUpperCase();
     if (selectedCategory === 'Electronics') return t('electronics').toUpperCase();
+    if (selectedCategory === 'Painting') return isRTL ? 'پینٹنگ' : 'PAINTING';
     return selectedCategory ? selectedCategory.toUpperCase() : t('trending_now').toUpperCase();
   };
 
@@ -243,7 +249,7 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           {/* Subcategory selectors for parent departments */}
-          {['Karyania', 'Dresses', 'Electronics'].includes(selectedCategory) && currentSubCategories.length > 1 && (
+          {primaryCategories.includes(selectedCategory) && currentSubCategories.length > 1 && (
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 

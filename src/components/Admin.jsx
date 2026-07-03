@@ -656,14 +656,22 @@ export default function Admin({ onLogout }) {
   };
 
   // Inventory logic (original code updated)
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, image: reader.result }));
-      };
-      reader.readAsDataURL(file);
+  const handleImageChange = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      const base64Promises = files.map(file => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(file);
+        });
+      });
+      const results = await Promise.all(base64Promises);
+      if (results.length === 1) {
+        setFormData(prev => ({ ...prev, image: results[0] }));
+      } else {
+        setFormData(prev => ({ ...prev, image: JSON.stringify(results) }));
+      }
     }
   };
 
@@ -998,17 +1006,23 @@ export default function Admin({ onLogout }) {
                   )}
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Product Image / Emoji</label>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>
+                    Product Images (Select Multiple for Gallery — hold Ctrl/Cmd to pick several)
+                  </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     {formData.image ? (
-                      <img src={formData.image} alt="Preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                      <img 
+                        src={formData.image.startsWith('[') ? (() => { try { return JSON.parse(formData.image)[0]; } catch(e) { return formData.image; } })() : formData.image} 
+                        alt="Preview" 
+                        style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} 
+                      />
                     ) : (
                       <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>
                         {formData.emoji || '📷'}
                       </div>
                     )}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', flex: 1 }}>
-                      <input type="file" accept="image/*" onChange={handleImageChange} className="hq-input" style={{ padding: '5px' }} />
+                      <input type="file" accept="image/*" multiple onChange={handleImageChange} className="hq-input" style={{ padding: '5px' }} />
                       <input type="text" name="emoji" value={formData.emoji} onChange={handleChange} placeholder="Or enter emoji (e.g. 📱)" className="hq-input" />
                     </div>
                   </div>

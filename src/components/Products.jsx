@@ -5,6 +5,7 @@ import { ProductContext } from '../context/ProductContext';
 import { UserContext } from '../context/UserContext';
 import { LanguageContext } from '../context/LanguageContext';
 import { ThemeContext } from '../context/ThemeContext';
+import ProductDetailModal from './ProductDetailModal';
 
 const urduDictionary = {
   'sugar': 'چینی',
@@ -51,10 +52,24 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
   const [quantities, setQuantities] = useState({});
   const [conditionFilter, setConditionFilter] = useState('All');
   const [subCategoryFilter, setSubCategoryFilter] = useState(initialSubCategory);
+  const [activeDetailProduct, setActiveDetailProduct] = useState(null);
 
   useEffect(() => {
     setSubCategoryFilter(initialSubCategory);
   }, [initialSubCategory, selectedCategory]);
+
+  const getProductImage = (imgVal) => {
+    if (!imgVal) return '';
+    if (imgVal.startsWith('[')) {
+      try {
+        const arr = JSON.parse(imgVal);
+        return arr[0] || '';
+      } catch (e) {
+        return imgVal;
+      }
+    }
+    return imgVal;
+  };
 
   const isWishlisted = (id) => wishlist.some(item => item.productId === id);
 
@@ -324,10 +339,10 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
         <div className="products-grid">
           {filteredProducts.map((product) => (
           <div className="product-card" key={product.id}>
-            <div className="prod-img-wrap">
+            <div className="prod-img-wrap" onClick={() => setActiveDetailProduct(product)} style={{ cursor: 'pointer' }}>
               <div className="prod-img">
                 {product.image ? (
-                  <img src={product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  <img src={getProductImage(product.image)} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 ) : (
                   <span style={{ fontSize: '80px' }}>{product.emoji}</span>
                 )}
@@ -416,7 +431,7 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
                   </span>
                 )}
               </div>
-              <div className="prod-name">{t(product.name)}</div>
+              <div className="prod-name" onClick={() => setActiveDetailProduct(product)} style={{ cursor: 'pointer' }}>{t(product.name)}</div>
               {product.description && (
                 <div 
                   title={t(product.description)}
@@ -505,6 +520,12 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
         ))}
         </div>
       )}
+
+      <ProductDetailModal
+        product={activeDetailProduct}
+        isOpen={!!activeDetailProduct}
+        onClose={() => setActiveDetailProduct(null)}
+      />
     </section>
   );
 }

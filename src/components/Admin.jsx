@@ -397,6 +397,14 @@ export default function Admin({ onLogout }) {
     }
   };
 
+  const toggleDeliveryStatus = (orderId, currentStatus) => {
+    if (currentStatus === 'Completed & Signed') {
+      handleUpdateOrderStatus(orderId, 'Order Placed', '📦');
+    } else {
+      handleUpdateOrderStatus(orderId, 'Completed & Signed', '✅');
+    }
+  };
+
   const handleDeleteOrder = async (id) => {
     if (isDemoMode) {
       setOrders(prev => prev.filter(o => o.id !== id));
@@ -1192,10 +1200,25 @@ export default function Admin({ onLogout }) {
                           </div>
                         </td>
                         <td>
-                          <div style={{ display: 'flex', gap: '5px' }}>
-                            <button onClick={() => handleUpdateOrderStatus(o.id, 'Dispatched via TCS', '🚚')} className="hq-btn" style={{ padding: '5px 8px', fontSize: '10px', background: '#334155' }}>Dispatch</button>
-                            <button onClick={() => handleUpdateOrderStatus(o.id, 'Completed & Signed', '✅')} className="hq-btn" style={{ padding: '5px 8px', fontSize: '10px', background: '#22c55e' }}>Complete</button>
-                            <button onClick={() => handleDeleteOrder(o.id)} className="hq-btn" style={{ padding: '5px 8px', fontSize: '10px', background: '#ef4444' }}>Delete</button>
+                          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                            <button 
+                              onClick={() => toggleDeliveryStatus(o.id, o.status_text)} 
+                              className="hq-btn" 
+                              style={{ 
+                                padding: '6px 12px', 
+                                fontSize: '11px', 
+                                background: o.status_text === 'Completed & Signed' ? '#22c55e' : '#334155',
+                                color: '#fff',
+                                fontWeight: 'bold',
+                                borderRadius: '4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                            >
+                              {o.status_text === 'Completed & Signed' ? '✅ Delivered' : '📦 Pending'}
+                            </button>
+                            <button onClick={() => handleDeleteOrder(o.id)} className="hq-btn" style={{ padding: '6px 10px', fontSize: '11px', background: '#ef4444', borderRadius: '4px' }}>Delete</button>
                           </div>
                         </td>
                       </tr>

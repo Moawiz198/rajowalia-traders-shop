@@ -84,29 +84,37 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
   const getDynamicSubCategories = () => {
     const subs = new Set();
     
+    const getTargetSectors = (catName) => {
+      if (catName.startsWith(`${selectedCategory} - `)) {
+        return catName.replace(`${selectedCategory} - `, '').trim();
+      }
+      if (catName.startsWith(`${selectedCategory}-`)) {
+        return catName.replace(`${selectedCategory}-`, '').trim();
+      }
+      if (selectedCategory === 'Dresses') {
+        if (catName.startsWith('Women Dresses - ')) {
+          return catName.replace('Women Dresses - ', '').trim();
+        }
+        if (catName.startsWith('Women Dresses-')) {
+          return catName.replace('Women Dresses-', '').trim();
+        }
+      }
+      return null;
+    };
+
     // 1. Parse from custom categories added in Admin Panel
     if (categories && categories.length > 0) {
       categories.forEach(cat => {
-        if (cat.name.startsWith(`${selectedCategory} - `)) {
-          const sub = cat.name.replace(`${selectedCategory} - `, '').trim();
-          if (sub) subs.add(sub);
-        } else if (cat.name.startsWith(`${selectedCategory}-`)) {
-          const sub = cat.name.replace(`${selectedCategory}-`, '').trim();
-          if (sub) subs.add(sub);
-        }
+        const sub = getTargetSectors(cat.name);
+        if (sub) subs.add(sub);
       });
     }
 
     // 2. Parse from products as fallback
     if (products && products.length > 0) {
       products.forEach(prod => {
-        if (prod.category.startsWith(`${selectedCategory} - `)) {
-          const sub = prod.category.replace(`${selectedCategory} - `, '').trim();
-          if (sub) subs.add(sub);
-        } else if (prod.category.startsWith(`${selectedCategory}-`)) {
-          const sub = prod.category.replace(`${selectedCategory}-`, '').trim();
-          if (sub) subs.add(sub);
-        }
+        const sub = getTargetSectors(prod.category);
+        if (sub) subs.add(sub);
       });
     }
 
@@ -175,12 +183,15 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
     } else if (['Karyania', 'Dresses', 'Electronics'].includes(selectedCategory)) {
       // Strip Urdu translation suffix if present in category mapping (e.g. "Karyania - Sugar | چینی" or product category "Karyania - Sugar")
       const cleanProdCategory = product.category.split(' | ')[0].trim();
-      const isParent = cleanProdCategory === selectedCategory || cleanProdCategory.startsWith(`${selectedCategory} - `) || cleanProdCategory.startsWith(`${selectedCategory}-`);
+      const isDressesMatch = (selectedCategory === 'Dresses' && (cleanProdCategory === 'Women Dresses' || cleanProdCategory.startsWith('Women Dresses - ') || cleanProdCategory.startsWith('Women Dresses-')));
+      const isParent = cleanProdCategory === selectedCategory || cleanProdCategory.startsWith(`${selectedCategory} - `) || cleanProdCategory.startsWith(`${selectedCategory}-`) || isDressesMatch;
       if (isParent) {
         if (subCategoryFilter === 'All') {
           categoryMatch = true;
         } else {
-          categoryMatch = cleanProdCategory === `${selectedCategory} - ${subCategoryFilter}` || cleanProdCategory === `${selectedCategory}-${subCategoryFilter}`;
+          categoryMatch = cleanProdCategory === `${selectedCategory} - ${subCategoryFilter}` || 
+                          cleanProdCategory === `${selectedCategory}-${subCategoryFilter}` ||
+                          (selectedCategory === 'Dresses' && (cleanProdCategory === `Women Dresses - ${subCategoryFilter}` || cleanProdCategory === `Women Dresses-${subCategoryFilter}`));
         }
       }
     } else {

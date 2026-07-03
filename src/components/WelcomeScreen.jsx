@@ -28,8 +28,35 @@ export default function WelcomeScreen({ onEnter }) {
       }, 850); // Wait for the transition exit animation to finish
     }, 15000);
 
+    // Skip welcome screen when mouse cursor is moved
+    let initialX = null;
+    let initialY = null;
+    const skipThreshold = 20; // ignore minor pixel jitters on initial load
+
+    const handleMouseMove = (e) => {
+      if (initialX === null || initialY === null) {
+        initialX = e.clientX;
+        initialY = e.clientY;
+        return;
+      }
+
+      const diffX = Math.abs(e.clientX - initialX);
+      const diffY = Math.abs(e.clientY - initialY);
+
+      if (diffX > skipThreshold || diffY > skipThreshold) {
+        setIsExiting(true);
+        window.removeEventListener('mousemove', handleMouseMove);
+        setTimeout(() => {
+          onEnter?.();
+        }, 850);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
     return () => {
       clearTimeout(autoEnterTimer);
+      window.removeEventListener('mousemove', handleMouseMove);
     };
   }, [onEnter]);
 
@@ -109,42 +136,7 @@ export default function WelcomeScreen({ onEnter }) {
           <div className="s1-tag" style={{ margin: '5px 0 0 0' }}>{t('app_tagline')}</div>
         </div>
 
-        {/* Enter Store Manual Button */}
-        <button 
-          onClick={() => {
-            setIsExiting(true);
-            setTimeout(() => {
-              onEnter?.();
-            }, 850);
-          }}
-          className="welcome-btn"
-          style={{
-            background: 'var(--accent)',
-            color: '#fff',
-            border: 'none',
-            padding: '12px 36px',
-            borderRadius: '30px',
-            fontSize: '13px',
-            fontWeight: 800,
-            cursor: 'pointer',
-            letterSpacing: '1.5px',
-            textTransform: 'uppercase',
-            boxShadow: '0 4px 15px rgba(255, 77, 28, 0.4)',
-            transition: 'all 0.3s ease',
-            marginTop: '10px',
-            zIndex: 10
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.transform = 'scale(1.05)';
-            e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 77, 28, 0.6)';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 77, 28, 0.4)';
-          }}
-        >
-          {language === 'ur' ? 'اسٹور میں داخل ہوں' : 'ENTER STORE'}
-        </button>
+
 
         {/* Showcase what we offer */}
         <div style={{ marginTop: '1.5rem', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>

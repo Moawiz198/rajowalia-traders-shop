@@ -125,8 +125,8 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
     };
 
     // 1. Parse from custom categories added in Admin Panel
-    if (categories && categories.length > 0) {
-      categories.forEach(cat => {
+    if (contextCategories && contextCategories.length > 0) {
+      contextCategories.forEach(cat => {
         const sub = getTargetSectors(cat.name);
         if (sub) subs.add(sub);
       });

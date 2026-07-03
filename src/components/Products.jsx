@@ -172,7 +172,7 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
       categoryMatch = true;
     } else if (selectedCategory === 'Deals') {
       categoryMatch = product.discountPercentage > 0 || (product.badge && product.badge.toUpperCase().includes('SALE'));
-    } else if (['Karyania', 'Women Dresses', 'Electronics'].includes(selectedCategory)) {
+    } else if (['Karyania', 'Dresses', 'Electronics'].includes(selectedCategory)) {
       // Strip Urdu translation suffix if present in category mapping (e.g. "Karyania - Sugar | چینی" or product category "Karyania - Sugar")
       const cleanProdCategory = product.category.split(' | ')[0].trim();
       const isParent = cleanProdCategory === selectedCategory || cleanProdCategory.startsWith(`${selectedCategory} - `) || cleanProdCategory.startsWith(`${selectedCategory}-`);
@@ -199,7 +199,7 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
   const getCategoryTitle = () => {
     if (selectedCategory === 'Deals') return t('deals').toUpperCase();
     if (selectedCategory === 'Karyania') return t('karyania').toUpperCase();
-    if (selectedCategory === 'Women Dresses') return t('dresses').toUpperCase();
+    if (selectedCategory === 'Dresses') return t('dresses').toUpperCase();
     if (selectedCategory === 'Electronics') return t('electronics').toUpperCase();
     return selectedCategory ? selectedCategory.toUpperCase() : t('trending_now').toUpperCase();
   };
@@ -218,7 +218,7 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           {/* Subcategory selectors for parent departments */}
-          {['Karyania', 'Women Dresses', 'Electronics'].includes(selectedCategory) && currentSubCategories.length > 1 && (
+          {['Karyania', 'Dresses', 'Electronics'].includes(selectedCategory) && currentSubCategories.length > 1 && (
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 

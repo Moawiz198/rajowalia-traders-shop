@@ -20,13 +20,13 @@ export default function WelcomeScreen({ onEnter }) {
     }
     setParticles(list);
 
-    // Automatically enter store after full welcome animation plays (4.5s)
+    // Automatically enter store after full welcome animation plays (8s)
     const autoEnterTimer = setTimeout(() => {
       setIsExiting(true);
       setTimeout(() => {
         onEnter?.();
       }, 850); // Wait for the transition exit animation to finish
-    }, 4500);
+    }, 8000);
 
     // Skip welcome screen when mouse cursor is moved
     let initialX = null;

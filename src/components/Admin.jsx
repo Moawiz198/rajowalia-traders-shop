@@ -8,7 +8,7 @@ const mockOrders = [
   { id: '#LX-9402', customer: 'Zainab Ahmed', location: 'Lahore', sector: 'Electronics', item: 'iPhone 16', price: 399999, method: 'PREPAID', status_icon: '🚚', status_text: 'In Transit via TCS' },
   { id: '#LX-9401', customer: 'Muhammad Ali', location: 'Karachi', sector: 'Karyana', item: 'Restock Bundle', price: 8450, method: 'COD', status_icon: '📦', status_text: 'Packing Phase' },
   { id: '#LX-9400', customer: 'Hamza Khan', location: 'Islamabad', sector: 'Electronics', item: 'Sony XM5', price: 52000, method: 'COD', status_icon: '⚠️', status_text: 'Pending Call Verification' },
-  { id: '#LX-9399', customer: 'Ayesha Umar', location: 'Multan', sector: 'Women Dresses', item: 'Silk Gown', price: 18500, method: 'PREPAID', status_icon: '✅', status_text: 'Dispatched' },
+  { id: '#LX-9399', customer: 'Ayesha Umar', location: 'Multan', sector: 'Dresses', item: 'Silk Gown', price: 18500, method: 'PREPAID', status_icon: '✅', status_text: 'Dispatched' },
 ];
 
 const mockCustomers = [
@@ -19,7 +19,7 @@ const mockCustomers = [
 
 const mockCategories = [
   { id: 1, name: 'Electronics', emoji: '📱' },
-  { id: 4, name: 'Women Dresses', emoji: '👗' },
+  { id: 4, name: 'Dresses', emoji: '👗' },
   { id: 7, name: 'Karyania', emoji: '🛒' },
 ];
 
@@ -83,7 +83,7 @@ export default function Admin({ onLogout }) {
     // Default subcategories
     if (prim === 'Karyania') {
       ['Sugar', 'Brown Sugar', 'Gurr'].forEach(s => subs.add(s));
-    } else if (prim === 'Women Dresses') {
+    } else if (prim === 'Dresses') {
       ['Lawn', 'Silk', 'Evening Gown'].forEach(s => subs.add(s));
     } else if (prim === 'Electronics') {
       ['Gadgets', 'Accessories', 'Smartwatches'].forEach(s => subs.add(s));
@@ -889,7 +889,7 @@ export default function Admin({ onLogout }) {
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Primary Category</label>
                   <select value={tempPrimary} onChange={handlePrimaryChange} className="hq-input">
                     <option value="Electronics">Electronics</option>
-                    <option value="Women Dresses">Women Dresses</option>
+                    <option value="Dresses">Dresses</option>
                     <option value="Karyania">Karyania</option>
                   </select>
                 </div>
@@ -1222,7 +1222,7 @@ export default function Admin({ onLogout }) {
                     required
                   >
                     <option value="Karyania">Karyania</option>
-                    <option value="Women Dresses">Women Dresses</option>
+                    <option value="Dresses">Dresses</option>
                     <option value="Electronics">Electronics</option>
                   </select>
                 </div>

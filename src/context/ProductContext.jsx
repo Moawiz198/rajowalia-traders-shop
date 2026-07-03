@@ -7,9 +7,9 @@ const initialProducts = [
   { id: 1, emoji: '📱', brand: 'Samsung', name: 'Galaxy S24 Ultra 5G', price: 289999, oldPrice: 350000, badge: 'HOT', condition: 'New', stars: 5, inStock: true, discountPercentage: 17, category: 'Electronics' },
   { id: 2, emoji: '💻', brand: 'Apple', name: 'MacBook Air M3 2024', price: 449000, oldPrice: null, badge: 'NEW', condition: 'New', stars: 5, inStock: true, discountPercentage: 0, category: 'Electronics' },
   { id: 4, emoji: '⌚', brand: 'Apple', name: 'Apple Watch Series 10', price: 89999, oldPrice: null, badge: 'HOT', condition: 'New', stars: 5, inStock: false, discountPercentage: 0, category: 'Electronics' },
-  { id: 6, emoji: '👗', brand: 'H&M', name: 'Floral Summer Dress', price: 4500, oldPrice: null, badge: '', condition: 'New', stars: 5, inStock: true, discountPercentage: 0, category: 'Women Dresses' },
-  { id: 7, emoji: '💃', brand: 'Zara', name: 'Silk Maxi Evening Gown', price: 14500, oldPrice: 18000, badge: 'HOT', condition: 'New', stars: 5, inStock: true, discountPercentage: 19, category: 'Women Dresses' },
-  { id: 8, emoji: '👘', brand: 'Sana Safinaz', name: 'Luxury Printed Lawn Suit', price: 8900, oldPrice: 12000, badge: 'SALE', condition: 'New', stars: 4, inStock: true, discountPercentage: 25, category: 'Women Dresses' },
+  { id: 6, emoji: '👗', brand: 'H&M', name: 'Floral Summer Dress', price: 4500, oldPrice: null, badge: '', condition: 'New', stars: 5, inStock: true, discountPercentage: 0, category: 'Dresses' },
+  { id: 7, emoji: '💃', brand: 'Zara', name: 'Silk Maxi Evening Gown', price: 14500, oldPrice: 18000, badge: 'HOT', condition: 'New', stars: 5, inStock: true, discountPercentage: 19, category: 'Dresses' },
+  { id: 8, emoji: '👘', brand: 'Sana Safinaz', name: 'Luxury Printed Lawn Suit', price: 8900, oldPrice: 12000, badge: 'SALE', condition: 'New', stars: 4, inStock: true, discountPercentage: 25, category: 'Dresses' },
   
   // Karyana Products
   { id: 10, emoji: '🍬', brand: 'Refined', name: 'Fine White Sugar 1kg', price: 150, oldPrice: null, badge: '', condition: 'New', stars: 4, inStock: true, discountPercentage: 0, category: 'Karyania - Sugar' },

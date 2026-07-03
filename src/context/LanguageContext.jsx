@@ -10,7 +10,7 @@ const translations = {
     app_tagline: "Pakistan's Premium Store",
     home: "Home",
     electronics: "Electronics",
-    dresses: "Women Dresses",
+    dresses: "Dresses",
     karyania: "Karyania",
     deals: "Deals",
     search: "Search...",
@@ -220,7 +220,7 @@ const translations = {
 
     // Category translations
     'Electronics': 'الیکٹرانکس',
-    'Women Dresses': 'خواتین کے لباس',
+    'Dresses': 'خواتین کے لباس',
     'Karyania': 'کریانہ',
     'Karyania - Sugar': 'کریانہ - چینی',
     'Karyania - Brown Sugar': 'کریانہ - شکر',

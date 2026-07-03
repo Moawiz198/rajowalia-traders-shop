@@ -1604,8 +1604,9 @@ footer {
 
   /* Modal Mobile Styles */
   .modal-content {
-    padding: 1.5rem 1rem !important;
-    width: 95% !important;
+    padding: 1.25rem 1rem !important;
+    width: 90% !important;
+    box-sizing: border-box !important;
   }
   
   /* Flash Sale bar mobile stacking */

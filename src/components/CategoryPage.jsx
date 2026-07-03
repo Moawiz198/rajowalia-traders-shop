@@ -11,8 +11,8 @@ export default function CategoryPage() {
   let subCategory = 'All';
 
   const lowerDecoded = decoded.toLowerCase();
-  if (lowerDecoded === 'clothing' || lowerDecoded.startsWith('clothing-') || lowerDecoded.startsWith('clothing - ') || lowerDecoded === 'women dresses') {
-    mainCategory = 'Women Dresses';
+  if (lowerDecoded === 'clothing' || lowerDecoded.startsWith('clothing-') || lowerDecoded.startsWith('clothing - ') || lowerDecoded === 'women dresses' || lowerDecoded === 'dresses') {
+    mainCategory = 'Dresses';
     subCategory = 'All';
   } else {
     mainCategory = decoded.charAt(0).toUpperCase() + decoded.slice(1);

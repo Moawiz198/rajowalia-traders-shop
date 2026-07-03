@@ -33,7 +33,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
       <ul className="nav-links">
         <li><a onClick={() => navigate('/')} style={{cursor: 'pointer'}}>{t('home')}</a></li>
         <li><a onClick={() => navigate('/category/Electronics')} style={{cursor: 'pointer'}}>{t('electronics')}</a></li>
-        <li><a onClick={() => navigate('/category/Women Dresses')} style={{cursor: 'pointer'}}>{t('dresses')}</a></li>
+        <li><a onClick={() => navigate('/category/Dresses')} style={{cursor: 'pointer'}}>{t('dresses')}</a></li>
         <li><a onClick={() => navigate('/category/Karyania')} style={{cursor: 'pointer'}}>{t('karyania')}</a></li>
         <li><a onClick={() => navigate('/category/Deals')} style={{cursor: 'pointer'}}>{t('deals')}</a></li>
       </ul>
@@ -309,7 +309,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
             <ul className="mobile-drawer-links" style={{ overflowY: 'auto', textAlign: language === 'ur' ? 'right' : 'left' }}>
               <li><a onClick={() => { setMobileMenuOpen(false); navigate('/'); }}>{t('home')}</a></li>
               <li><a onClick={() => { setMobileMenuOpen(false); navigate('/category/Electronics'); }}>{t('electronics')}</a></li>
-              <li><a onClick={() => { setMobileMenuOpen(false); navigate('/category/Women Dresses'); }}>{t('dresses')}</a></li>
+              <li><a onClick={() => { setMobileMenuOpen(false); navigate('/category/Dresses'); }}>{t('dresses')}</a></li>
               <li><a onClick={() => { setMobileMenuOpen(false); navigate('/category/Karyania'); }}>{t('karyania')}</a></li>
               <li><a onClick={() => { setMobileMenuOpen(false); navigate('/category/Deals'); }}>{t('deals')}</a></li>
             </ul>

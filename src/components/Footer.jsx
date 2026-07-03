@@ -96,7 +96,7 @@ export default function Footer() {
           <h4>{t('shop')}</h4>
           <ul>
             <li><a onClick={() => navigate('/category/Electronics')} style={{cursor: 'pointer'}}>{t('electronics')}</a></li>
-            <li><a onClick={() => navigate('/category/Women Dresses')} style={{cursor: 'pointer'}}>{t('dresses')}</a></li>
+            <li><a onClick={() => navigate('/category/Dresses')} style={{cursor: 'pointer'}}>{t('dresses')}</a></li>
             <li><a onClick={() => navigate('/category/Karyania')} style={{cursor: 'pointer'}}>{t('karyania')}</a></li>
           </ul>
         </div>

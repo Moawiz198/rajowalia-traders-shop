@@ -19,7 +19,7 @@ export default function Categories() {
       </div>
       <div className="categories-grid">
         <div className="cat-card" onClick={() => navigate('/category/Electronics')}><span className="cat-icon">📱</span><div className="cat-name">{t('electronics')}</div><div className="cat-count">12,400 {t('items')}</div></div>
-        <div className="cat-card" onClick={() => navigate('/category/Women Dresses')}><span className="cat-icon">👗</span><div className="cat-name">{t('dresses')}</div><div className="cat-count">18,000 {t('items')}</div></div>
+        <div className="cat-card" onClick={() => navigate('/category/Dresses')}><span className="cat-icon">👗</span><div className="cat-name">{t('dresses')}</div><div className="cat-count">18,000 {t('items')}</div></div>
         <div className="cat-card" onClick={() => navigate('/category/Karyania')}><span className="cat-icon">🛒</span><div className="cat-name">{t('karyania')}</div><div className="cat-count">5,400 {t('items')}</div></div>
       </div>
     </section>

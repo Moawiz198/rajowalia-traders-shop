@@ -118,9 +118,17 @@ export default function ProductPage() {
     return 1;
   };
 
+  const getSizeAddend = (weightLabel) => {
+    if (!weightLabel) return 0;
+    const clean = weightLabel.toLowerCase().trim();
+    if (clean === 'xl' || clean === 'xxl') return 300;
+    return 0;
+  };
+
   const factor = getWeightFactor(selectedWeight);
-  const currentPrice = product.price * factor;
-  const currentOldPrice = product.oldPrice ? product.oldPrice * factor : null;
+  const sizeAddend = getSizeAddend(selectedWeight);
+  const currentPrice = (product.price * factor) + sizeAddend;
+  const currentOldPrice = product.oldPrice ? (product.oldPrice * factor) + sizeAddend : null;
 
   const handleAddToCart = () => {
     requireAuth(() => {

@@ -445,9 +445,17 @@ export const UserProvider = ({ children }) => {
 
       const itemNames = cart.map(item => `${item.product.name}${item.selectedWeight ? ` (${item.selectedWeight})` : ''} x${item.quantity}`).join(', ');
       
+      const getSizeAddend = (weightLabel) => {
+        if (!weightLabel) return 0;
+        const clean = weightLabel.toLowerCase().trim();
+        if (clean === 'xl' || clean === 'xxl') return 300;
+        return 0;
+      };
+
       const totalPrice = cart.reduce((sum, item) => {
         const factor = getWeightFactor(item.selectedWeight);
-        const itemPrice = (Number(item.product?.price) || 0) * factor;
+        const addend = getSizeAddend(item.selectedWeight);
+        const itemPrice = ((Number(item.product?.price) || 0) * factor) + addend;
         return sum + (itemPrice * (Number(item.quantity) || 1));
       }, 0);
 

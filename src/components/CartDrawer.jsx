@@ -21,9 +21,17 @@ export default function CartDrawer({ isOpen, onClose }) {
     return 1;
   };
 
+  const getSizeAddend = (weightLabel) => {
+    if (!weightLabel) return 0;
+    const clean = weightLabel.toLowerCase().trim();
+    if (clean === 'xl' || clean === 'xxl') return 300;
+    return 0;
+  };
+
   const totalPrice = cart.reduce((sum, item) => {
     const factor = getWeightFactor(item.selectedWeight);
-    const price = (Number(item.product?.price) || 0) * factor;
+    const addend = getSizeAddend(item.selectedWeight);
+    const price = ((Number(item.product?.price) || 0) * factor) + addend;
     const qty = Number(item.quantity) || 1;
     return sum + price * qty;
   }, 0);
@@ -107,7 +115,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                           </div>
                         )}
                         <div style={{ fontSize: '12px', color: '#ffd700', fontWeight: 'bold', marginTop: '3px' }}>
-                          PKR {((Number(item.product?.price) || 0) * getWeightFactor(item.selectedWeight)).toLocaleString()}
+                          PKR {(((Number(item.product?.price) || 0) * getWeightFactor(item.selectedWeight)) + getSizeAddend(item.selectedWeight)).toLocaleString()}
                         </div>
                       </div>
                       {/* Quantity selectors */}

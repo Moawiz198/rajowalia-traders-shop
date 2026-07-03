@@ -186,7 +186,7 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
         console.warn('Translation failed for', key, e);
       }
     });
-  }, [products, categories, selectedCategory]);
+  }, [products, contextCategories, selectedCategory]);
 
   const filteredProducts = products.filter(product => {
     // 1. Search Query Filter (name or brand)

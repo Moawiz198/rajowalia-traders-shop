@@ -10,9 +10,13 @@ export const UserProvider = ({ children }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Deferred authentication states
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
+
+  // Global modals open/close states
+  const [cartOpen, setCartOpen] = useState(false);
+  const [wishlistOpen, setWishlistOpen] = useState(false);
+  const [ordersOpen, setOrdersOpen] = useState(false);
 
   // Load user session on mount
   useEffect(() => {
@@ -39,22 +43,24 @@ export const UserProvider = ({ children }) => {
         .eq('customer_id', userId);
       
       if (!cartErr && cartData) {
-        setCart(cartData.map(item => ({
-          id: item.id,
-          productId: item.product_id,
-          quantity: item.quantity,
-          selectedWeight: item.selected_weight || null,
-          product: {
-            id: item.product.id,
-            name: item.product.name,
-            brand: item.product.brand,
-            price: Number(item.product.price),
-            emoji: item.product.emoji,
-            image: item.product.image,
-            inStock: item.product.in_stock,
-            weightOptions: item.product.weight_options || ''
-          }
-        })));
+        setCart(cartData
+          .filter(item => item.product) // skip orphaned items
+          .map(item => ({
+            id: item.id,
+            productId: item.product_id,
+            quantity: Number(item.quantity) || 1,
+            selectedWeight: (item.selected_weight && isNaN(Number(item.selected_weight))) ? item.selected_weight : null,
+            product: {
+              id: item.product.id,
+              name: item.product.name,
+              brand: item.product.brand,
+              price: Number(item.product.price),
+              emoji: item.product.emoji,
+              image: item.product.image,
+              inStock: item.product.in_stock,
+              weightOptions: item.product.weight_options || ''
+            }
+          })));
       }
 
       // 2. Fetch Wishlist Items
@@ -562,7 +568,13 @@ Please process this order in your admin panel.
       toggleWishlist,
       checkoutCart,
       deliveryFee,
-      syncUserData
+      syncUserData,
+      cartOpen,
+      setCartOpen,
+      wishlistOpen,
+      setWishlistOpen,
+      ordersOpen,
+      setOrdersOpen
     }}>
       {children}
     </UserContext.Provider>

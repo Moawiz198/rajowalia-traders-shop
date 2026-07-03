@@ -371,45 +371,42 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
               {product.discountPercentage > 0 && (
                 <div className="prod-discount-badge">-{product.discountPercentage}%</div>
               )}
-              <div className="prod-actions">
-                <button 
-                  className="prod-action-btn"
-                  onClick={() => requireAuth(() => toggleWishlist(product))}
-                  style={{ 
-                    flex: '0 0 40px',
-                    width: '40px',
-                    height: '40px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: isWishlisted(product.id) ? '#ff4d1c' : 'var(--black)',
-                    padding: 0
-                  }}
-                >
-                  {isWishlisted(product.id) ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ff4d1c" stroke="#ff4d1c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-                    </svg>
-                  )}
-                </button>
-                <button 
-                  className="prod-action-btn cart" 
-                  style={{
-                    ...(addingStates[product.id] ? { background: '#22c55e' } : {}),
-                    ...(!product.inStock ? { background: '#555', cursor: 'not-allowed', color: '#aaa' } : {})
-                  }}
-                  onClick={() => product.inStock && handleAddToCart(product)}
-                  disabled={!product.inStock}
-                >
-                  {!product.inStock 
-                    ? t('sold_out') 
-                    : addingStates[product.id] ? `✓ ${t('added')}` : t('add_to_cart')}
-                </button>
-              </div>
+              {/* Absolute Wishlist Button */}
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  requireAuth(() => toggleWishlist(product));
+                }}
+                style={{ 
+                  position: 'absolute',
+                  top: '10px',
+                  right: '10px',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: theme === 'dark' ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.85)',
+                  backdropFilter: 'blur(4px)',
+                  border: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: isWishlisted(product.id) ? '#ff4d1c' : (theme === 'dark' ? '#94a3b8' : '#6b7280'),
+                  cursor: 'pointer',
+                  zIndex: 5,
+                  transition: 'all 0.2s',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+                }}
+              >
+                {isWishlisted(product.id) ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#ff4d1c" stroke="#ff4d1c" strokeWidth="2">
+                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                  </svg>
+                )}
+              </button>
             </div>
             <div className="prod-info">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>

@@ -4,8 +4,7 @@ import { ProductContext } from '../context/ProductContext';
 import { UserContext } from '../context/UserContext';
 import { LanguageContext } from '../context/LanguageContext';
 import { ThemeContext } from '../context/ThemeContext';
-import Navbar from './Navbar';
-import Footer from './Footer';
+import MainLayout from './MainLayout';
 
 const parseImages = (imageVal) => {
   if (!imageVal) return [];
@@ -21,7 +20,7 @@ export default function ProductPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
   const { products } = useContext(ProductContext);
-  const { addToCart, wishlist, toggleWishlist, requireAuth, currentUser } = useContext(UserContext);
+  const { addToCart, wishlist, toggleWishlist, requireAuth, currentUser, setCartOpen } = useContext(UserContext);
   const { language, t } = useContext(LanguageContext);
   const { theme } = useContext(ThemeContext);
 
@@ -72,6 +71,7 @@ export default function ProductPage() {
     requireAuth(() => {
       addToCart(product, selectedWeight || null, quantity);
       setCartAdded(true);
+      setCartOpen(true);
       setTimeout(() => setCartAdded(false), 2500);
     });
   };
@@ -79,8 +79,7 @@ export default function ProductPage() {
   const handleBuyNow = () => {
     requireAuth(() => {
       addToCart(product, selectedWeight || null, quantity);
-      navigate('/');
-      setTimeout(() => document.querySelector('.cart-btn')?.click(), 400);
+      setCartOpen(true);
     });
   };
 
@@ -112,9 +111,7 @@ export default function ProductPage() {
   const sub = isDark ? '#94a3b8' : '#6b7280';
 
   return (
-    <div style={{ minHeight: '100vh', background: bg, direction: isRTL ? 'rtl' : 'ltr' }}>
-      <Navbar />
-
+    <MainLayout>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px 16px' }}>
 
         {/* Breadcrumb */}
@@ -268,6 +265,27 @@ export default function ProductPage() {
                   cursor: 'pointer', color: isWishlisted ? '#ff4d1c' : sub, fontSize: '20px'
                 }}>♥</button>
               </div>
+              {/* Account Requirement Warning Note */}
+              <div style={{
+                fontSize: '12px',
+                color: isDark ? '#f87171' : '#dc2626',
+                fontWeight: 600,
+                textAlign: 'center',
+                marginTop: '12px',
+                background: isDark ? 'rgba(239, 68, 68, 0.08)' : 'rgba(239, 68, 68, 0.05)',
+                border: isDark ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid rgba(239, 68, 68, 0.15)',
+                borderRadius: '8px',
+                padding: '10px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
+              }}>
+                <span>ℹ️</span>
+                <span>{isRTL 
+                  ? 'خریداری کے لیے اکاؤنٹ بنانا لازمی ہے۔ جب آپ ابھی خریدیں پر کلک کریں گے، تو اکاؤنٹ بنانے کا فارم کھل جائے گا۔' 
+                  : 'Account registration is required to buy. Clicking "Buy Now" will prompt you to create or log in to your account.'}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -370,8 +388,6 @@ export default function ProductPage() {
 
       </div>
 
-      <Footer />
-
       <style>{`
         @media (max-width: 700px) {
           .pdp-top-grid { grid-template-columns: 1fr !important; }
@@ -379,6 +395,6 @@ export default function ProductPage() {
           .pdp-action-btns button { width: 100% !important; }
         }
       `}</style>
-    </div>
+    </MainLayout>
   );
 }

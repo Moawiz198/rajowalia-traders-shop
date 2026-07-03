@@ -1,6 +1,7 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import { LanguageContext } from '../context/LanguageContext';
 import { ProductContext } from '../context/ProductContext';
+import { UserContext } from '../context/UserContext';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import CartDrawer from './CartDrawer';
@@ -11,9 +12,7 @@ import AuthModal from './AuthModal';
 export default function MainLayout({ children }) {
   const { language } = useContext(LanguageContext);
   const { settings } = useContext(ProductContext);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [wishlistOpen, setWishlistOpen] = useState(false);
-  const [ordersOpen, setOrdersOpen] = useState(false);
+  const { cartOpen, setCartOpen, wishlistOpen, setWishlistOpen, ordersOpen, setOrdersOpen } = useContext(UserContext);
 
   return (
     <div className={language === 'ur' ? 'rtl' : ''} style={{ direction: language === 'ur' ? 'rtl' : 'ltr' }}>

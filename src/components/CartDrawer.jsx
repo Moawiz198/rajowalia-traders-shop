@@ -11,7 +11,11 @@ export default function CartDrawer({ isOpen, onClose }) {
   const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const totalPrice = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+  const totalPrice = cart.reduce((sum, item) => {
+    const price = Number(item.product?.price) || 0;
+    const qty = Number(item.quantity) || 1;
+    return sum + price * qty;
+  }, 0);
 
   const handleCheckout = async () => {
     setLoading(true);
@@ -86,7 +90,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                       {/* Info */}
                       <div style={{ flex: 1, textAlign: language === 'ur' ? 'right' : 'left' }}>
                         <div style={{ fontWeight: 600, fontSize: '14px' }}>{t(item.product.name)}</div>
-                        {item.selectedWeight && (
+                        {item.selectedWeight && typeof item.selectedWeight === 'string' && isNaN(Number(item.selectedWeight)) && (
                           <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
                             Weight/Size: <span style={{ color: 'var(--white)', fontWeight: 600 }}>{item.selectedWeight}</span>
                           </div>
@@ -96,7 +100,7 @@ export default function CartDrawer({ isOpen, onClose }) {
                       {/* Quantity selectors */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '4px 8px', borderRadius: '6px', flexDirection: language === 'ur' ? 'row-reverse' : 'row' }}>
                         <button onClick={() => updateCartQuantity(item.productId, item.quantity - 1, item.selectedWeight)} style={{ background: 'none', border: 'none', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>-</button>
-                        <span style={{ fontSize: '13px', fontWeight: 600, width: '15px', textAlign: 'center' }}>{item.quantity}</span>
+                        <span style={{ fontSize: '13px', fontWeight: 600, width: '15px', textAlign: 'center' }}>{Number(item.quantity) || 1}</span>
                         <button onClick={() => updateCartQuantity(item.productId, item.quantity + 1, item.selectedWeight)} style={{ background: 'none', border: 'none', color: theme === 'dark' ? '#fff' : '#000', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}>+</button>
                       </div>
                       {/* Delete button */}

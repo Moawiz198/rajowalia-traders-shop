@@ -449,6 +449,14 @@ export const UserProvider = ({ children }) => {
         if (!weightLabel) return 0;
         const clean = weightLabel.toLowerCase().trim();
         if (clean === 'xl' || clean === 'xxl') return 300;
+
+        const canvasSteps = {
+          '4x4': 0, '6x6': 50, '8x8': 100, '8x10': 150, 
+          '10x10': 200, '10x12': 250, '12x12': 300, '12x16': 350, 
+          '12x18': 400, '16x20': 450, '18x24': 500, '24x36': 550
+        };
+        if (canvasSteps[clean] !== undefined) return canvasSteps[clean];
+
         return 0;
       };
 

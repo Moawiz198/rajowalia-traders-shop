@@ -124,6 +124,8 @@ export default function Admin({ onLogout }) {
       ['Women Dresses', 'Men Dresses', 'Women_Female', 'Men_Male', 'Lawn', 'Silk', 'Evening Gown'].forEach(s => subs.add(s));
     } else if (prim === 'Electronics') {
       ['Gadgets', 'Accessories', 'Smartwatches'].forEach(s => subs.add(s));
+    } else if (prim === 'Painting') {
+      ['Calligraphy', 'Abstract', 'Portrait'].forEach(s => subs.add(s));
     }
 
     // Dynamic ones from categories state
@@ -141,7 +143,7 @@ export default function Admin({ onLogout }) {
   };
 
   const getUniquePrimaryCategories = () => {
-    const primaries = new Set(['Electronics', 'Dresses', 'Karyania']);
+    const primaries = new Set(['Electronics', 'Dresses', 'Karyania', 'Painting']);
     categories.forEach(cat => {
       const namePart = cat.name.split(' | ')[0].trim();
       if (namePart.includes(' - ')) {
@@ -1138,6 +1140,8 @@ export default function Admin({ onLogout }) {
                         setFormData(prev => ({ ...prev, weightOptions: '100g, 200g, 250g, 500g, 1kg, 2kg, 3kg, 5kg' }));
                       } else if (val === 'dresses') {
                         setFormData(prev => ({ ...prev, weightOptions: 'S, M, L, XL, XXL' }));
+                      } else if (val === 'canvas') {
+                        setFormData(prev => ({ ...prev, weightOptions: '4x4, 6x6, 8x8, 8x10, 10x10, 10x12, 12x12, 12x16, 12x18, 16x20, 18x24, 24x36' }));
                       }
                     }}
                     value={
@@ -1145,6 +1149,8 @@ export default function Admin({ onLogout }) {
                         ? 'karyana' 
                         : formData.weightOptions === 'S, M, L, XL, XXL' 
                         ? 'dresses' 
+                        : formData.weightOptions === '4x4, 6x6, 8x8, 8x10, 10x10, 10x12, 12x12, 12x16, 12x18, 16x20, 18x24, 24x36'
+                        ? 'canvas'
                         : formData.weightOptions === '' 
                         ? 'none' 
                         : 'custom'
@@ -1153,6 +1159,7 @@ export default function Admin({ onLogout }) {
                     <option value="none">No options (Standard single item)</option>
                     <option value="karyana">🛒 Weighted Product (Auto 100g, 200g, 250g, 500g, 1kg, 2kg, 3kg, 5kg)</option>
                     <option value="dresses">👗 Dress Sizes (Auto S, M, L, XL, XXL)</option>
+                    <option value="canvas">🎨 Canvas Sizes (Auto 4x4 to 24x36)</option>
                     <option value="custom">⚙️ Custom / Comma-separated (Type below)</option>
                   </select>
                 </div>
@@ -1439,6 +1446,7 @@ export default function Admin({ onLogout }) {
                   >
                     <option value="Karyania">Karyania</option>
                     <option value="Dresses">Dresses</option>
+                    <option value="Painting">Painting</option>
                     <option value="Electronics">Electronics</option>
                     <option value="custom">[ Create Custom Parent Category... ]</option>
                   </select>

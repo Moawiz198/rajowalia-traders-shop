@@ -122,6 +122,14 @@ export default function ProductPage() {
     if (!weightLabel) return 0;
     const clean = weightLabel.toLowerCase().trim();
     if (clean === 'xl' || clean === 'xxl') return 300;
+    
+    const canvasSteps = {
+      '4x4': 0, '6x6': 50, '8x8': 100, '8x10': 150, 
+      '10x10': 200, '10x12': 250, '12x12': 300, '12x16': 350, 
+      '12x18': 400, '16x20': 450, '18x24': 500, '24x36': 550
+    };
+    if (canvasSteps[clean] !== undefined) return canvasSteps[clean];
+    
     return 0;
   };
 
@@ -207,7 +215,11 @@ export default function ProductPage() {
               overflow: 'hidden', position: 'relative', cursor: 'zoom-in'
             }}>
               {images.length > 0 ? (
-                <img src={images[activeIdx]} alt={product.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transition: 'opacity 0.2s' }} />
+                (typeof images[activeIdx] === 'string' && (images[activeIdx].toLowerCase().endsWith('.mp4') || images[activeIdx].toLowerCase().endsWith('.webm'))) ? (
+                  <video src={images[activeIdx]} controls autoPlay loop muted style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                ) : (
+                  <img src={images[activeIdx]} alt={product.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transition: 'opacity 0.2s' }} />
+                )
               ) : (
                 <span style={{ fontSize: '120px' }}>{product.emoji}</span>
               )}
@@ -225,16 +237,26 @@ export default function ProductPage() {
             {/* Thumbnails */}
             {images.length > 1 && (
               <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
-                {images.map((img, idx) => (
-                  <div key={idx} onClick={() => setActiveIdx(idx)} style={{
-                    width: '70px', height: '70px', flexShrink: 0, borderRadius: '8px', overflow: 'hidden',
-                    border: activeIdx === idx ? '2px solid var(--accent)' : border,
-                    cursor: 'pointer', background: isDark ? 'rgba(255,255,255,0.03)' : '#f9fafb',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', transition: 'border-color 0.2s'
-                  }}>
-                    <img src={img} alt={`img-${idx}`} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-                  </div>
-                ))}
+                {images.map((img, idx) => {
+                  const isVideoThumb = typeof img === 'string' && (img.toLowerCase().endsWith('.mp4') || img.toLowerCase().endsWith('.webm'));
+                  return (
+                    <div key={idx} onClick={() => setActiveIdx(idx)} style={{
+                      width: '70px', height: '70px', flexShrink: 0, borderRadius: '8px', overflow: 'hidden',
+                      border: activeIdx === idx ? '2px solid var(--accent)' : border,
+                      cursor: 'pointer', background: isDark ? 'rgba(255,255,255,0.03)' : '#f9fafb',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', transition: 'border-color 0.2s', position: 'relative'
+                    }}>
+                      {isVideoThumb ? (
+                        <>
+                          <video src={img} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} />
+                          <div style={{ position: 'absolute', background: 'rgba(0,0,0,0.5)', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '12px' }}>▶</div>
+                        </>
+                      ) : (
+                        <img src={img} alt={`img-${idx}`} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

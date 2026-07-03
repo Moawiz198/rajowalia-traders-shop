@@ -24,23 +24,30 @@ export default function CartDrawer({ isOpen, onClose }) {
   const getSizeAddend = (weightLabel) => {
     if (!weightLabel) return 0;
     
-    if (weightLabel.includes(':')) {
-      const parts = weightLabel.split(':');
+    let actualLabel = weightLabel;
+    let customAddend = 0;
+    if (actualLabel.includes(' ||| CUSTOM_DESIGN ||| ')) {
+      actualLabel = actualLabel.split(' ||| CUSTOM_DESIGN ||| ')[0];
+      customAddend = 500;
+    }
+    
+    if (actualLabel.includes(':')) {
+      const parts = actualLabel.split(':');
       const customPrice = parseFloat(parts[parts.length - 1]);
-      if (!isNaN(customPrice)) return customPrice;
+      if (!isNaN(customPrice)) return customPrice + customAddend;
     }
 
-    const clean = weightLabel.toLowerCase().trim();
-    if (clean === 'xl' || clean === 'xxl') return 300;
+    const clean = actualLabel.toLowerCase().trim();
+    if (clean === 'xl' || clean === 'xxl') return 300 + customAddend;
 
     const canvasSteps = {
       '4x4': 0, '6x6': 50, '8x8': 100, '8x10': 150, 
       '10x10': 200, '10x12': 250, '12x12': 300, '12x16': 350, 
       '12x18': 400, '16x20': 450, '18x24': 500, '24x36': 550
     };
-    if (canvasSteps[clean] !== undefined) return canvasSteps[clean];
+    if (canvasSteps[clean] !== undefined) return canvasSteps[clean] + customAddend;
 
-    return 0;
+    return customAddend;
   };
 
   const totalPrice = cart.reduce((sum, item) => {
@@ -51,17 +58,22 @@ export default function CartDrawer({ isOpen, onClose }) {
     return sum + price * qty;
   }, 0);
 
+  const [hadCustomDesign, setHadCustomDesign] = useState(false);
+
   const handleCheckout = async () => {
+    const hasCustom = cart.some(item => item.selectedWeight && item.selectedWeight.includes(' ||| CUSTOM_DESIGN ||| '));
     setLoading(true);
     const success = await checkoutCart(paymentMethod);
     setLoading(false);
     if (success) {
+      setHadCustomDesign(hasCustom);
       setCheckoutSuccess(true);
     }
   };
 
   const handleClose = () => {
     setCheckoutSuccess(false);
+    setHadCustomDesign(false);
     onClose();
   };
 
@@ -83,6 +95,11 @@ export default function CartDrawer({ isOpen, onClose }) {
             <p style={{ color: '#94a3b8', fontSize: '14px', lineHeight: '1.6' }}>
               {t('order_success_msg')}
             </p>
+            {hadCustomDesign && (
+              <div style={{ background: 'rgba(255,183,3,0.1)', color: '#ffb703', padding: '16px', borderRadius: '12px', border: '1px solid rgba(255,183,3,0.2)', fontSize: '14px', fontWeight: 600 }}>
+                🎨 {language === 'ur' ? 'ہماری ٹیم آپ کے کسٹم ڈیزائن کی تفصیلات کے بارے میں جلد رابطہ کرے گی!' : 'Our team will contact you shortly regarding your Custom Design details!'}
+              </div>
+            )}
             <button onClick={handleClose} className="hq-btn" style={{ width: '100%', padding: '12px' }}>
               {t('continue_shopping')}
             </button>

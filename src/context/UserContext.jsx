@@ -443,28 +443,42 @@ export const UserProvider = ({ children }) => {
         return 1;
       };
 
-      const itemNames = cart.map(item => `${item.product.name}${item.selectedWeight ? ` (${item.selectedWeight})` : ''} x${item.quantity}`).join(', ');
+      const itemNames = cart.map(item => {
+        let sw = item.selectedWeight || '';
+        if (sw.includes(' ||| CUSTOM_DESIGN ||| ')) {
+          const parts = sw.split(' ||| CUSTOM_DESIGN ||| ');
+          sw = parts[0] + ' [Custom Design]';
+        }
+        return `${item.product.name}${sw ? ` (${sw})` : ''} x${item.quantity}`;
+      }).join(', ');
       
       const getSizeAddend = (weightLabel) => {
         if (!weightLabel) return 0;
         
-        if (weightLabel.includes(':')) {
-          const parts = weightLabel.split(':');
+        let actualLabel = weightLabel;
+        let customAddend = 0;
+        if (actualLabel.includes(' ||| CUSTOM_DESIGN ||| ')) {
+          actualLabel = actualLabel.split(' ||| CUSTOM_DESIGN ||| ')[0];
+          customAddend = 500;
+        }
+        
+        if (actualLabel.includes(':')) {
+          const parts = actualLabel.split(':');
           const customPrice = parseFloat(parts[parts.length - 1]);
-          if (!isNaN(customPrice)) return customPrice;
+          if (!isNaN(customPrice)) return customPrice + customAddend;
         }
 
-        const clean = weightLabel.toLowerCase().trim();
-        if (clean === 'xl' || clean === 'xxl') return 300;
+        const clean = actualLabel.toLowerCase().trim();
+        if (clean === 'xl' || clean === 'xxl') return 300 + customAddend;
 
         const canvasSteps = {
           '4x4': 0, '6x6': 50, '8x8': 100, '8x10': 150, 
           '10x10': 200, '10x12': 250, '12x12': 300, '12x16': 350, 
           '12x18': 400, '16x20': 450, '18x24': 500, '24x36': 550
         };
-        if (canvasSteps[clean] !== undefined) return canvasSteps[clean];
+        if (canvasSteps[clean] !== undefined) return canvasSteps[clean] + customAddend;
 
-        return 0;
+        return customAddend;
       };
 
       const totalPrice = cart.reduce((sum, item) => {

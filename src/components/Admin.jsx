@@ -49,6 +49,7 @@ export default function Admin({ onLogout }) {
   const [categories, setCategories] = useState([]);
   const [discounts, setDiscounts] = useState([]);
   const [shipping, setShipping] = useState([]);
+  const [viewCustomDesign, setViewCustomDesign] = useState(null);
   const [settings, setSettings] = useState({
     storeName: 'Rajowalia Traders',
     phone: '+92 300 1234567',
@@ -986,7 +987,12 @@ export default function Admin({ onLogout }) {
                           </td>
                           <td>
                             <div style={{ color: '#fff' }}>{o.sector}</div>
-                            <div style={{ color: '#94a3b8', fontSize: '12px' }}>({o.item})</div>
+                            <div style={{ color: '#94a3b8', fontSize: '12px' }}>{o.item}</div>
+                            {Array.isArray(o.cart) && o.cart.some(i => i.selectedWeight && i.selectedWeight.includes(' ||| CUSTOM_DESIGN ||| ')) && (
+                              <button onClick={() => setViewCustomDesign(o.cart.filter(i => i.selectedWeight && i.selectedWeight.includes(' ||| CUSTOM_DESIGN ||| ')))} style={{ marginTop: '8px', background: '#ffb703', color: '#000', border: 'none', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
+                                View Custom Design
+                              </button>
+                            )}
                           </td>
                           <td>PKR {Number(o.price || 0).toLocaleString()}</td>
                           <td>
@@ -1890,6 +1896,43 @@ export default function Admin({ onLogout }) {
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Custom Design Modal */}
+        {viewCustomDesign && (
+          <div className="modal-overlay open" onClick={() => setViewCustomDesign(null)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem' }}>
+                <h2 style={{ margin: 0, fontFamily: 'Bebas Neue', fontSize: '24px', letterSpacing: '1px' }}>Custom Design Request</h2>
+                <button onClick={() => setViewCustomDesign(null)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '24px', cursor: 'pointer' }}>×</button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '70vh', overflowY: 'auto' }}>
+                {viewCustomDesign.map((item, idx) => {
+                  const parts = item.selectedWeight.split(' ||| CUSTOM_DESIGN ||| ');
+                  const baseSize = parts[0];
+                  const subParts = parts[1].split(' ||| ');
+                  const reqText = subParts[0];
+                  const fileData = subParts[1];
+                  const isVideo = fileData && fileData.startsWith('data:video');
+                  return (
+                    <div key={idx} style={{ background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: '8px' }}>
+                      <div style={{ fontWeight: 'bold', color: '#ff4d1c', marginBottom: '8px' }}>{item.product.name} ({baseSize})</div>
+                      <div style={{ fontSize: '13px', color: '#cbd5e1', marginBottom: '12px' }}><strong>Requirements:</strong><br/>{reqText || 'None provided.'}</div>
+                      {fileData && (
+                        <div style={{ marginTop: '8px' }}>
+                          <strong>Attached File:</strong><br/>
+                          {isVideo ? (
+                            <video src={fileData} controls style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px', marginTop: '8px' }} />
+                          ) : (
+                            <img src={fileData} alt="Custom Design" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px', marginTop: '8px', objectFit: 'contain' }} />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

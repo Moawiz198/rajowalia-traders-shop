@@ -51,7 +51,7 @@ export default function OrdersModal({ isOpen, onClose }) {
   return (
     <div className={`modal-overlay ${isOpen ? 'open' : ''}`} onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ direction: language === 'ur' ? 'rtl' : 'ltr' }}>
-        
+
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '1rem', flexDirection: language === 'ur' ? 'row-reverse' : 'row' }}>
           <h2 style={{ fontFamily: 'Bebas Neue', fontSize: '28px', letterSpacing: '1px', margin: 0 }}>{t('orders_title')}</h2>

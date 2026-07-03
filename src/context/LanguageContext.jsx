@@ -75,7 +75,7 @@ const translations = {
     electronics_sub: "Premium Devices",
     dresses_sub: "Luxury Wear",
     karyania_sub: "Sugar & Sweeteners",
-    
+
     // UI strings for Cart, Wishlist, Orders
     shopping_cart: "Shopping Cart",
     empty_cart: "Your cart is empty",
@@ -101,7 +101,7 @@ const translations = {
     on_delivery_status: "On Delivery",
     dispatched_status: "Dispatched via TCS",
     completed_status: "Completed & Signed",
-    
+
     // Features Section
     feat_delivery_t: "Free Delivery",
     feat_delivery_d: "On orders above PKR 2,000 across Pakistan",
@@ -209,7 +209,7 @@ const translations = {
     dispatched_status: "ٹی سی ایس کے ذریعے روانہ کر دیا گیا",
     completed_status: "مکمل اور موصول شدہ",
 
-  
+
 
     // Product Names translations
     'Galaxy S24 Ultra 5G': 'گلیکسی S24 الٹرا 5G',

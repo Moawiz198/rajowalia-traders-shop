@@ -39,6 +39,11 @@ export default function ProductPage() {
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
   const [photoPreview, setPhotoPreview] = useState('');
   const [videoPreview, setVideoPreview] = useState('');
+  
+  // Custom Design States
+  const [isCustomDesign, setIsCustomDesign] = useState(false);
+  const [customDesignText, setCustomDesignText] = useState('');
+  const [customDesignFile, setCustomDesignFile] = useState('');
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
@@ -65,6 +70,21 @@ export default function ProductPage() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setVideoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCustomDesignFile = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert("File size must be under 2MB for browser storage.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomDesignFile(reader.result);
       };
       reader.readAsDataURL(file);
     }
@@ -121,33 +141,46 @@ export default function ProductPage() {
   const getSizeAddend = (weightLabel) => {
     if (!weightLabel) return 0;
     
-    if (weightLabel.includes(':')) {
-      const parts = weightLabel.split(':');
+    let actualLabel = weightLabel;
+    let customAddend = 0;
+    if (actualLabel.includes(' ||| CUSTOM_DESIGN ||| ')) {
+      actualLabel = actualLabel.split(' ||| CUSTOM_DESIGN ||| ')[0];
+      customAddend = 500;
+    }
+    
+    if (actualLabel.includes(':')) {
+      const parts = actualLabel.split(':');
       const customPrice = parseFloat(parts[parts.length - 1]);
-      if (!isNaN(customPrice)) return customPrice;
+      if (!isNaN(customPrice)) return customPrice + customAddend;
     }
 
-    const clean = weightLabel.toLowerCase().trim();
-    if (clean === 'xl' || clean === 'xxl') return 300;
+    const clean = actualLabel.toLowerCase().trim();
+    if (clean === 'xl' || clean === 'xxl') return 300 + customAddend;
     
     const canvasSteps = {
       '4x4': 0, '6x6': 50, '8x8': 100, '8x10': 150, 
       '10x10': 200, '10x12': 250, '12x12': 300, '12x16': 350, 
       '12x18': 400, '16x20': 450, '18x24': 500, '24x36': 550
     };
-    if (canvasSteps[clean] !== undefined) return canvasSteps[clean];
+    if (canvasSteps[clean] !== undefined) return canvasSteps[clean] + customAddend;
     
-    return 0;
+    return customAddend;
   };
 
   const factor = getWeightFactor(selectedWeight);
   const sizeAddend = getSizeAddend(selectedWeight);
-  const currentPrice = (product.price * factor) + sizeAddend;
-  const currentOldPrice = product.oldPrice ? (product.oldPrice * factor) + sizeAddend : null;
+  const customDesignAddend = isCustomDesign ? 500 : 0;
+  
+  const currentPrice = (product.price * factor) + sizeAddend + customDesignAddend;
+  const currentOldPrice = product.oldPrice ? (product.oldPrice * factor) + sizeAddend + customDesignAddend : null;
 
   const handleAddToCart = () => {
     requireAuth(() => {
-      addToCart(product, selectedWeight || null, quantity);
+      let finalWeight = selectedWeight || '';
+      if (isCustomDesign) {
+        finalWeight += ` ||| CUSTOM_DESIGN ||| ${customDesignText} ||| ${customDesignFile}`;
+      }
+      addToCart(product, finalWeight || null, quantity);
       setCartAdded(true);
       setCartOpen(true);
       setTimeout(() => setCartAdded(false), 2500);
@@ -330,6 +363,40 @@ export default function ProductPage() {
                       }}>{opt}</button>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Custom Design Option */}
+              {product.category?.startsWith('Painting') && (
+                <div style={{ background: isDark ? 'rgba(255,255,255,0.02)' : '#f9fafb', borderRadius: '12px', padding: '16px', border }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={isCustomDesign} onChange={(e) => setIsCustomDesign(e.target.checked)} style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: 'var(--accent)' }} />
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontWeight: 800, fontSize: '15px', color: text }}>Full Custom Design</span>
+                      <span style={{ fontSize: '13px', color: sub }}>Add your own ideas to the design (+Rs. 500)</span>
+                    </div>
+                  </label>
+
+                  {isCustomDesign && (
+                    <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '16px', borderTop: border, paddingTop: '16px' }}>
+                      <div>
+                        <div style={{ fontSize: '11px', color: text, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>Your Requirements</div>
+                        <textarea 
+                          value={customDesignText}
+                          onChange={(e) => setCustomDesignText(e.target.value)}
+                          placeholder="Describe your custom ideas (colors, characters, etc.)"
+                          style={{ width: '100%', minHeight: '80px', padding: '12px', borderRadius: '8px', border, background: 'transparent', color: text, fontFamily: 'inherit', resize: 'vertical' }}
+                        />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '11px', color: text, fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>Upload Your Design Pic or Video</div>
+                        <input type="file" accept="image/*,video/*" onChange={handleCustomDesignFile} style={{ fontSize: '13px', color: text }} />
+                        {customDesignFile && (
+                          <div style={{ marginTop: '10px', fontSize: '12px', color: '#22c55e', fontWeight: 600 }}>✓ File attached successfully!</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

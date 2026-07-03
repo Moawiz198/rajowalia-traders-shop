@@ -102,9 +102,9 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
           zIndex: 9001,
           overflowY: 'auto',
           display: 'flex',
-          alignItems: 'flex-start',
+          alignItems: 'center',
           justifyContent: 'center',
-          padding: '20px 16px 60px',
+          padding: '16px',
           direction: isRTL ? 'rtl' : 'ltr'
         }}
       >
@@ -112,14 +112,13 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
           onClick={e => e.stopPropagation()}
           style={{
             width: '100%',
-            maxWidth: '1000px',
+            maxWidth: '960px',
             background: isDark ? '#111827' : '#ffffff',
             borderRadius: '20px',
             border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #e5e7eb',
             boxShadow: '0 25px 80px rgba(0,0,0,0.6)',
             overflow: 'hidden',
-            animation: 'slideUp 0.3s ease',
-            marginTop: '40px'
+            animation: 'slideUp 0.3s ease'
           }}
         >
           {/* Top bar */}

@@ -987,45 +987,47 @@ export default function Admin({ onLogout }) {
               <div className="hq-card-header">
                 <h2 className="hq-card-title">CURRENT INVENTORY</h2>
               </div>
-              <table className="hq-table">
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map(p => (
-                    <tr key={p.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', overflow: 'hidden' }}>
-                            {p.image ? <img src={p.image} alt="prod" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '24px' }}>{p.emoji}</span>}
-                          </div>
-                          <div>
-                            <div style={{ fontWeight: 600, color: '#fff' }}>{p.name}</div>
-                            <div style={{ fontSize: '12px', color: '#64748b' }}>
-                              {p.brand} • {p.category} • <span style={{ color: p.condition === 'Used' ? '#ffd700' : '#4ade80', fontWeight: 600 }}>{p.condition || 'New'}</span>
+              <div style={{ overflowX: 'auto' }}>
+                <table className="hq-table">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Price</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map(p => (
+                      <tr key={p.id}>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', overflow: 'hidden' }}>
+                              {p.image ? <img src={p.image} alt="prod" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '24px' }}>{p.emoji}</span>}
+                            </div>
+                            <div>
+                              <div style={{ fontWeight: 600, color: '#fff' }}>{p.name}</div>
+                              <div style={{ fontSize: '12px', color: '#64748b' }}>
+                                {p.brand} • {p.category} • <span style={{ color: p.condition === 'Used' ? '#ffd700' : '#4ade80', fontWeight: 600 }}>{p.condition || 'New'}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </td>
-                      <td style={{ color: '#fff' }}>PKR {p.price.toLocaleString()}</td>
-                      <td>
-                        <span className="hq-badge" style={{ background: p.inStock ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)', color: p.inStock ? '#4ade80' : '#ef4444' }}>
-                          {p.inStock ? `${p.stock !== undefined ? p.stock : 10} Left` : 'Sold Out'}
-                        </span>
-                      </td>
-                      <td>
-                        <button onClick={() => handleEdit(p)} className="hq-btn" style={{ background: '#334155', marginRight: '10px' }}>Edit</button>
-                        <button onClick={() => removeProduct(p.id)} className="hq-btn" style={{ background: '#ef4444' }}>Delete</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        </td>
+                        <td style={{ color: '#fff' }}>PKR {p.price.toLocaleString()}</td>
+                        <td>
+                          <span className="hq-badge" style={{ background: p.inStock ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)', color: p.inStock ? '#4ade80' : '#ef4444' }}>
+                            {p.inStock ? `${p.stock !== undefined ? p.stock : 10} Left` : 'Sold Out'}
+                          </span>
+                        </td>
+                        <td>
+                          <button onClick={() => handleEdit(p)} className="hq-btn" style={{ background: '#334155', marginRight: '10px' }}>Edit</button>
+                          <button onClick={() => removeProduct(p.id)} className="hq-btn" style={{ background: '#ef4444' }}>Delete</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}

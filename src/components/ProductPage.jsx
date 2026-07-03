@@ -37,6 +37,38 @@ export default function ProductPage() {
   const [reviewStars, setReviewStars] = useState(5);
   const [hoverStar, setHoverStar] = useState(0);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState('');
+  const [videoPreview, setVideoPreview] = useState('');
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert(isRTL ? "تصویر کا سائز 2MB سے کم ہونا چاہئے۔" : "Photo size must be less than 2MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleVideoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert(isRTL ? "ویڈیو کا سائز 5MB سے کم ہونا چاہئے۔" : "Video size must be less than 5MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setVideoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const isRTL = language === 'ur';
   const isDark = theme === 'dark';
@@ -92,13 +124,17 @@ export default function ProductPage() {
         stars: reviewStars,
         text: reviewText.trim(),
         date: new Date().toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' }),
-        verified: true
+        verified: true,
+        photo: photoPreview || null,
+        video: videoPreview || null
       };
       const updated = [newReview, ...reviews];
       setReviews(updated);
       localStorage.setItem(REVIEWS_KEY(product.id), JSON.stringify(updated));
       setReviewText('');
       setReviewStars(5);
+      setPhotoPreview('');
+      setVideoPreview('');
       setReviewSubmitted(true);
       setTimeout(() => setReviewSubmitted(false), 3000);
     });
@@ -350,6 +386,20 @@ export default function ProductPage() {
                 outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', direction: isRTL ? 'rtl' : 'ltr'
               }}
             />
+
+            {/* Media Uploads */}
+            <div style={{ display: 'flex', gap: '20px', marginTop: '14px', flexWrap: 'wrap', border: border, padding: '12px', borderRadius: '10px', background: isDark ? 'rgba(255,255,255,0.01)' : '#fbfbfb' }}>
+              <div style={{ flex: 1, minWidth: '150px' }}>
+                <label style={{ display: 'block', fontSize: '11px', color: sub, marginBottom: '6px', fontWeight: 600 }}>📸 {isRTL ? 'تصویر شامل کریں (زیادہ سے زیادہ 2MB)' : 'Add Photo (Max 2MB)'}</label>
+                <input type="file" accept="image/*" onChange={handlePhotoChange} style={{ fontSize: '12px', color: sub, width: '100%' }} />
+                {photoPreview && <img src={photoPreview} alt="Preview" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '6px', marginTop: '8px', display: 'block', border }} />}
+              </div>
+              <div style={{ flex: 1, minWidth: '150px' }}>
+                <label style={{ display: 'block', fontSize: '11px', color: sub, marginBottom: '6px', fontWeight: 600 }}>🎥 {isRTL ? 'ویڈیو شامل کریں (زیادہ سے زیادہ 5MB)' : 'Add Video (Max 5MB)'}</label>
+                <input type="file" accept="video/*" onChange={handleVideoChange} style={{ fontSize: '12px', color: sub, width: '100%' }} />
+                {videoPreview && <video src={videoPreview} style={{ width: '100px', height: '60px', objectFit: 'cover', borderRadius: '6px', marginTop: '8px', display: 'block', border }} controls />}
+              </div>
+            </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', flexWrap: 'wrap', gap: '10px' }}>
               <span style={{ fontSize: '12px', color: sub }}>{isRTL ? 'جائزہ جمع کرنے کے لیے لاگ ان ضروری ہے' : 'Login required to submit a review'}</span>
               <button onClick={handleSubmitReview} style={{
@@ -380,6 +430,20 @@ export default function ProductPage() {
                   </div>
                   <div style={{ color: '#fbbf24', fontSize: '14px', marginBottom: '8px' }}>{'★'.repeat(r.stars)}{'☆'.repeat(5 - r.stars)}</div>
                   <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.6, color: isDark ? '#cbd5e1' : '#374151' }}>{r.text}</p>
+                  
+                  {/* Media Displays */}
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '12px', flexWrap: 'wrap' }}>
+                    {r.photo && (
+                      <div style={{ position: 'relative', cursor: 'zoom-in' }} onClick={() => window.open(r.photo, '_blank')}>
+                        <img src={r.photo} alt="User Upload" style={{ maxWidth: '120px', maxHeight: '120px', objectFit: 'cover', borderRadius: '8px', border }} />
+                      </div>
+                    )}
+                    {r.video && (
+                      <div style={{ position: 'relative' }}>
+                        <video src={r.video} style={{ maxWidth: '200px', maxHeight: '150px', objectFit: 'contain', borderRadius: '8px', border }} controls />
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

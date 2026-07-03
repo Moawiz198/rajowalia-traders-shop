@@ -68,6 +68,41 @@ export default function Admin({ onLogout }) {
 
   // Product Inventory Form State
   const [editingId, setEditingId] = useState(null);
+
+  // Product Reviews Management State
+  const [allReviews, setAllReviews] = useState([]);
+
+  useEffect(() => {
+    if (activeTab === 'reviews') {
+      const list = [];
+      products.forEach(p => {
+        const saved = localStorage.getItem(`product_reviews_${p.id}`);
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            parsed.forEach(r => list.push({ ...r, productId: p.id, productName: p.name }));
+          } catch (e) {
+            console.error('Error parsing reviews:', e);
+          }
+        }
+      });
+      setAllReviews(list);
+    }
+  }, [activeTab, products]);
+
+  const handleDeleteReview = (productId, reviewId) => {
+    const saved = localStorage.getItem(`product_reviews_${productId}`);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        const filtered = parsed.filter(r => r.id !== reviewId);
+        localStorage.setItem(`product_reviews_${productId}`, JSON.stringify(filtered));
+        setAllReviews(prev => prev.filter(r => !(r.productId === productId && r.id === reviewId)));
+      } catch (e) {
+        console.error('Error deleting review:', e);
+      }
+    }
+  };
   const [formData, setFormData] = useState({
     emoji: '', image: '', brand: '', name: '', price: '', oldPrice: '', 
     badge: '', condition: 'New', stars: '5', inStock: true, discountPercentage: '0', 
@@ -820,6 +855,9 @@ export default function Admin({ onLogout }) {
           </div>
           <div className={`hq-nav-link ${activeTab === 'subscribers' ? 'active' : ''}`} onClick={() => setActiveTab('subscribers')}>
             📧 Subscribers List
+          </div>
+          <div className={`hq-nav-link ${activeTab === 'reviews' ? 'active' : ''}`} onClick={() => setActiveTab('reviews')}>
+            ⭐ Product Reviews
           </div>
         </div>
 
@@ -1689,6 +1727,102 @@ export default function Admin({ onLogout }) {
                           </td>
                           <td>
                             <button onClick={() => handleDeleteSubscriber(s.id)} className="hq-btn" style={{ padding: '5px 10px', fontSize: '11px', background: '#ef4444' }}>Delete</button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 10. REVIEWS VIEW */}
+        {activeTab === 'reviews' && (
+          <div>
+            <div className="hq-card">
+              <div className="hq-card-header" style={{ flexWrap: 'wrap', gap: '1rem', alignItems: 'center' }}>
+                <div>
+                  <h2 className="hq-card-title">CUSTOMER PRODUCT REVIEWS ({allReviews.length})</h2>
+                  <p style={{ color: '#64748b', fontSize: '12px', marginTop: '4px' }}>Review details, ratings, and media files submitted by users</p>
+                </div>
+                <div>
+                  <button onClick={() => {
+                    const list = [];
+                    products.forEach(p => {
+                      const saved = localStorage.getItem(`product_reviews_${p.id}`);
+                      if (saved) {
+                        try {
+                          const parsed = JSON.parse(saved);
+                          parsed.forEach(r => list.push({ ...r, productId: p.id, productName: p.name }));
+                        } catch (e) {
+                          console.error(e);
+                        }
+                      }
+                    });
+                    setAllReviews(list);
+                  }} className="hq-btn">🔄 Refresh Reviews</button>
+                </div>
+              </div>
+
+              <div style={{ overflowX: 'auto' }}>
+                <table className="hq-table">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Customer Name</th>
+                      <th>Rating</th>
+                      <th>Comment</th>
+                      <th>Uploaded Media</th>
+                      <th>Submission Date</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allReviews.length === 0 ? (
+                      <tr>
+                        <td colSpan="7" style={{ textAlign: 'center', color: '#64748b', padding: '2rem' }}>No reviews found.</td>
+                      </tr>
+                    ) : (
+                      allReviews.map((rev) => (
+                        <tr key={`${rev.productId}-${rev.id}`}>
+                          <td style={{ color: '#fff', fontWeight: 600 }}>{rev.productName}</td>
+                          <td style={{ color: '#94a3b8' }}>{rev.name}</td>
+                          <td>
+                            <span style={{ color: '#fbbf24', fontSize: '14px' }}>
+                              {'★'.repeat(rev.stars)}{'☆'.repeat(5 - rev.stars)}
+                            </span>
+                          </td>
+                          <td style={{ color: '#cbd5e1', fontSize: '13px', maxWidth: '300px', whiteSpace: 'normal', lineHeight: '1.4' }}>
+                            {rev.text}
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                              {rev.photo && (
+                                <a href={rev.photo} target="_blank" rel="noreferrer">
+                                  <img src={rev.photo} alt="Media" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)' }} />
+                                </a>
+                              )}
+                              {rev.video && (
+                                <video src={rev.video} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }} onClick={() => window.open(rev.video, '_blank')} />
+                              )}
+                              {!rev.photo && !rev.video && <span style={{ color: '#475569' }}>None</span>}
+                            </div>
+                          </td>
+                          <td style={{ color: '#94a3b8', fontSize: '12px' }}>{rev.date}</td>
+                          <td>
+                            <button 
+                              onClick={() => {
+                                if (window.confirm(`Are you sure you want to delete the review by "${rev.name}"?`)) {
+                                  handleDeleteReview(rev.productId, rev.id);
+                                }
+                              }} 
+                              className="hq-btn" 
+                              style={{ padding: '5px 12px', fontSize: '11px', background: '#ef4444' }}
+                            >
+                              Remove
+                            </button>
                           </td>
                         </tr>
                       ))

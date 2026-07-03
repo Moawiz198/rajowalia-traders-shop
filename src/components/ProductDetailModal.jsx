@@ -196,6 +196,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
             }}>
               {/* Large Image */}
               <div
+                className="pdm-main-img"
                 onClick={() => setZoom(!zoom)}
                 style={{
                   width: '100%', height: '360px',
@@ -465,7 +466,7 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
               </div>
 
               {/* Action Buttons */}
-              <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+              <div className="pdm-action-buttons" style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
                 {/* Buy Now */}
                 <button
                   onClick={handleBuyNow}
@@ -526,15 +527,27 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
 
       <style>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 720px) {
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+        .pdm-scroll-container { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+        .pdm-scroll-container::-webkit-scrollbar { width: 4px; }
+        .pdm-scroll-container::-webkit-scrollbar-track { background: transparent; }
+        .pdm-scroll-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+        @media (max-width: 700px) {
           .product-detail-inner {
             grid-template-columns: 1fr !important;
           }
           .product-detail-inner > div {
             border-right: none !important;
             border-left: none !important;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 20px 16px !important;
+            max-height: none !important;
           }
+          .pdm-main-img { height: 260px !important; }
+          .pdm-action-buttons { flex-direction: column !important; }
+          .pdm-action-buttons button { width: 100% !important; }
         }
       `}</style>
     </>

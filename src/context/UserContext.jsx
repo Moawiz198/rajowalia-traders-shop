@@ -306,6 +306,67 @@ export const UserProvider = ({ children }) => {
     }
   };
 
+  const [deliveryFee, setDeliveryFee] = useState(300);
+
+  useEffect(() => {
+    const calculateDeliveryFee = async () => {
+      if (!currentUser || cart.length === 0) {
+        setDeliveryFee(300);
+        return;
+      }
+      
+      const totalPrice = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+      if (totalPrice > 3000) {
+        setDeliveryFee(0);
+        return;
+      }
+
+      const loc = (currentUser.location || '').toLowerCase().replace(/\s+/g, '');
+      const isRYK = loc.includes('rahim') || loc.includes('ryk');
+
+      // Check if this customer has placed an order in the last 24 hours
+      let hasRecentOrder = false;
+      try {
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        if (currentUser.id && !currentUser.isFallback) {
+          const { data: dbOrders, error } = await supabase
+            .from('orders')
+            .select('created_at')
+            .eq('customer_id', currentUser.id)
+            .gte('created_at', twentyFourHoursAgo);
+          
+          if (!error && dbOrders && dbOrders.length > 0) {
+            hasRecentOrder = true;
+          }
+        }
+
+        const saved = localStorage.getItem('luxeOrders');
+        if (saved) {
+          const list = JSON.parse(saved);
+          const threshold = Date.now() - 24 * 60 * 60 * 1000;
+          const localRecent = list.some(o => {
+            const isSameUser = o.customer === currentUser.name;
+            const orderTime = o.created_at ? new Date(o.created_at).getTime() : Date.now();
+            return isSameUser && orderTime > threshold;
+          });
+          if (localRecent) {
+            hasRecentOrder = true;
+          }
+        }
+      } catch (err) {
+        console.warn('Error checking 24h order limit for fee:', err);
+      }
+
+      if (hasRecentOrder) {
+        setDeliveryFee(0);
+      } else {
+        setDeliveryFee(isRYK ? 100 : 300);
+      }
+    };
+
+    calculateDeliveryFee();
+  }, [cart, currentUser]);
+
   const checkoutCart = async (paymentMethod = 'COD') => {
     if (!currentUser || cart.length === 0) return false;
     try {
@@ -377,10 +438,11 @@ export const UserProvider = ({ children }) => {
         location: currentUser.location,
         sector: cart[0].product.category || 'General',
         item: itemNames,
-        price: totalPrice,
+        price: totalPrice + deliveryFee,
         method: paymentMethod,
         status_icon: '📦',
-        status_text: 'Order Placed'
+        status_text: 'Order Placed',
+        created_at: new Date().toISOString()
       };
 
       // 3. Create order in Supabase
@@ -480,6 +542,7 @@ Please process this order in your admin panel.
       removeFromCart,
       toggleWishlist,
       checkoutCart,
+      deliveryFee,
       syncUserData
     }}>
       {children}

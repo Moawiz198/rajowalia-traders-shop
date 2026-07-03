@@ -4,7 +4,7 @@ import { LanguageContext } from '../context/LanguageContext';
 import { ThemeContext } from '../context/ThemeContext';
 
 export default function CartDrawer({ isOpen, onClose }) {
-  const { cart, updateCartQuantity, removeFromCart, checkoutCart, currentUser, setAuthModalOpen } = useContext(UserContext);
+  const { cart, updateCartQuantity, removeFromCart, checkoutCart, currentUser, setAuthModalOpen, deliveryFee } = useContext(UserContext);
   const { language, t } = useContext(LanguageContext);
   const { theme } = useContext(ThemeContext);
   const [paymentMethod, setPaymentMethod] = useState('COD');
@@ -109,10 +109,26 @@ export default function CartDrawer({ isOpen, onClose }) {
 
             {cart.length > 0 && (
               /* Footer / Checkout Form */
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1.5rem', marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '18px', flexDirection: language === 'ur' ? 'row-reverse' : 'row' }}>
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1.25rem', marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                
+                {/* Items Subtotal */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#94a3b8', flexDirection: language === 'ur' ? 'row-reverse' : 'row' }}>
+                  <span>{language === 'ur' ? 'مصنوعات کی قیمت:' : 'Items Subtotal:'}</span>
+                  <span>PKR {totalPrice.toLocaleString()}</span>
+                </div>
+
+                {/* Delivery Fee */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#94a3b8', flexDirection: language === 'ur' ? 'row-reverse' : 'row' }}>
+                  <span>{language === 'ur' ? 'ڈلیوری چارجز:' : 'Delivery Charges:'}</span>
+                  <span style={{ color: deliveryFee === 0 ? '#4ade80' : '#94a3b8', fontWeight: deliveryFee === 0 ? 'bold' : 'normal' }}>
+                    {deliveryFee === 0 ? (language === 'ur' ? 'مفت' : 'FREE') : `PKR ${deliveryFee.toLocaleString()}`}
+                  </span>
+                </div>
+
+                {/* Total */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '18px', borderTop: '1px dashed rgba(255,255,255,0.08)', paddingTop: '0.75rem', marginTop: '0.25rem', flexDirection: language === 'ur' ? 'row-reverse' : 'row' }}>
                   <span>{t('total_amount')}</span>
-                  <span style={{ color: '#ffd700' }}>PKR {totalPrice.toLocaleString()}</span>
+                  <span style={{ color: '#ffd700' }}>PKR {(totalPrice + deliveryFee).toLocaleString()}</span>
                 </div>
 
                 {/* Payment method selection */}

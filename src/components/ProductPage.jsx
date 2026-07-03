@@ -305,6 +305,12 @@ export default function ProductPage() {
               <div style={{ marginTop: '12px', fontSize: '13px', color: currentPrice >= 3000 ? '#22c55e' : sub, background: currentPrice >= 3000 ? 'rgba(34,197,94,0.06)' : 'transparent', padding: currentPrice >= 3000 ? '8px 12px' : '0', borderRadius: '8px', display: 'inline-block' }}>
                 🚚 {currentPrice >= 3000 ? (isRTL ? 'مفت ڈیلیوری اہل!' : 'Free Delivery Eligible!') : (isRTL ? `مفت ڈیلیوری کے لیے ${(3000 - currentPrice).toLocaleString()} مزید خریدیں` : `Add PKR ${(3000 - currentPrice).toLocaleString()} more for Free Delivery`)}
               </div>
+              {product.category?.startsWith('Painting') && (
+                <div style={{ marginTop: '8px', fontSize: '13px', color: '#ffb703', background: 'rgba(255,183,3,0.1)', padding: '8px 12px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>🚚</span>
+                  <span>{isRTL ? 'ڈیلیوری: رحیم یار خان (2-3 دن) | پاکستان بھر میں (4-5 دن)' : 'Delivery: RYK (2-3 Days) | All over Pakistan (4-5 Days)'}</span>
+                </div>
+              )}
             </div>
 
             {/* Options */}

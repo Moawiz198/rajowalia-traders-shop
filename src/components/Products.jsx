@@ -1,11 +1,10 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { ProductContext } from '../context/ProductContext';
 import { UserContext } from '../context/UserContext';
 import { LanguageContext } from '../context/LanguageContext';
 import { ThemeContext } from '../context/ThemeContext';
-import ProductDetailModal from './ProductDetailModal';
 
 const urduDictionary = {
   'sugar': 'چینی',
@@ -52,7 +51,7 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
   const [quantities, setQuantities] = useState({});
   const [conditionFilter, setConditionFilter] = useState('All');
   const [subCategoryFilter, setSubCategoryFilter] = useState(initialSubCategory);
-  const [activeDetailProduct, setActiveDetailProduct] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setSubCategoryFilter(initialSubCategory);
@@ -339,7 +338,7 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
         <div className="products-grid">
           {filteredProducts.map((product) => (
           <div className="product-card" key={product.id}>
-            <div className="prod-img-wrap" onClick={() => setActiveDetailProduct(product)} style={{ cursor: 'pointer' }}>
+            <div className="prod-img-wrap" onClick={() => navigate(`/product/${product.id}`)} style={{ cursor: 'pointer' }}>
               <div className="prod-img">
                 {product.image ? (
                   <img src={getProductImage(product.image)} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
@@ -431,7 +430,7 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
                   </span>
                 )}
               </div>
-              <div className="prod-name" onClick={() => setActiveDetailProduct(product)} style={{ cursor: 'pointer' }}>{t(product.name)}</div>
+              <div className="prod-name" onClick={() => navigate(`/product/${product.id}`)} style={{ cursor: 'pointer' }}>{t(product.name)}</div>
               {product.description && (
                 <div 
                   title={t(product.description)}
@@ -521,11 +520,6 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
         </div>
       )}
 
-      <ProductDetailModal
-        product={activeDetailProduct}
-        isOpen={!!activeDetailProduct}
-        onClose={() => setActiveDetailProduct(null)}
-      />
     </section>
   );
 }

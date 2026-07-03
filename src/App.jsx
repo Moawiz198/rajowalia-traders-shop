@@ -7,6 +7,7 @@ import Storefront from './components/Storefront';
 import Admin from './components/Admin';
 import AdminLogin from './components/AdminLogin';
 import CategoryPage from './components/CategoryPage';
+import ProductPage from './components/ProductPage';
 import CursorGlow from './components/CursorGlow';
 import WelcomeScreen from './components/WelcomeScreen';
 
@@ -37,6 +38,7 @@ function AppContent() {
           isAdminAuth ? <Admin onLogout={handleAdminLogout} /> : <AdminLogin onLogin={handleAdminLogin} />
         } />
         <Route path="/category/:categoryId" element={<CategoryPage />} />
+        <Route path="/product/:productId" element={<ProductPage />} />
       </Routes>
     </BrowserRouter>
   );

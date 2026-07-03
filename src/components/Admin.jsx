@@ -1127,47 +1127,39 @@ export default function Admin({ onLogout }) {
                   <input type="number" name="stock" value={formData.stock || ''} onChange={handleChange} placeholder="e.g. 10" className="hq-input" min="0" required />
                 </div>
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Weight / Size Options (Comma-separated, optional)</label>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Product Option Preset</label>
+                  <select 
+                    className="hq-input"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === 'none') {
+                        setFormData(prev => ({ ...prev, weightOptions: '' }));
+                      } else if (val === 'karyana') {
+                        setFormData(prev => ({ ...prev, weightOptions: '100g, 200g, 250g, 500g, 1kg, 2kg, 3kg, 5kg' }));
+                      } else if (val === 'dresses') {
+                        setFormData(prev => ({ ...prev, weightOptions: 'S, M, L, XL, XXL' }));
+                      }
+                    }}
+                    value={
+                      formData.weightOptions === '100g, 200g, 250g, 500g, 1kg, 2kg, 3kg, 5kg' 
+                        ? 'karyana' 
+                        : formData.weightOptions === 'S, M, L, XL, XXL' 
+                        ? 'dresses' 
+                        : formData.weightOptions === '' 
+                        ? 'none' 
+                        : 'custom'
+                    }
+                  >
+                    <option value="none">No options (Standard single item)</option>
+                    <option value="karyana">🛒 Weighted Product (Auto 100g, 200g, 250g, 500g, 1kg, 2kg, 3kg, 5kg)</option>
+                    <option value="dresses">👗 Dress Sizes (Auto S, M, L, XL, XXL)</option>
+                    <option value="custom">⚙️ Custom / Comma-separated (Type below)</option>
+                  </select>
+                </div>
+                
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '12px', color: '#94a3b8' }}>Weight / Size Values (Comma-separated)</label>
                   <input type="text" name="weightOptions" value={formData.weightOptions || ''} onChange={handleChange} placeholder="e.g. 500g, 1kg, 2kg or S, M, L" className="hq-input" />
-                  
-                  {/* Presets checkboxes */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
-                      <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, minWidth: '160px' }}>🛒 KARYANIA PRESETS:</span>
-                      {['100g', '200g', '250g', '500g', '1kg', '2kg', '3kg', '5kg'].map(w => {
-                        const isChecked = formData.weightOptions ? formData.weightOptions.split(',').map(x => x.trim()).includes(w) : false;
-                        return (
-                          <label key={w} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#cbd5e1', cursor: 'pointer' }}>
-                            <input 
-                              type="checkbox" 
-                              checked={isChecked} 
-                              onChange={(e) => handleWeightPresetChange(w, e.target.checked)} 
-                              style={{ cursor: 'pointer', accentColor: '#ff4d1c' }}
-                            />
-                            {w}
-                          </label>
-                        );
-                      })}
-                    </div>
-                    
-                    <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center', borderTop: '1px dashed rgba(255,255,255,0.06)', paddingTop: '8px', marginTop: '4px' }}>
-                      <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600, minWidth: '160px' }}>👗 DRESS SIZE PRESETS:</span>
-                      {['S', 'M', 'L', 'XL', 'XXL'].map(sz => {
-                        const isChecked = formData.weightOptions ? formData.weightOptions.split(',').map(x => x.trim()).includes(sz) : false;
-                        return (
-                          <label key={sz} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#cbd5e1', cursor: 'pointer' }}>
-                            <input 
-                              type="checkbox" 
-                              checked={isChecked} 
-                              onChange={(e) => handleWeightPresetChange(sz, e.target.checked)} 
-                              style={{ cursor: 'pointer', accentColor: '#ff4d1c' }}
-                            />
-                            {sz}
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
                 </div>
                 <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <button type="submit" className="hq-btn">{editingId ? 'Update Item' : 'Add Item'}</button>

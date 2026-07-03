@@ -36,10 +36,18 @@ const urduDictionary = {
 
 export default function Products({ selectedCategory, initialSubCategory = 'All' }) {
   useScrollReveal();
-  const { products, categories } = useContext(ProductContext);
+  const { products, categories: contextCategories } = useContext(ProductContext);
   const { wishlist, toggleWishlist, addToCart, requireAuth } = useContext(UserContext);
-  const { language, t } = useContext(LanguageContext);
+  const { language, t, isRTL } = useContext(LanguageContext);
   const { theme } = useContext(ThemeContext);
+
+  const primaryCategories = useMemo(() => {
+    const pc = Array.from(new Set(contextCategories.map(c => c.name.split('-')[0].trim())));
+    ['Karyania', 'Dresses', 'Electronics', 'Painting'].forEach(p => {
+      if (!pc.includes(p)) pc.push(p);
+    });
+    return pc;
+  }, [contextCategories]);
 
   const [translatedLabels, setTranslatedLabels] = useState({});
 
@@ -190,11 +198,6 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
 
     // 2. Category & Subcategory Filter
     let categoryMatch = false;
-    const primaryCategories = Array.from(new Set(categories.map(c => c.name.split('-')[0].trim())));
-    ['Karyania', 'Dresses', 'Electronics', 'Painting'].forEach(p => {
-      if (!primaryCategories.includes(p)) primaryCategories.push(p);
-    });
-
     if (!selectedCategory || selectedCategory === 'All') {
       categoryMatch = true;
     } else if (selectedCategory === 'Deals') {

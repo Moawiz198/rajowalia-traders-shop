@@ -39,7 +39,7 @@ export default function Navbar({ onOpenCart, onOpenWishlist, onOpenOrders }) {
             <path d="M 96 98 L 204 98" stroke="#000000" strokeWidth="16" fill="none"/>
           </svg>
         </div>
-        <span>{t('app_name')} <span style={{ fontSize: '14px', letterSpacing: '2px', color: 'var(--muted)' }}>{language === 'en' ? "TRADER'S" : "ٹریڈرز"}</span></span>
+        <span>{t('app_name')} <span className="nav-logo-sub" style={{ fontSize: '14px', letterSpacing: '2px', color: 'var(--muted)' }}>{language === 'en' ? "TRADER'S" : "ٹریڈرز"}</span></span>
       </div>
       <ul className="nav-links">
         <li><a onClick={() => navigate('/')} style={{cursor: 'pointer'}}>{t('home')}</a></li>

@@ -1629,26 +1629,23 @@ footer {
   
   /* Mobile Header Adjustments */
   nav {
-    padding: 0 0.75rem !important;
+    padding: 0 0.5rem !important;
   }
   .nav-logo {
-    font-size: 20px !important;
+    font-size: 19px !important;
   }
-  .nav-logo span {
-    font-size: 10px !important;
-    letter-spacing: 1px !important;
+  .nav-logo-sub {
+    display: none !important;
   }
   .nav-btn {
-    padding: 6px 12px !important;
+    padding: 5px 10px !important;
     font-size: 11px !important;
   }
   .mobile-hamburger {
     display: flex !important;
     color: var(--white);
-    margin-right: 8px;
+    margin-right: 6px;
   }
-  .nav-theme-toggle-desktop,
-  .nav-lang-switcher-desktop,
   .nav-wishlist-desktop {
     display: none !important;
   }

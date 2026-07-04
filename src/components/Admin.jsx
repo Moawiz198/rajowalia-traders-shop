@@ -694,6 +694,55 @@ export default function Admin({ onLogout }) {
   };
 
   // Inventory logic (original code updated)
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      if (!file.type.startsWith('image/')) {
+        // For non-images (videos), read as is
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Max dimensions to shrink down for mobile/web display
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Compress as JPEG with 0.6 quality (reduces size by 95%+)
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
+          resolve(compressedBase64);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleImageChange = async (e) => {
     const files = Array.from(e.target.files);
     const overLimit = files.find(f => f.size > 5 * 1024 * 1024);
@@ -704,14 +753,9 @@ export default function Admin({ onLogout }) {
     }
     
     if (files.length > 0) {
-      const base64Promises = files.map(file => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(file);
-        });
-      });
-      const results = await Promise.all(base64Promises);
+      const compressionPromises = files.map(file => compressImage(file));
+      const results = await Promise.all(compressionPromises);
+      
       if (results.length === 1) {
         setFormData(prev => ({ ...prev, image: results[0] }));
       } else {

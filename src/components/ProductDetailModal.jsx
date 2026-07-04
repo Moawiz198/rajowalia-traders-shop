@@ -208,16 +208,20 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
                 }}
               >
                 {images.length > 0 ? (
-                  <img
-                    src={images[activeIdx]}
-                    alt={product.name}
-                    style={{
-                      maxWidth: '90%', maxHeight: '90%',
-                      objectFit: 'contain',
-                      transform: zoom ? 'scale(1.4)' : 'scale(1)',
-                      transition: 'transform 0.3s ease'
-                    }}
-                  />
+                  (typeof images[activeIdx] === 'string' && (images[activeIdx].toLowerCase().endsWith('.mp4') || images[activeIdx].toLowerCase().endsWith('.webm') || images[activeIdx].startsWith('data:video/'))) ? (
+                    <video src={images[activeIdx]} controls autoPlay loop muted style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain' }} />
+                  ) : (
+                    <img
+                      src={images[activeIdx]}
+                      alt={product.name}
+                      style={{
+                        maxWidth: '90%', maxHeight: '90%',
+                        objectFit: 'contain',
+                        transform: zoom ? 'scale(1.4)' : 'scale(1)',
+                        transition: 'transform 0.3s ease'
+                      }}
+                    />
+                  )
                 ) : (
                   <span style={{ fontSize: '140px' }}>{product.emoji}</span>
                 )}
@@ -254,32 +258,42 @@ export default function ProductDetailModal({ product, isOpen, onClose }) {
                 )}
               </div>
 
-              {/* Thumbnails strip */}
               {images.length > 1 && (
                 <div style={{
                   display: 'flex', gap: '8px',
                   overflowX: 'auto', paddingBottom: '4px'
                 }}>
-                  {images.map((img, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => setActiveIdx(idx)}
-                      style={{
-                        width: '68px', height: '68px', flexShrink: 0,
-                        borderRadius: '8px', overflow: 'hidden',
-                        border: activeIdx === idx
-                          ? '2px solid var(--accent)'
-                          : (isDark ? '2px solid rgba(255,255,255,0.1)' : '2px solid #e5e7eb'),
-                        cursor: 'pointer',
-                        background: isDark ? 'rgba(255,255,255,0.03)' : '#f9fafb',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        padding: '4px',
-                        transition: 'border-color 0.2s'
-                      }}
-                    >
-                      <img src={img} alt={`thumb-${idx}`} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-                    </div>
-                  ))}
+                  {images.map((img, idx) => {
+                    const isVideoThumb = typeof img === 'string' && (img.toLowerCase().endsWith('.mp4') || img.toLowerCase().endsWith('.webm') || img.startsWith('data:video/'));
+                    return (
+                      <div
+                        key={idx}
+                        onClick={() => setActiveIdx(idx)}
+                        style={{
+                          width: '68px', height: '68px', flexShrink: 0,
+                          borderRadius: '8px', overflow: 'hidden',
+                          border: activeIdx === idx
+                            ? '2px solid var(--accent)'
+                            : (isDark ? '2px solid rgba(255,255,255,0.1)' : '2px solid #e5e7eb'),
+                          cursor: 'pointer',
+                          background: isDark ? 'rgba(255,255,255,0.03)' : '#f9fafb',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          padding: '4px',
+                          transition: 'border-color 0.2s',
+                          position: 'relative'
+                        }}
+                      >
+                        {isVideoThumb ? (
+                          <>
+                            <video src={img} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} />
+                            <div style={{ position: 'absolute', background: 'rgba(0,0,0,0.5)', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '12px' }}>▶</div>
+                          </>
+                        ) : (
+                          <img src={img} alt={`thumb-${idx}`} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 

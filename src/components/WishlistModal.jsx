@@ -33,9 +33,27 @@ export default function WishlistModal({ isOpen, onClose }) {
               <div key={item.productId} style={{ display: 'flex', gap: '12px', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', flexDirection: language === 'ur' ? 'row-reverse' : 'row' }}>
                 {/* Image */}
                 <div style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', overflow: 'hidden' }}>
-                  {item.product.image ? (
-                    <img src={item.product.image} alt={item.product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
+                  {item.product.image ? (() => {
+                    let imgUrl = item.product.image;
+                    if (item.product.image.startsWith('[')) {
+                      try {
+                        const arr = JSON.parse(item.product.image);
+                        const firstImg = arr.find(media => {
+                          const isVideo = typeof media === 'string' && (media.toLowerCase().endsWith('.mp4') || media.toLowerCase().endsWith('.webm') || media.startsWith('data:video/'));
+                          return !isVideo;
+                        });
+                        imgUrl = firstImg || arr[0] || '';
+                      } catch(e) {
+                        imgUrl = item.product.image;
+                      }
+                    }
+                    const isVideo = typeof imgUrl === 'string' && (imgUrl.toLowerCase().endsWith('.mp4') || imgUrl.toLowerCase().endsWith('.webm') || imgUrl.startsWith('data:video/'));
+                    return isVideo ? (
+                      <video src={imgUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <img src={imgUrl} alt={item.product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    );
+                  })() : (
                     <span style={{ fontSize: '24px' }}>{item.product.emoji}</span>
                   )}
                 </div>

@@ -70,7 +70,12 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
     if (imgVal.startsWith('[')) {
       try {
         const arr = JSON.parse(imgVal);
-        return arr[0] || '';
+        // Prioritize showing the first actual image instead of a video
+        const firstImg = arr.find(item => {
+          const isVideo = typeof item === 'string' && (item.toLowerCase().endsWith('.mp4') || item.toLowerCase().endsWith('.webm') || item.startsWith('data:video/'));
+          return !isVideo;
+        });
+        return firstImg || arr[0] || '';
       } catch (e) {
         return imgVal;
       }
@@ -349,9 +354,15 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
           <div className="product-card" key={product.id}>
             <div className="prod-img-wrap" onClick={() => navigate(`/product/${product.id}`)} style={{ cursor: 'pointer' }}>
               <div className="prod-img">
-                {product.image ? (
-                  <img src={getProductImage(product.image)} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                ) : (
+                {product.image ? (() => {
+                  const imgUrl = getProductImage(product.image);
+                  const isVideo = typeof imgUrl === 'string' && (imgUrl.toLowerCase().endsWith('.mp4') || imgUrl.toLowerCase().endsWith('.webm') || imgUrl.startsWith('data:video/'));
+                  return isVideo ? (
+                    <video src={imgUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} muted playsInline />
+                  ) : (
+                    <img src={imgUrl} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  );
+                })() : (
                   <span style={{ fontSize: '80px' }}>{product.emoji}</span>
                 )}
               </div>

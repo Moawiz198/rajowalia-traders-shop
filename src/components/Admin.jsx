@@ -1078,13 +1078,27 @@ export default function Admin({ onLogout }) {
                     Product Images (Select Multiple for Gallery — hold Ctrl/Cmd to pick several)
                   </label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    {formData.image ? (
-                      <img 
-                        src={formData.image.startsWith('[') ? (() => { try { return JSON.parse(formData.image)[0]; } catch(e) { return formData.image; } })() : formData.image} 
-                        alt="Preview" 
-                        style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} 
-                      />
-                    ) : (
+                    {formData.image ? (() => {
+                      let imgUrl = formData.image;
+                      if (formData.image.startsWith('[')) {
+                        try {
+                          const arr = JSON.parse(formData.image);
+                          const firstImg = arr.find(media => {
+                            const isVideo = typeof media === 'string' && (media.toLowerCase().endsWith('.mp4') || media.toLowerCase().endsWith('.webm') || media.startsWith('data:video/'));
+                            return !isVideo;
+                          });
+                          imgUrl = firstImg || arr[0] || '';
+                        } catch(e) {
+                          imgUrl = formData.image;
+                        }
+                      }
+                      const isVideo = typeof imgUrl === 'string' && (imgUrl.toLowerCase().endsWith('.mp4') || imgUrl.toLowerCase().endsWith('.webm') || imgUrl.startsWith('data:video/'));
+                      return isVideo ? (
+                        <video src={imgUrl} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                      ) : (
+                        <img src={imgUrl} alt="Preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                      );
+                    })() : (
                       <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>
                         {formData.emoji || '📷'}
                       </div>
@@ -1208,7 +1222,27 @@ export default function Admin({ onLogout }) {
                         <td>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', overflow: 'hidden' }}>
-                              {p.image ? <img src={p.image} alt="prod" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: '24px' }}>{p.emoji}</span>}
+                              {p.image ? (() => {
+                                let imgUrl = p.image;
+                                if (p.image.startsWith('[')) {
+                                  try {
+                                    const arr = JSON.parse(p.image);
+                                    const firstImg = arr.find(media => {
+                                      const isVideo = typeof media === 'string' && (media.toLowerCase().endsWith('.mp4') || media.toLowerCase().endsWith('.webm') || media.startsWith('data:video/'));
+                                      return !isVideo;
+                                    });
+                                    imgUrl = firstImg || arr[0] || '';
+                                  } catch(e) {
+                                    imgUrl = p.image;
+                                  }
+                                }
+                                const isVideo = typeof imgUrl === 'string' && (imgUrl.toLowerCase().endsWith('.mp4') || imgUrl.toLowerCase().endsWith('.webm') || imgUrl.startsWith('data:video/'));
+                                return isVideo ? (
+                                  <video src={imgUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                  <img src={imgUrl} alt="prod" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                );
+                              })() : <span style={{ fontSize: '24px' }}>{p.emoji}</span>}
                             </div>
                             <div>
                               <div style={{ fontWeight: 600, color: '#fff' }}>{p.name}</div>

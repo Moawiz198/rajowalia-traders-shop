@@ -86,10 +86,28 @@ export default function Hero() {
       <div className="hero-visual">
         <div className="hero-phone">
           <div className="phone-screen" style={{ overflow: 'hidden' }}>
-            <div className="phone-product" id="heroEmoji" style={{ width: '100%', height: '65%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '10px' }}>
-              {currentProduct.image ? (
-                <img src={currentProduct.image} alt={currentProduct.name} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '8px', zIndex: 1 }} />
-              ) : (
+            <div className="phone-product" id="heroEmoji" style={{ width: '100%', height: '55%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '10px' }}>
+              {currentProduct.image ? (() => {
+                let imgUrl = currentProduct.image;
+                if (currentProduct.image.startsWith('[')) {
+                  try {
+                    const arr = JSON.parse(currentProduct.image);
+                    const firstImg = arr.find(item => {
+                      const isVideo = typeof item === 'string' && (item.toLowerCase().endsWith('.mp4') || item.toLowerCase().endsWith('.webm') || item.startsWith('data:video/'));
+                      return !isVideo;
+                    });
+                    imgUrl = firstImg || arr[0] || '';
+                  } catch(e) {
+                    imgUrl = currentProduct.image;
+                  }
+                }
+                const isVideo = typeof imgUrl === 'string' && (imgUrl.toLowerCase().endsWith('.mp4') || imgUrl.toLowerCase().endsWith('.webm') || imgUrl.startsWith('data:video/'));
+                return isVideo ? (
+                  <video src={imgUrl} controls={false} autoPlay loop muted style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '8px', zIndex: 1 }} />
+                ) : (
+                  <img src={imgUrl} alt={currentProduct.name} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '8px', zIndex: 1 }} />
+                );
+              })() : (
                 <span style={{ fontSize: '72px' }}>{currentProduct.emoji || '📦'}</span>
               )}
             </div>

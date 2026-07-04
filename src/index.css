@@ -220,7 +220,7 @@ nav {
   animation: fcFloat1 4s ease-in-out infinite 1s;
 }
 .fc-2 {
-  bottom: 60px; left: -20px;
+  bottom: 20px; left: -30px;
   animation: fcFloat2 5s ease-in-out infinite;
 }
 @keyframes fcFloat1 { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
@@ -498,7 +498,7 @@ footer {
   .hero-actions { justify-content: center; flex-wrap: wrap; }
   .hero-phone { width: 190px; height: 380px; animation: none !important; }
   .fc-1 { top: 0; right: -20px; }
-  .fc-2 { bottom: 20px; left: -10px; }
+  .fc-2 { bottom: -20px; left: -20px; }
 
   /* Grids */
   .categories-grid { grid-template-columns: repeat(3, 1fr); }

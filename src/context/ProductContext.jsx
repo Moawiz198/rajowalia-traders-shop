@@ -70,7 +70,7 @@ const mapToDb = (p) => ({
 });
 
 export const ProductProvider = ({ children }) => {
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState({

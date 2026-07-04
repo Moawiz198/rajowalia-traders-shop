@@ -4,7 +4,7 @@ import { UserContext } from '../context/UserContext';
 import { LanguageContext } from '../context/LanguageContext';
 
 export default function Hero() {
-  const { products } = useContext(ProductContext);
+  const { products, loading } = useContext(ProductContext);
   const { addToCart, requireAuth } = useContext(UserContext);
   const { language, t } = useContext(LanguageContext);
   const [currentProductIndex, setCurrentProductIndex] = useState(0);
@@ -86,37 +86,49 @@ export default function Hero() {
       <div className="hero-visual">
         <div className="hero-phone">
           <div className="phone-screen" style={{ overflow: 'hidden' }}>
-            <div className="phone-product" id="heroEmoji" style={{ width: '100%', height: '55%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '10px' }}>
-              {currentProduct.image ? (() => {
-                let imgUrl = currentProduct.image;
-                if (currentProduct.image.startsWith('[')) {
-                  try {
-                    const arr = JSON.parse(currentProduct.image);
-                    const firstImg = arr.find(item => {
-                      const isVideo = typeof item === 'string' && (item.toLowerCase().endsWith('.mp4') || item.toLowerCase().endsWith('.webm') || item.startsWith('data:video/'));
-                      return !isVideo;
-                    });
-                    imgUrl = firstImg || arr[0] || '';
-                  } catch(e) {
-                    imgUrl = currentProduct.image;
-                  }
-                }
-                const isVideo = typeof imgUrl === 'string' && (imgUrl.toLowerCase().endsWith('.mp4') || imgUrl.toLowerCase().endsWith('.webm') || imgUrl.startsWith('data:video/'));
-                return isVideo ? (
-                  <video src={imgUrl} controls={false} autoPlay loop muted style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '8px', zIndex: 1 }} />
-                ) : (
-                  <img src={imgUrl} alt={currentProduct.name} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '8px', zIndex: 1 }} />
-                );
-              })() : (
-                <span style={{ fontSize: '72px' }}>{currentProduct.emoji || '📦'}</span>
-              )}
-            </div>
-            <div className="phone-info" style={{ textAlign: language === 'ur' ? 'right' : 'left' }}>
-              <div className="phone-brand">{t(currentProduct.brand) || 'Rajowalia'}</div>
-              <div className="phone-name">{t(currentProduct.name) || 'Amazing Product'}</div>
-              <div className="phone-price">{currentProduct.price ? `PKR ${currentProduct.price.toLocaleString()}` : ''}</div>
-              <button className="phone-btn" onClick={handleAddToCart}>{t('add_to_cart')}</button>
-            </div>
+            {loading ? (
+              <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: '16px', gap: '15px' }}>
+                <div style={{ width: '100%', height: '55%', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', animation: 'pulse 1.5s infinite' }} />
+                <div style={{ width: '50%', height: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', animation: 'pulse 1.5s infinite' }} />
+                <div style={{ width: '80%', height: '14px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', animation: 'pulse 1.5s infinite' }} />
+                <div style={{ width: '40%', height: '18px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', animation: 'pulse 1.5s infinite' }} />
+                <div style={{ width: '100%', height: '30px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', marginTop: 'auto', animation: 'pulse 1.5s infinite' }} />
+              </div>
+            ) : (
+              <>
+                <div className="phone-product" id="heroEmoji" style={{ width: '100%', height: '55%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: '10px' }}>
+                  {currentProduct.image ? (() => {
+                    let imgUrl = currentProduct.image;
+                    if (currentProduct.image.startsWith('[')) {
+                      try {
+                        const arr = JSON.parse(currentProduct.image);
+                        const firstImg = arr.find(item => {
+                          const isVideo = typeof item === 'string' && (item.toLowerCase().endsWith('.mp4') || item.toLowerCase().endsWith('.webm') || item.startsWith('data:video/'));
+                          return !isVideo;
+                        });
+                        imgUrl = firstImg || arr[0] || '';
+                      } catch(e) {
+                        imgUrl = currentProduct.image;
+                      }
+                    }
+                    const isVideo = typeof imgUrl === 'string' && (imgUrl.toLowerCase().endsWith('.mp4') || imgUrl.toLowerCase().endsWith('.webm') || imgUrl.startsWith('data:video/'));
+                    return isVideo ? (
+                      <video src={imgUrl} controls={false} autoPlay loop muted style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '8px', zIndex: 1 }} />
+                    ) : (
+                      <img src={imgUrl} alt={currentProduct.name} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '8px', zIndex: 1 }} />
+                    );
+                  })() : (
+                    <span style={{ fontSize: '72px' }}>{currentProduct.emoji || '📦'}</span>
+                  )}
+                </div>
+                <div className="phone-info" style={{ textAlign: language === 'ur' ? 'right' : 'left' }}>
+                  <div className="phone-brand">{t(currentProduct.brand) || 'Rajowalia'}</div>
+                  <div className="phone-name">{t(currentProduct.name) || 'Amazing Product'}</div>
+                  <div className="phone-price">{currentProduct.price ? `PKR ${currentProduct.price.toLocaleString()}` : ''}</div>
+                  <button className="phone-btn" onClick={handleAddToCart}>{t('add_to_cart')}</button>
+                </div>
+              </>
+            )}
           </div>
         </div>
         <div className="floating-card fc-1" style={{ right: '-10px', left: 'auto' }}>

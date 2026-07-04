@@ -36,7 +36,7 @@ const urduDictionary = {
 
 export default function Products({ selectedCategory, initialSubCategory = 'All' }) {
   useScrollReveal();
-  const { products, categories: contextCategories } = useContext(ProductContext);
+  const { products, categories: contextCategories, loading } = useContext(ProductContext);
   const { wishlist, toggleWishlist, addToCart, requireAuth } = useContext(UserContext);
   const { language, t, isRTL } = useContext(LanguageContext);
   const { theme } = useContext(ThemeContext);
@@ -329,7 +329,18 @@ export default function Products({ selectedCategory, initialSubCategory = 'All' 
         </div>
       </div>
 
-      {filteredProducts.length === 0 ? (
+      {loading ? (
+        <div className="products-grid">
+          {[1, 2, 3, 4].map((n) => (
+            <div className="product-card skeleton" key={n} style={{ height: '380px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '15px', padding: '15px' }}>
+              <div style={{ width: '100%', height: '200px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', animation: 'pulse 1.5s infinite' }} />
+              <div style={{ width: '40%', height: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', animation: 'pulse 1.5s infinite' }} />
+              <div style={{ width: '80%', height: '18px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', animation: 'pulse 1.5s infinite' }} />
+              <div style={{ width: '50%', height: '24px', background: 'rgba(255,255,255,0.05)', borderRadius: '4px', animation: 'pulse 1.5s infinite' }} />
+            </div>
+          ))}
+        </div>
+      ) : filteredProducts.length === 0 ? (
         <div style={{ 
           width: '100%', 
           textAlign: 'center', 
